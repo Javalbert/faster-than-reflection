@@ -18,6 +18,6 @@ public class Main {
 		
 		Foo foo = new Foo();
 		foo.setIntVal(new Random().nextInt());
-		System.out.println(access.intField(foo, 0));
+		System.out.println(access.getIntField(foo, 0));
 	}
 }

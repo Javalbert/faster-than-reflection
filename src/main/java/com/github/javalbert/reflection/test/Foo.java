@@ -18,11 +18,23 @@ public class Foo {
 			}
 		}
 		
+		// 0-4 table (2 elements no more than 4 in gap)
+		// 0-5 lookup  (2 elements no less than 5 in gap)
 		@Override
-		public int intField(Foo object, int index) {
+		public int getIntField(Foo object, int index) {
 			switch (index) {
 				case 0:
 					return object.intVal;
+				case 5:
+					return object.version;
+				case 6:
+					return object.version;
+				case 7:
+					return object.version;
+				case 12:
+					return object.version;
+				case 13:
+					return object.version;
 				default:
 					throw new IllegalArgumentException("No field with index: " + index);
 			}
@@ -32,6 +44,10 @@ public class Foo {
 	private int intVal;
 	private long longVal;
 	private String stringVal;
+	private int age;
+	private String stage;
+	private int version;
+	private Double price;
 	
 	public int getIntVal() {
 		return intVal;
@@ -50,5 +66,29 @@ public class Foo {
 	}
 	public void setStringVal(String stringVal) {
 		this.stringVal = stringVal;
+	}
+	public int getAge() {
+		return age;
+	}
+	public void setAge(int age) {
+		this.age = age;
+	}
+	public String getStage() {
+		return stage;
+	}
+	public void setStage(String stage) {
+		this.stage = stage;
+	}
+	public int getVersion() {
+		return version;
+	}
+	public void setVersion(int version) {
+		this.version = version;
+	}
+	public Double getPrice() {
+		return price;
+	}
+	public void setPrice(Double price) {
+		this.price = price;
 	}
 }
