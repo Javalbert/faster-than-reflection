@@ -20,7 +20,7 @@ import org.junit.Test;
 import com.github.javalbert.reflection.ClassAccess;
 import com.github.javalbert.reflection.ClassAccessFactory;
 
-public class ClassAccessTest {
+public class ClassAccessPrimitivesTest {
 	@Test
 	public void getBooleanFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);

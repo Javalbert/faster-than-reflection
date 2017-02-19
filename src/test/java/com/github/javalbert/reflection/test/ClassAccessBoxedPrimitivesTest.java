@@ -10,19 +10,16 @@
  * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See
  * the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************/
-package com.github.javalbert.reflection;
+package com.github.javalbert.reflection.test;
 
-public interface ClassAccess<T> {
-	int fieldIndex(String name);
+import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
 
-	boolean getBooleanField(T object, int fieldIndex);
-	byte getByteField(T object, int fieldIndex);
-	char getCharField(T object, int fieldIndex);
-	double getDoubleField(T object, int fieldIndex);
-	float getFloatField(T object, int fieldIndex);
-	int getIntField(T object, int fieldIndex);
-	long getLongField(T object, int fieldIndex);
-	short getShortField(T object, int fieldIndex);
+import org.junit.Test;
+
+import com.github.javalbert.reflection.ClassAccess;
+import com.github.javalbert.reflection.ClassAccessFactory;
+
+public class ClassAccessBoxedPrimitivesTest {
 	
-	Boolean getBoxedBooleanField(T object, int fieldIndex);
 }

@@ -148,16 +148,40 @@ public final class ClassAccessFactory<T> {
 	}
 	
 	private static class FieldAccessInfo {
+		private static FieldAccessInfo forObject(String methodName, Class<?> clazz) {
+			return new FieldAccessInfo(
+					methodName,
+					clazz.getName(),
+					Type.getDescriptor(clazz),
+					ARETURN);
+		}
+		
+		private static FieldAccessInfo forPrimitive(String methodName, Type type) {
+			return new FieldAccessInfo(methodName, type);
+		}
+		
 		private final String className;
 		private final String descriptor;
 		private final String methodName;
 		private final int returnOpcode;
 		
 		private FieldAccessInfo(String methodName, Type type) {
-			className = type.getClassName();
-			descriptor = type.getDescriptor();
+			this(
+					methodName,
+					type.getClassName(),
+					type.getDescriptor(),
+					type.getOpcode(IRETURN));
+		}
+		
+		private FieldAccessInfo(
+				String methodName,
+				String className,
+				String descriptor,
+				int returnOpcode) {
+			this.className = className;
+			this.descriptor = descriptor;
 			this.methodName = methodName;
-			returnOpcode = type.getOpcode(IRETURN);
+			this.returnOpcode = returnOpcode;
 		}
 	}
 	
@@ -304,14 +328,15 @@ public final class ClassAccessFactory<T> {
 	private void visitClassAccessMethods() {
 		List<FieldAccessInfo> fieldAccessInfoList = Collections.unmodifiableList(
 				Arrays.asList(
-						new FieldAccessInfo("getBooleanField", Type.BOOLEAN_TYPE),
-						new FieldAccessInfo("getByteField", Type.BYTE_TYPE),
-						new FieldAccessInfo("getCharField", Type.CHAR_TYPE),
-						new FieldAccessInfo("getDoubleField", Type.DOUBLE_TYPE),
-						new FieldAccessInfo("getFloatField", Type.FLOAT_TYPE),
-						new FieldAccessInfo("getIntField", Type.INT_TYPE),
-						new FieldAccessInfo("getLongField", Type.LONG_TYPE),
-						new FieldAccessInfo("getShortField", Type.SHORT_TYPE)
+						FieldAccessInfo.forPrimitive("getBooleanField", Type.BOOLEAN_TYPE),
+						FieldAccessInfo.forPrimitive("getByteField", Type.BYTE_TYPE),
+						FieldAccessInfo.forPrimitive("getCharField", Type.CHAR_TYPE),
+						FieldAccessInfo.forPrimitive("getDoubleField", Type.DOUBLE_TYPE),
+						FieldAccessInfo.forPrimitive("getFloatField", Type.FLOAT_TYPE),
+						FieldAccessInfo.forPrimitive("getIntField", Type.INT_TYPE),
+						FieldAccessInfo.forPrimitive("getLongField", Type.LONG_TYPE),
+						FieldAccessInfo.forPrimitive("getShortField", Type.SHORT_TYPE),
+						FieldAccessInfo.forObject("getBoxedBooleanField", Boolean.class)
 						)
 				);
 		
