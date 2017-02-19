@@ -8,15 +8,26 @@ import com.github.javalbert.reflection.ClassAccessFactory;
 
 public class Main {
 	public static void main(String[] args) {
+		Main main = new Main();
+		main.testClassAccess();
+	}
+
+	public void testClassAccess() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		foo.setIntVal(r.nextInt());
+		System.out.println(access.getIntField(foo, 0));
+	}
+
+	private Foo foo = new Foo();
+	private Random r = new Random();
+	
+	public void runNonJMHBenchmark() {
 		for (int i = 0; i < 100; i++) {
-			new Main().runNonJMHBenchmarkClassAccess();
-			new Main().runNonJMHBenchmarkReflection();
+			runNonJMHBenchmarkClassAccess();
+			runNonJMHBenchmarkReflection();
 		}
 	}
 	
-	private Foo foo = new Foo();
-	private Random r = new Random();
-
 	public void runNonJMHBenchmarkClassAccess() {
 		foo.setVersion(r.nextInt());
 		

@@ -169,10 +169,12 @@ public final class ClassAccessFactory<T> {
 	}
 	
 	private static class FieldInfo {
+		private final Field field;
 		private final int fieldIndex;
 		private final boolean isFinal;
 		
 		private FieldInfo(Field field, int fieldIndex) {
+			this.field = field;
 			this.fieldIndex = fieldIndex;
 			isFinal = (field.getModifiers() & Modifier.FINAL) != 0;
 		}
@@ -230,14 +232,6 @@ public final class ClassAccessFactory<T> {
 		return fieldIndexSwitchCases;
 	}
 	
-	@SuppressWarnings("unchecked")
-	private List<FieldInfo> getNonFinalFieldsForType(String typeName) {
-		List<FieldInfo> fields = typeToFieldsMap.get(typeName);
-		return fields != null ? fields.stream()
-				.filter(f -> !f.isFinal)
-				.collect(toList()) : Collections.EMPTY_LIST;
-	}
-	
 	private void putIntoTypeToFieldsMap(Field field, int fieldIndex) {
 		String key = field.getType().getName();
 		
@@ -259,7 +253,7 @@ public final class ClassAccessFactory<T> {
 				ACC_PUBLIC + ACC_SUPER,
 				classAccessInternalName,
 				internalName,
-				"java/lang/Object",
+				"sun/reflect/MagicAccessorImpl"/*CREDIT: https://github.com/dimzon/reflectasm/blob/master/src/com/esotericsoftware/reflectasm/ClassAccess.java*/,
 				new String[] { Type.getInternalName(ClassAccess.class) });
 		cw.visitSource(clazz.getSimpleName() + ".java", null);
 		cw.visitInnerClass(classAccessInternalName, internalName, classAccessSimpleName, ACC_PUBLIC + ACC_STATIC);
@@ -310,7 +304,7 @@ public final class ClassAccessFactory<T> {
 
 		Label defaultCaseLabel = new Label();
 
-		List<FieldInfo> fields = getNonFinalFieldsForType("int");
+		List<FieldInfo> fields = typeToFieldsMap.get("int");
 		if (fields.isEmpty()) {
 			mv.visitInsn(POP);
 			mv.visitLabel(defaultCaseLabel);
@@ -342,7 +336,7 @@ public final class ClassAccessFactory<T> {
 			mv.visitLabel(labels[i]);
 			mv.visitFrame(F_SAME, 0, null, 0, null);
 			mv.visitVarInsn(ALOAD, 1);
-			mv.visitMethodInsn(INVOKESTATIC, internalName, "access$" + i, "(" + classTypeDescriptor + ")I", false);
+			mv.visitFieldInsn(GETFIELD, internalName, fields.get(i).field.getName(), "I");
 			mv.visitInsn(IRETURN);
 		}
 		
