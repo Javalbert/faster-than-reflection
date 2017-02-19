@@ -7,33 +7,19 @@ public class Foo {
 		@Override
 		public int fieldIndex(String name) {
 			switch (name) {
-				case "intVal":
-					return 0;
-				case "longVal":
-					return 1;
-				case "stringVal":
-					return 2;
 				default:
 					throw new IllegalArgumentException("No field with name: " + name);
 			}
 		}
 		
-		// 0-4 table (2 elements no more than 4 in gap)
-		// 0-5 lookup  (2 elements no less than 5 in gap)
 		@Override
 		public int getIntField(Foo object, int index) {
 			switch (index) {
 				case 0:
 					return object.intVal;
+				case 3:
+					return object.age;
 				case 5:
-					return object.version;
-				case 6:
-					return object.version;
-				case 7:
-					return object.version;
-				case 12:
-					return object.version;
-				case 13:
 					return object.version;
 				default:
 					throw new IllegalArgumentException("No field with index: " + index);

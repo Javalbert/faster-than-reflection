@@ -26,10 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -131,7 +129,22 @@ public final class ClassAccessFactory<T> {
 	 * @return
 	 */
 	private static boolean useTableSwitch(List<FieldInfo> fields) {
-		return fields.get(fields.size() - 1).fieldIndex - fields.get(0).fieldIndex > 6;
+		int hi = fields.get(fields.size() - 1).fieldIndex;
+		int lo = fields.get(0).fieldIndex;
+		int nlabels = fields.size();
+		
+		// CREDIT: http://stackoverflow.com/a/31032054
+		// CREDIT: http://hg.openjdk.java.net/jdk8/jdk8/langtools/file/30db5e0aaf83/src/share/classes/com/sun/tools/javac/jvm/Gen.java#l1153
+		// Determine whether to issue a tableswitch or a lookupswitch
+        // instruction.
+        long table_space_cost = 4 + ((long) hi - lo + 1); // words
+        long table_time_cost = 3; // comparisons
+        long lookup_space_cost = 3 + 2 * (long) nlabels;
+        long lookup_time_cost = nlabels;
+        return
+            nlabels > 0 &&
+            table_space_cost + 3 * table_time_cost <=
+            lookup_space_cost + 3 * lookup_time_cost;
 	}
 	
 	private static class FieldIndexSwitchCase {
@@ -156,19 +169,13 @@ public final class ClassAccessFactory<T> {
 	}
 	
 	private static class FieldInfo {
-		private final Field field;
 		private final int fieldIndex;
 		private final boolean isFinal;
 		
 		private FieldInfo(Field field, int fieldIndex) {
-			this.field = field;
 			this.fieldIndex = fieldIndex;
 			isFinal = (field.getModifiers() & Modifier.FINAL) != 0;
 		}
-	}
-	
-	private static class TableSwitchLabels {
-		
 	}
 
 	private String classAccessInternalName;
@@ -315,18 +322,29 @@ public final class ClassAccessFactory<T> {
 		Label[] labels = useTableSwitch ? getTableSwitchLabelsForFieldAccess(defaultCaseLabel, fields)
 				: newLabelArray(fields.size());
 		
-		// TODO
-//		mv.visitTableSwitchInsn(
-//				0,
-//				fields.get(fields.size() - 1).fieldIndex,
-//				defaultCaseLabel,
-//				);
-//		
-//		mv.visitLabel(l1);
-//		mv.visitFrame(F_SAME, 0, null, 0, null);
-//		mv.visitVarInsn(ALOAD, 1);
-//		mv.visitMethodInsn(INVOKESTATIC, internalName, "access$0", "(" + classTypeDescriptor + ")I", false);
-//		mv.visitInsn(IRETURN);
+		if (useTableSwitch) {
+			mv.visitTableSwitchInsn(
+					fields.get(0).fieldIndex,
+					fields.get(fields.size() - 1).fieldIndex,
+					defaultCaseLabel,
+					labels
+					);
+		} else {
+			mv.visitLookupSwitchInsn(
+					defaultCaseLabel,
+					fields.stream()
+					.mapToInt(f -> f.fieldIndex)
+					.toArray(),
+					labels);
+		}
+		
+		for (int i = 0; i < fields.size(); i++) {
+			mv.visitLabel(labels[i]);
+			mv.visitFrame(F_SAME, 0, null, 0, null);
+			mv.visitVarInsn(ALOAD, 1);
+			mv.visitMethodInsn(INVOKESTATIC, internalName, "access$" + i, "(" + classTypeDescriptor + ")I", false);
+			mv.visitInsn(IRETURN);
+		}
 		
 		mv.visitLabel(defaultCaseLabel);
 		mv.visitFrame(F_SAME, 0, null, 0, null);
