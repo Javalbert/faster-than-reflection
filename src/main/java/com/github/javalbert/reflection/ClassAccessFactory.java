@@ -336,7 +336,14 @@ public final class ClassAccessFactory<T> {
 						FieldAccessInfo.forPrimitive("getIntField", Type.INT_TYPE),
 						FieldAccessInfo.forPrimitive("getLongField", Type.LONG_TYPE),
 						FieldAccessInfo.forPrimitive("getShortField", Type.SHORT_TYPE),
-						FieldAccessInfo.forObject("getBoxedBooleanField", Boolean.class)
+						FieldAccessInfo.forObject("getBoxedBooleanField", Boolean.class),
+						FieldAccessInfo.forObject("getBoxedByteField", Byte.class),
+						FieldAccessInfo.forObject("getBoxedCharField", Character.class),
+						FieldAccessInfo.forObject("getBoxedDoubleField", Double.class),
+						FieldAccessInfo.forObject("getBoxedFloatField", Float.class),
+						FieldAccessInfo.forObject("getBoxedIntField", Integer.class),
+						FieldAccessInfo.forObject("getBoxedLongField", Long.class),
+						FieldAccessInfo.forObject("getBoxedShortField", Short.class)
 						)
 				);
 		

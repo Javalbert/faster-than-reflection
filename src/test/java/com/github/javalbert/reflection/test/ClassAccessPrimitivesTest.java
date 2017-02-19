@@ -38,9 +38,9 @@ public class ClassAccessPrimitivesTest {
 		Foo object = new Foo();
 		object.setByteVal((byte)-21);
 		
-		byte byteal = access.getByteField(object, access.fieldIndex("byteVal"));
+		byte byteVal = access.getByteField(object, access.fieldIndex("byteVal"));
 		
-		assertThat(byteal, equalTo((byte)-21));
+		assertThat(byteVal, equalTo((byte)-21));
 	}
 	
 	@Test

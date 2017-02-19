@@ -75,6 +75,41 @@ public class Foo {
 					throw new IllegalArgumentException("No field with index: " + fieldIndex);
 			}
 		}
+
+		@Override
+		public Byte getBoxedByteField(Foo object, int fieldIndex) {
+			return null;
+		}
+
+		@Override
+		public Character getBoxedCharField(Foo object, int fieldIndex) {
+			return null;
+		}
+
+		@Override
+		public Double getBoxedDoubleField(Foo object, int fieldIndex) {
+			return null;
+		}
+
+		@Override
+		public Float getBoxedFloatField(Foo object, int fieldIndex) {
+			return null;
+		}
+
+		@Override
+		public Integer getBoxedIntField(Foo object, int fieldIndex) {
+			return null;
+		}
+
+		@Override
+		public Long getBoxedLongField(Foo object, int fieldIndex) {
+			return null;
+		}
+
+		@Override
+		public Short getBoxedShortField(Foo object, int fieldIndex) {
+			return null;
+		}
 	}
 	
 	// Primitive types
