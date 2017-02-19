@@ -223,14 +223,12 @@ public final class ClassAccessFactory<T> {
 	private static class FieldInfo {
 		private final int fieldIndex;
 		private final int getFieldOpcode;
-		private final boolean isFinal;
 		private final String name;
 		private final int setFieldOpcode;
 		
 		private FieldInfo(Field field, int fieldIndex) {
 			this.fieldIndex = fieldIndex;
 			getFieldOpcode = (field.getModifiers() & Modifier.STATIC) == 0 ? GETFIELD : GETSTATIC;
-			isFinal = (field.getModifiers() & Modifier.FINAL) != 0;
 			name = field.getName();
 			setFieldOpcode = (field.getModifiers() & Modifier.STATIC) == 0 ? PUTFIELD : PUTSTATIC;
 		}
