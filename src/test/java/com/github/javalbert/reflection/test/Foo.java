@@ -22,93 +22,170 @@ public class Foo {
 		}
 
 		@Override
-		public boolean getBooleanField(Foo object, int fieldIndex) {
+		public boolean getBooleanField(Foo obj, int fieldIndex) {
 			switch (fieldIndex) {
 				case 0:
-					return object.booleanVal;
+					return obj.booleanVal;
 				default:
 					throw new IllegalArgumentException("No field with index: " + fieldIndex);
 			}
 		}
 
 		@Override
-		public byte getByteField(Foo object, int fieldIndex) {
+		public byte getByteField(Foo obj, int fieldIndex) {
 			return 0;
 		}
 
 		@Override
-		public char getCharField(Foo object, int fieldIndex) {
+		public char getCharField(Foo obj, int fieldIndex) {
 			return 0;
 		}
 
 		@Override
-		public double getDoubleField(Foo object, int fieldIndex) {
+		public double getDoubleField(Foo obj, int fieldIndex) {
 			return 0;
 		}
 
 		@Override
-		public float getFloatField(Foo object, int fieldIndex) {
+		public float getFloatField(Foo obj, int fieldIndex) {
 			return 0;
 		}
 
 		@Override
-		public int getIntField(Foo object, int fieldIndex) {
+		public int getIntField(Foo obj, int fieldIndex) {
 			return 0;
 		}
 
 		@Override
-		public long getLongField(Foo object, int fieldIndex) {
+		public long getLongField(Foo obj, int fieldIndex) {
 			return 0;
 		}
 
 		@Override
-		public short getShortField(Foo object, int fieldIndex) {
+		public short getShortField(Foo obj, int fieldIndex) {
 			return 0;
 		}
 
 		@Override
-		public Boolean getBoxedBooleanField(Foo object, int fieldIndex) {
+		public Boolean getBoxedBooleanField(Foo obj, int fieldIndex) {
 			switch (fieldIndex) {
 				case 8:
-					return object.boxedBoolean;
+					return obj.boxedBoolean;
 				default:
 					throw new IllegalArgumentException("No field with index: " + fieldIndex);
 			}
 		}
 
 		@Override
-		public Byte getBoxedByteField(Foo object, int fieldIndex) {
+		public Byte getBoxedByteField(Foo obj, int fieldIndex) {
 			return null;
 		}
 
 		@Override
-		public Character getBoxedCharField(Foo object, int fieldIndex) {
+		public Character getBoxedCharField(Foo obj, int fieldIndex) {
 			return null;
 		}
 
 		@Override
-		public Double getBoxedDoubleField(Foo object, int fieldIndex) {
+		public Double getBoxedDoubleField(Foo obj, int fieldIndex) {
 			return null;
 		}
 
 		@Override
-		public Float getBoxedFloatField(Foo object, int fieldIndex) {
+		public Float getBoxedFloatField(Foo obj, int fieldIndex) {
 			return null;
 		}
 
 		@Override
-		public Integer getBoxedIntField(Foo object, int fieldIndex) {
+		public Integer getBoxedIntField(Foo obj, int fieldIndex) {
 			return null;
 		}
 
 		@Override
-		public Long getBoxedLongField(Foo object, int fieldIndex) {
+		public Long getBoxedLongField(Foo obj, int fieldIndex) {
 			return null;
 		}
 
 		@Override
-		public Short getBoxedShortField(Foo object, int fieldIndex) {
+		public Short getBoxedShortField(Foo obj, int fieldIndex) {
 			return null;
+		}
+
+		@Override
+		public void setBooleanField(Foo obj, int fieldIndex, boolean x) {
+			switch (fieldIndex) {
+				case 0:
+					obj.booleanVal = x;
+				default:
+					throw new IllegalArgumentException("No field with index: " + fieldIndex);
+			}
+		}
+
+		@Override
+		public void setByteField(Foo obj, int fieldIndex, byte x) {
+		}
+
+		@Override
+		public void setCharField(Foo obj, int fieldIndex, char x) {
+		}
+
+		@Override
+		public void setDoubleField(Foo obj, int fieldIndex, double x) {
+		}
+
+		@Override
+		public void setFloatField(Foo obj, int fieldIndex, float x) {
+		}
+
+		@Override
+		public void setIntField(Foo obj, int fieldIndex, int x) {
+		}
+
+		@Override
+		public void setLongField(Foo obj, int fieldIndex, long x) {
+		}
+
+		@Override
+		public void setShortField(Foo obj, int fieldIndex, short x) {
+		}
+
+		@Override
+		public void setBoxedBooleanField(Foo obj, int fieldIndex, Boolean x) {
+			switch (fieldIndex) {
+				case 8:
+					obj.boxedBoolean = x;
+					break;
+				default:
+					throw new IllegalArgumentException("No field with index: " + fieldIndex);
+			}
+		}
+
+		@Override
+		public void setBoxedByteField(Foo obj, int fieldIndex, Byte x) {
+		}
+
+		@Override
+		public void setBoxedCharField(Foo obj, int fieldIndex, Character x) {
+		}
+
+		@Override
+		public void setBoxedDoubleField(Foo obj, int fieldIndex, Double x) {
+		}
+
+		@Override
+		public void setBoxedFloatField(Foo obj, int fieldIndex, Float x) {
+		}
+
+		@Override
+		public void setBoxedIntField(Foo obj, int fieldIndex, Integer x) {
+		}
+
+		@Override
+		public void setBoxedLongField(Foo obj, int fieldIndex, Long x) {
+		}
+
+		@Override
+		public void setBoxedShortField(Foo obj, int fieldIndex, Short x) {
 		}
 	}
 	
@@ -136,7 +213,7 @@ public class Foo {
 
 	/* START Primitive type properties */
 	
-	public boolean isBooleanVal() {
+	public boolean getBooleanVal() {
 		return booleanVal;
 	}
 	public void setBooleanVal(boolean booleanVal) {

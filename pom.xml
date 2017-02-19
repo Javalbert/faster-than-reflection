@@ -31,6 +31,7 @@
 	<properties>
 		
 		<asm.version>5.2</asm.version>
+		<commons-lang.version>3.5</commons-lang.version>
 		<jdk.version>1.8</jdk.version>
 		<maven-compiler.version>3.6.0</maven-compiler.version>
 		<maven-shade.version>2.4.3</maven-shade.version>
@@ -49,6 +50,12 @@
 	
 	<dependencies>
 	
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-lang3</artifactId>
+		    <version>${commons-lang.version}</version>
+		</dependency>
+			
 		<dependency>
 		    <groupId>org.ow2.asm</groupId>
 		    <artifactId>asm</artifactId>
