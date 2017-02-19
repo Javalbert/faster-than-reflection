@@ -169,14 +169,16 @@ public final class ClassAccessFactory<T> {
 	}
 	
 	private static class FieldInfo {
-		private final Field field;
 		private final int fieldIndex;
 		private final boolean isFinal;
+		private final String name;
+		private final int opcode;
 		
 		private FieldInfo(Field field, int fieldIndex) {
-			this.field = field;
 			this.fieldIndex = fieldIndex;
 			isFinal = (field.getModifiers() & Modifier.FINAL) != 0;
+			opcode = (field.getModifiers() & Modifier.STATIC) == 0 ? GETFIELD : GETSTATIC;
+			name = field.getName();
 		}
 	}
 
@@ -333,10 +335,12 @@ public final class ClassAccessFactory<T> {
 		}
 		
 		for (int i = 0; i < fields.size(); i++) {
+			FieldInfo field = fields.get(i);
+			
 			mv.visitLabel(labels[i]);
 			mv.visitFrame(F_SAME, 0, null, 0, null);
 			mv.visitVarInsn(ALOAD, 1);
-			mv.visitFieldInsn(GETFIELD, internalName, fields.get(i).field.getName(), "I");
+			mv.visitFieldInsn(field.opcode, internalName, field.name, "I");
 			mv.visitInsn(IRETURN);
 		}
 		
