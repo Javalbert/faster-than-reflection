@@ -12,15 +12,106 @@
  *******************************************************************************/
 package com.github.javalbert.reflection.test;
 
+import com.github.javalbert.reflection.ClassAccess;
+
 public class Foo {
+	public static class FooAccess2 implements ClassAccess<Foo> {
+		@Override
+		public int fieldIndex(String name) {
+			return 0;
+		}
+
+		@Override
+		public boolean getBooleanField(Foo object, int fieldIndex) {
+			return false;
+		}
+
+		@Override
+		public byte getByteField(Foo object, int fieldIndex) {
+			return 0;
+		}
+
+		@Override
+		public char getCharField(Foo object, int fieldIndex) {
+			return 0;
+		}
+
+		@Override
+		public double getDoubleField(Foo object, int fieldIndex) {
+			return 0;
+		}
+
+		@Override
+		public float getFloatField(Foo object, int fieldIndex) {
+			return 0;
+		}
+
+		@Override
+		public int getIntField(Foo object, int fieldIndex) {
+			switch (fieldIndex) {
+				case 5:
+					return object.intVal;
+				default:
+					throw new IllegalArgumentException("No field with index: " + fieldIndex);
+			}
+		}
+
+		@Override
+		public long getLongField(Foo object, int fieldIndex) {
+			switch (fieldIndex) {
+				case 6:
+					return object.longVal;
+				default:
+					throw new IllegalArgumentException("No field with index: " + fieldIndex);
+			}
+		}
+
+		@Override
+		public short getShortField(Foo object, int fieldIndex) {
+			return 0;
+		}
+	}
+	
+	private boolean booleanVal;
+	private byte byteVal;
+	private char charVal;
+	private double doubleVal;
+	private float floatVal;
 	private int intVal;
 	private long longVal;
+	private short shortVal;
 	private String stringVal;
-	private int age;
-	private String stage;
-	private int version;
-	private Double price;
 	
+	public boolean isBooleanVal() {
+		return booleanVal;
+	}
+	public void setBooleanVal(boolean booleanVal) {
+		this.booleanVal = booleanVal;
+	}
+	public byte getByteVal() {
+		return byteVal;
+	}
+	public void setByteVal(byte byteVal) {
+		this.byteVal = byteVal;
+	}
+	public char getCharVal() {
+		return charVal;
+	}
+	public void setCharVal(char charVal) {
+		this.charVal = charVal;
+	}
+	public double getDoubleVal() {
+		return doubleVal;
+	}
+	public void setDoubleVal(double doubleVal) {
+		this.doubleVal = doubleVal;
+	}
+	public float getFloatVal() {
+		return floatVal;
+	}
+	public void setFloatVal(float floatVal) {
+		this.floatVal = floatVal;
+	}
 	public int getIntVal() {
 		return intVal;
 	}
@@ -33,34 +124,16 @@ public class Foo {
 	public void setLongVal(long longVal) {
 		this.longVal = longVal;
 	}
+	public short getShortVal() {
+		return shortVal;
+	}
+	public void setShortVal(short shortVal) {
+		this.shortVal = shortVal;
+	}
 	public String getStringVal() {
 		return stringVal;
 	}
 	public void setStringVal(String stringVal) {
 		this.stringVal = stringVal;
-	}
-	public int getAge() {
-		return age;
-	}
-	public void setAge(int age) {
-		this.age = age;
-	}
-	public String getStage() {
-		return stage;
-	}
-	public void setStage(String stage) {
-		this.stage = stage;
-	}
-	public int getVersion() {
-		return version;
-	}
-	public void setVersion(int version) {
-		this.version = version;
-	}
-	public Double getPrice() {
-		return price;
-	}
-	public void setPrice(Double price) {
-		this.price = price;
 	}
 }

@@ -147,6 +147,20 @@ public final class ClassAccessFactory<T> {
             lookup_space_cost + 3 * lookup_time_cost;
 	}
 	
+	private static class FieldAccessInfo {
+		private final String className;
+		private final String descriptor;
+		private final String methodName;
+		private final int returnOpcode;
+		
+		private FieldAccessInfo(String methodName, Type type) {
+			className = type.getClassName();
+			descriptor = type.getDescriptor();
+			this.methodName = methodName;
+			returnOpcode = type.getOpcode(IRETURN);
+		}
+	}
+	
 	private static class FieldIndexSwitchCase {
 		private static int compareFieldIndexSwitchCaseByFieldIndex(FieldIndexSwitchCase a, FieldIndexSwitchCase b) {
 			return Integer.compare(a.fieldIndex, b.fieldIndex);
@@ -220,8 +234,7 @@ public final class ClassAccessFactory<T> {
 		visitClass();
 		visitDefaultConstructor();
 		visitFieldIndexMethod();
-		visitClassAccessImplMethods();
-		visitClassAccessInterfaceMethods();
+		visitClassAccessMethods();
 		cw.visitEnd();
 		AccessClassLoader.get(clazz).defineClass(getClassNameOfClassAccessFor(clazz), cw.toByteArray());
 	}
@@ -264,22 +277,50 @@ public final class ClassAccessFactory<T> {
 		classTypeDescriptor = "L" + internalName + ";";
 	}
 	
-	private void visitClassAccessImplMethods() {
-		visitFieldAccess();
-	}
-	
-	private void visitClassAccessInterfaceMethods() {
-		mv = cw.visitMethod(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC, "getIntField", "(Ljava/lang/Object;I)I", null, null);
+	private void visitFieldAccessBridge(FieldAccessInfo fieldAccessInfo) {
+		mv = cw.visitMethod(
+				ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC,
+				fieldAccessInfo.methodName,
+				"(Ljava/lang/Object;I)" + fieldAccessInfo.descriptor,
+				null,
+				null);
 		mv.visitCode();
 		mv.visitLabel(new Label());
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 1);
 		mv.visitTypeInsn(CHECKCAST, internalName);
 		mv.visitVarInsn(ILOAD, 2);
-		mv.visitMethodInsn(INVOKEVIRTUAL, classAccessInternalName, "getIntField", "(" + classTypeDescriptor + "I)I", false);
-		mv.visitInsn(IRETURN);
+		mv.visitMethodInsn(
+				INVOKEVIRTUAL,
+				classAccessInternalName,
+				fieldAccessInfo.methodName,
+				"(" + classTypeDescriptor + "I)" + fieldAccessInfo.descriptor,
+				false);
+		mv.visitInsn(fieldAccessInfo.returnOpcode);
 		mv.visitMaxs(3, 3);
 		mv.visitEnd();
+	}
+	
+	private void visitClassAccessMethods() {
+		List<FieldAccessInfo> fieldAccessInfoList = Collections.unmodifiableList(
+				Arrays.asList(
+						new FieldAccessInfo("getBooleanField", Type.BOOLEAN_TYPE),
+						new FieldAccessInfo("getByteField", Type.BYTE_TYPE),
+						new FieldAccessInfo("getCharField", Type.CHAR_TYPE),
+						new FieldAccessInfo("getDoubleField", Type.DOUBLE_TYPE),
+						new FieldAccessInfo("getFloatField", Type.FLOAT_TYPE),
+						new FieldAccessInfo("getIntField", Type.INT_TYPE),
+						new FieldAccessInfo("getLongField", Type.LONG_TYPE),
+						new FieldAccessInfo("getShortField", Type.SHORT_TYPE)
+						)
+				);
+		
+		for (int i = 0; i < fieldAccessInfoList.size(); i++) {
+			visitFieldAccess(fieldAccessInfoList.get(i));
+		}
+		for (int i = 0; i < fieldAccessInfoList.size(); i++) {
+			visitFieldAccessBridge(fieldAccessInfoList.get(i));
+		}
 	}
 	
 	private void visitDefaultConstructor() {
@@ -297,8 +338,13 @@ public final class ClassAccessFactory<T> {
 		mv.visitEnd();
 	}
 	
-	private void visitFieldAccess() {
-		mv = cw.visitMethod(ACC_PUBLIC, "getIntField", "(" + classTypeDescriptor + "I)I", null, null);
+	private void visitFieldAccess(FieldAccessInfo fieldAccessInfo) {
+		mv = cw.visitMethod(
+				ACC_PUBLIC,
+				fieldAccessInfo.methodName,
+				"(" + classTypeDescriptor + "I)" + fieldAccessInfo.descriptor,
+				null,
+				null);
 		mv.visitCode();
 		Label firstLabel = new Label();
 		mv.visitLabel(firstLabel);
@@ -306,7 +352,7 @@ public final class ClassAccessFactory<T> {
 
 		Label defaultCaseLabel = new Label();
 
-		List<FieldInfo> fields = typeToFieldsMap.get("int");
+		List<FieldInfo> fields = typeToFieldsMap.get(fieldAccessInfo.className);
 		if (fields.isEmpty()) {
 			mv.visitInsn(POP);
 			mv.visitLabel(defaultCaseLabel);
@@ -340,8 +386,8 @@ public final class ClassAccessFactory<T> {
 			mv.visitLabel(labels[i]);
 			mv.visitFrame(F_SAME, 0, null, 0, null);
 			mv.visitVarInsn(ALOAD, 1);
-			mv.visitFieldInsn(field.opcode, internalName, field.name, "I");
-			mv.visitInsn(IRETURN);
+			mv.visitFieldInsn(field.opcode, internalName, field.name, fieldAccessInfo.descriptor);
+			mv.visitInsn(fieldAccessInfo.returnOpcode);
 		}
 		
 		mv.visitLabel(defaultCaseLabel);
@@ -366,7 +412,7 @@ public final class ClassAccessFactory<T> {
 		mv.visitLabel(lastLabel);
 		mv.visitLocalVariable("this", classAccessTypeDescriptor, null, firstLabel, lastLabel, 0);
 		mv.visitLocalVariable("object", classTypeDescriptor, null, firstLabel, lastLabel, 1);
-		mv.visitLocalVariable("index", "I", null, firstLabel, lastLabel, 2);
+		mv.visitLocalVariable("fieldIndex", "I", null, firstLabel, lastLabel, 2);
 		mv.visitMaxs(5, 3);
 		mv.visitEnd();
 	}

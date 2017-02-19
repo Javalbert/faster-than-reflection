@@ -14,6 +14,13 @@ package com.github.javalbert.reflection;
 
 public interface ClassAccess<T> {
 	int fieldIndex(String name);
-	
-	int getIntField(T object, int index);
+
+	boolean getBooleanField(T object, int fieldIndex);
+	byte getByteField(T object, int fieldIndex);
+	char getCharField(T object, int fieldIndex);
+	double getDoubleField(T object, int fieldIndex);
+	float getFloatField(T object, int fieldIndex);
+	int getIntField(T object, int fieldIndex);
+	long getLongField(T object, int fieldIndex);
+	short getShortField(T object, int fieldIndex);
 }
