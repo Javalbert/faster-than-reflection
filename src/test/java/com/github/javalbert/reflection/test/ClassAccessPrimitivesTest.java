@@ -29,7 +29,7 @@ public class ClassAccessPrimitivesTest {
 		
 		boolean booleanVal = access.getBooleanField(obj, access.fieldIndex("booleanVal"));
 		
-		assertThat(booleanVal, equalTo(true));
+		assertThat(booleanVal, equalTo(obj.getBooleanVal()));
 	}
 	
 	@Test
@@ -40,7 +40,7 @@ public class ClassAccessPrimitivesTest {
 		
 		byte byteVal = access.getByteField(obj, access.fieldIndex("byteVal"));
 		
-		assertThat(byteVal, equalTo((byte)-21));
+		assertThat(byteVal, equalTo(obj.getByteVal()));
 	}
 	
 	@Test
@@ -51,7 +51,7 @@ public class ClassAccessPrimitivesTest {
 		
 		char charVal = access.getCharField(obj, access.fieldIndex("charVal"));
 		
-		assertThat(charVal, equalTo('.'));
+		assertThat(charVal, equalTo(obj.getCharVal()));
 	}
 	
 	@Test
@@ -62,7 +62,7 @@ public class ClassAccessPrimitivesTest {
 		
 		double doubleVal = access.getDoubleField(obj, access.fieldIndex("doubleVal"));
 		
-		assertThat(doubleVal, equalTo(0.14753383239666462d));
+		assertThat(doubleVal, equalTo(obj.getDoubleVal()));
 	}
 	
 	@Test
@@ -73,7 +73,7 @@ public class ClassAccessPrimitivesTest {
 		
 		float floatVal = access.getFloatField(obj, access.fieldIndex("floatVal"));
 		
-		assertThat(floatVal, equalTo(0.27210158f));
+		assertThat(floatVal, equalTo(obj.getFloatVal()));
 	}
 	
 	@Test
@@ -84,7 +84,7 @@ public class ClassAccessPrimitivesTest {
 
 		int intVal = access.getIntField(obj, access.fieldIndex("intVal"));
 		
-		assertThat(intVal, equalTo(1));
+		assertThat(intVal, equalTo(obj.getIntVal()));
 	}
 
 	@Test
@@ -95,7 +95,7 @@ public class ClassAccessPrimitivesTest {
 
 		long longVal = access.getLongField(obj, access.fieldIndex("longVal"));
 		
-		assertThat(longVal, equalTo(3285927007071017350L));
+		assertThat(longVal, equalTo(obj.getLongVal()));
 	}
 	
 	@Test
@@ -106,7 +106,7 @@ public class ClassAccessPrimitivesTest {
 
 		short shortVal = access.getShortField(obj, access.fieldIndex("shortVal"));
 		
-		assertThat(shortVal, equalTo((short)-8406));
+		assertThat(shortVal, equalTo(obj.getShortVal()));
 	}
 	
 	@Test
@@ -117,6 +117,83 @@ public class ClassAccessPrimitivesTest {
 		
 		access.setBooleanField(obj, access.fieldIndex("booleanVal"), booleanVal);
 		
-		assertThat(obj.isBooleanVal(), equalTo(true));
+		assertThat(obj.getBooleanVal(), equalTo(booleanVal));
+	}
+	
+	@Test
+	public void setByteFieldValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		byte byteVal = (byte)-21;
+		
+		access.setByteField(obj, access.fieldIndex("byteVal"), byteVal);
+		
+		assertThat(obj.getByteVal(), equalTo(byteVal));
+	}
+	
+	@Test
+	public void setCharFieldValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		char charVal = '.';
+		
+		access.setCharField(obj, access.fieldIndex("charVal"), charVal);
+		
+		assertThat(obj.getCharVal(), equalTo(charVal));
+	}
+	
+	@Test
+	public void setDoubleFieldValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		double doubleVal = 0.14753383239666462d;
+		
+		access.setDoubleField(obj, access.fieldIndex("doubleVal"), doubleVal);
+		
+		assertThat(obj.getDoubleVal(), equalTo(doubleVal));
+	}
+	
+	@Test
+	public void setFloatFieldValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		float floatVal = 0.27210158f;
+		
+		access.setFloatField(obj, access.fieldIndex("floatVal"), floatVal);
+		
+		assertThat(obj.getFloatVal(), equalTo(floatVal));
+	}
+	
+	@Test
+	public void setIntFieldValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		int intVal = 1;
+
+		access.setIntField(obj, access.fieldIndex("intVal"), intVal);
+		
+		assertThat(obj.getIntVal(), equalTo(intVal));
+	}
+
+	@Test
+	public void setLongFieldValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		long longVal = 3285927007071017350L;
+
+		access.setLongField(obj, access.fieldIndex("longVal"), longVal);
+		
+		assertThat(obj.getLongVal(), equalTo(longVal));
+	}
+	
+	@Test
+	public void setShortFieldValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		short shortVal = (short)-8406;
+
+		access.setShortField(obj, access.fieldIndex("shortVal"), shortVal);
+		
+		assertThat(obj.getShortVal(), equalTo(shortVal));
 	}
 }

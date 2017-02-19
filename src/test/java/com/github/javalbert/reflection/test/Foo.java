@@ -213,7 +213,7 @@ public class Foo {
 
 	/* START Primitive type properties */
 	
-	public boolean isBooleanVal() {
+	public boolean getBooleanVal() {
 		return booleanVal;
 	}
 	public void setBooleanVal(boolean booleanVal) {
