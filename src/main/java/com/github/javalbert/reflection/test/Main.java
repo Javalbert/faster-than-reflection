@@ -7,17 +7,16 @@ import com.github.javalbert.reflection.ClassAccessFactory;
 
 public class Main {
 	public static void main(String[] args) {
-		new Main().testClassAccess();
+		Main main = new Main();
+		main.testClassAccess();
 	}
+
+	private Foo foo = new Foo();
+	private Random r = new Random();
 
 	public void testClassAccess() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
-		System.out.println(access.fieldIndex("intVal"));
-		System.out.println(access.fieldIndex("longVal"));
-		System.out.println(access.fieldIndex("stringVal"));
-		
-		Foo foo = new Foo();
-		foo.setIntVal(new Random().nextInt());
-		System.out.println(access.intField(foo, 0));
+		foo.setIntVal(r.nextInt());
+		System.out.println(access.getIntField(foo, 0));
 	}
 }

@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright 2017 Albert Shun-Dat Chan
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See
+ * the License for the specific language governing permissions and limitations under the License.
+ *******************************************************************************/
 package com.github.javalbert.reflection;
 
 import static java.util.stream.Collectors.*;
@@ -9,14 +21,13 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -76,8 +87,64 @@ public final class ClassAccessFactory<T> {
 		return classAccess;
 	}
 	
+	private static Label[] getTableSwitchLabelsForFieldAccess(
+			Label defaultCaseLabel,
+			List<FieldInfo> fields) {
+		int len = fields.get(fields.size() - 1).fieldIndex - fields.get(0).fieldIndex + fields.size();
+		
+		Label[] labels = new Label[len];
+		
+		int fieldIndex = -1;
+		
+		for (int i = 0, currentField = 0; i < labels.length; i++) {
+			FieldInfo field = fields.get(currentField);
+			
+			if (field.fieldIndex < fieldIndex) {
+				labels[i] = defaultCaseLabel;
+				fieldIndex++;
+			} else {
+				labels[i] = new Label();
+				fieldIndex = field.fieldIndex + 1;
+				currentField++;
+			}
+		}
+		return labels;
+	}
+	
+	private static Label[] newLabelArray(int size) {
+		Label[] labels = new Label[size];
+		for (int i = 0; i < size; i++) {
+			labels[i] = new Label();
+		}
+		return labels;
+	}
+	
 	private static void setAccessible(AccessibleObject object) {
 		object.setAccessible(true);
+	}
+	
+	/**
+	 * Use {@link MethodVisitor#visitTableSwitchInsn(int, int, Label, Label...)}
+	 * instead of {@link MethodVisitor#visitLookupSwitchInsn(Label, int[], Label[])}
+	 * @return
+	 */
+	private static boolean useTableSwitch(List<FieldInfo> fields) {
+		int hi = fields.get(fields.size() - 1).fieldIndex;
+		int lo = fields.get(0).fieldIndex;
+		int nlabels = fields.size();
+		
+		// CREDIT: http://stackoverflow.com/a/31032054
+		// CREDIT: http://hg.openjdk.java.net/jdk8/jdk8/langtools/file/30db5e0aaf83/src/share/classes/com/sun/tools/javac/jvm/Gen.java#l1153
+		// Determine whether to issue a tableswitch or a lookupswitch
+        // instruction.
+        long table_space_cost = 4 + ((long) hi - lo + 1); // words
+        long table_time_cost = 3; // comparisons
+        long lookup_space_cost = 3 + 2 * (long) nlabels;
+        long lookup_time_cost = nlabels;
+        return
+            nlabels > 0 &&
+            table_space_cost + 3 * table_time_cost <=
+            lookup_space_cost + 3 * lookup_time_cost;
 	}
 	
 	private static class FieldIndexSwitchCase {
@@ -100,6 +167,20 @@ public final class ClassAccessFactory<T> {
 			this.hashCode = field.getName().hashCode();
 		}
 	}
+	
+	private static class FieldInfo {
+		private final int fieldIndex;
+		private final boolean isFinal;
+		private final String name;
+		private final int opcode;
+		
+		private FieldInfo(Field field, int fieldIndex) {
+			this.fieldIndex = fieldIndex;
+			isFinal = (field.getModifiers() & Modifier.FINAL) != 0;
+			opcode = (field.getModifiers() & Modifier.STATIC) == 0 ? GETFIELD : GETSTATIC;
+			name = field.getName();
+		}
+	}
 
 	private String classAccessInternalName;
 	private String classAccessTypeDescriptor;
@@ -107,10 +188,10 @@ public final class ClassAccessFactory<T> {
 	private final Class<T> clazz;
 	private final ClassWriter cw;
 	private final List<Field> fields;
-	private final Set<String> fieldTypeExistenceSet = new HashSet<>();
 	private String internalName;
 	private MethodVisitor mv;
 	private final List<PropertyDescriptor> propertyDescriptors;
+	private final Map<String, List<FieldInfo>> typeToFieldsMap = new HashMap<>();
 	
 	private ClassAccessFactory(Class<T> clazz) {
 		try {
@@ -120,20 +201,19 @@ public final class ClassAccessFactory<T> {
 			throw new RuntimeException(e);
 		}
 		
-		this.fields = Collections.unmodifiableList(Arrays.stream(clazz.getDeclaredFields())
-				.peek(ClassAccessFactory::setAccessible)
-				.peek(this::addFieldTypeExistence)
-				.collect(toList())
-				);
-		
-//		fields.stream().allMatch(f -> (f.getModifiers() & Modifier.FINAL) != 0);
+		Field[] declaredFields = clazz.getDeclaredFields();
+		List<Field> fields = new ArrayList<>();
+		for (int i = 0; i < declaredFields.length; i++) {
+			Field field = declaredFields[i];
+			setAccessible(field);
+
+			fields.add(field);
+			putIntoTypeToFieldsMap(field, i);
+		}
+		this.fields = Collections.unmodifiableList(fields);
 		
 		this.clazz = clazz;
 		cw = new ClassWriter(0);
-	}
-	
-	private void addFieldTypeExistence(Field field) {
-		fieldTypeExistenceSet.add(field.getType().getName());
 	}
 	
 	private void buildClassAccessClass() {
@@ -154,6 +234,17 @@ public final class ClassAccessFactory<T> {
 		return fieldIndexSwitchCases;
 	}
 	
+	private void putIntoTypeToFieldsMap(Field field, int fieldIndex) {
+		String key = field.getType().getName();
+		
+		List<FieldInfo> fields = typeToFieldsMap.get(key);
+		if (fields == null) {
+			fields = new ArrayList<>();
+			typeToFieldsMap.put(key, fields);
+		}
+		fields.add(new FieldInfo(field, fieldIndex));
+	}
+	
 	private void visitClass() {
 		internalName = Type.getInternalName(clazz); // com/github/javalbert/reflection/test/Foo
 		String classAccessSimpleName = clazz.getSimpleName() + "ClassAccess"; // FooClassAccess
@@ -164,7 +255,7 @@ public final class ClassAccessFactory<T> {
 				ACC_PUBLIC + ACC_SUPER,
 				classAccessInternalName,
 				internalName,
-				"java/lang/Object",
+				"sun/reflect/MagicAccessorImpl"/*CREDIT: https://github.com/dimzon/reflectasm/blob/master/src/com/esotericsoftware/reflectasm/ClassAccess.java*/,
 				new String[] { Type.getInternalName(ClassAccess.class) });
 		cw.visitSource(clazz.getSimpleName() + ".java", null);
 		cw.visitInnerClass(classAccessInternalName, internalName, classAccessSimpleName, ACC_PUBLIC + ACC_STATIC);
@@ -178,14 +269,14 @@ public final class ClassAccessFactory<T> {
 	}
 	
 	private void visitClassAccessInterfaceMethods() {
-		mv = cw.visitMethod(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC, "intField", "(Ljava/lang/Object;I)I", null, null);
+		mv = cw.visitMethod(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC, "getIntField", "(Ljava/lang/Object;I)I", null, null);
 		mv.visitCode();
 		mv.visitLabel(new Label());
 		mv.visitVarInsn(ALOAD, 0);
 		mv.visitVarInsn(ALOAD, 1);
 		mv.visitTypeInsn(CHECKCAST, internalName);
 		mv.visitVarInsn(ILOAD, 2);
-		mv.visitMethodInsn(INVOKEVIRTUAL, classAccessInternalName, "intField", "(" + classTypeDescriptor + "I)I", false);
+		mv.visitMethodInsn(INVOKEVIRTUAL, classAccessInternalName, "getIntField", "(" + classTypeDescriptor + "I)I", false);
 		mv.visitInsn(IRETURN);
 		mv.visitMaxs(3, 3);
 		mv.visitEnd();
@@ -207,29 +298,51 @@ public final class ClassAccessFactory<T> {
 	}
 	
 	private void visitFieldAccess() {
-		mv = cw.visitMethod(ACC_PUBLIC, "intField", "(" + classTypeDescriptor + "I)I", null, null);
+		mv = cw.visitMethod(ACC_PUBLIC, "getIntField", "(" + classTypeDescriptor + "I)I", null, null);
 		mv.visitCode();
 		Label firstLabel = new Label();
 		mv.visitLabel(firstLabel);
 		mv.visitVarInsn(ILOAD, 2);
 
 		Label defaultCaseLabel = new Label();
-		
-		if (!fieldTypeExistenceSet.contains("int")) {
+
+		List<FieldInfo> fields = typeToFieldsMap.get("int");
+		if (fields.isEmpty()) {
 			mv.visitInsn(POP);
 			mv.visitLabel(defaultCaseLabel);
 			visitFieldAccessLastPart(firstLabel);
 			return;
 		}
 		
-		Label l1 = new Label();
-		mv.visitTableSwitchInsn(0, 0, defaultCaseLabel, new Label[] { l1 });
+		boolean useTableSwitch = useTableSwitch(fields);
+		Label[] labels = useTableSwitch ? getTableSwitchLabelsForFieldAccess(defaultCaseLabel, fields)
+				: newLabelArray(fields.size());
 		
-		mv.visitLabel(l1);
-		mv.visitFrame(F_SAME, 0, null, 0, null);
-		mv.visitVarInsn(ALOAD, 1);
-		mv.visitMethodInsn(INVOKESTATIC, internalName, "access$0", "(" + classTypeDescriptor + ")I", false);
-		mv.visitInsn(IRETURN);
+		if (useTableSwitch) {
+			mv.visitTableSwitchInsn(
+					fields.get(0).fieldIndex,
+					fields.get(fields.size() - 1).fieldIndex,
+					defaultCaseLabel,
+					labels
+					);
+		} else {
+			mv.visitLookupSwitchInsn(
+					defaultCaseLabel,
+					fields.stream()
+					.mapToInt(f -> f.fieldIndex)
+					.toArray(),
+					labels);
+		}
+		
+		for (int i = 0; i < fields.size(); i++) {
+			FieldInfo field = fields.get(i);
+			
+			mv.visitLabel(labels[i]);
+			mv.visitFrame(F_SAME, 0, null, 0, null);
+			mv.visitVarInsn(ALOAD, 1);
+			mv.visitFieldInsn(field.opcode, internalName, field.name, "I");
+			mv.visitInsn(IRETURN);
+		}
 		
 		mv.visitLabel(defaultCaseLabel);
 		mv.visitFrame(F_SAME, 0, null, 0, null);

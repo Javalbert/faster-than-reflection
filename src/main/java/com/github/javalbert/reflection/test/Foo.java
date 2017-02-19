@@ -1,37 +1,13 @@
 package com.github.javalbert.reflection.test;
 
-import com.github.javalbert.reflection.ClassAccess;
-
 public class Foo {
-	public static class FooClassAccess2 implements ClassAccess<Foo> {
-		@Override
-		public int fieldIndex(String name) {
-			switch (name) {
-				case "intVal":
-					return 0;
-				case "longVal":
-					return 1;
-				case "stringVal":
-					return 2;
-				default:
-					throw new IllegalArgumentException("No field with name: " + name);
-			}
-		}
-		
-		@Override
-		public int intField(Foo object, int index) {
-			switch (index) {
-				case 0:
-					return object.intVal;
-				default:
-					throw new IllegalArgumentException("No field with index: " + index);
-			}
-		}
-	}
-	
 	private int intVal;
 	private long longVal;
 	private String stringVal;
+	private int age;
+	private String stage;
+	private int version;
+	private Double price;
 	
 	public int getIntVal() {
 		return intVal;
@@ -50,5 +26,29 @@ public class Foo {
 	}
 	public void setStringVal(String stringVal) {
 		this.stringVal = stringVal;
+	}
+	public int getAge() {
+		return age;
+	}
+	public void setAge(int age) {
+		this.age = age;
+	}
+	public String getStage() {
+		return stage;
+	}
+	public void setStage(String stage) {
+		this.stage = stage;
+	}
+	public int getVersion() {
+		return version;
+	}
+	public void setVersion(int version) {
+		this.version = version;
+	}
+	public Double getPrice() {
+		return price;
+	}
+	public void setPrice(Double price) {
+		this.price = price;
 	}
 }
