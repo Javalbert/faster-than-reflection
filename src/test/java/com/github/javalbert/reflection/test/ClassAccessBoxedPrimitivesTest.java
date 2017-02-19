@@ -20,92 +20,92 @@ import org.junit.Test;
 import com.github.javalbert.reflection.ClassAccess;
 import com.github.javalbert.reflection.ClassAccessFactory;
 
-public class ClassAccessTest {
+public class ClassAccessBoxedPrimitivesTest {
 	@Test
-	public void getBooleanFieldValueAndVerify() {
+	public void getBoxedBooleanFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo object = new Foo();
-		object.setBooleanVal(true);
+		object.setBoxedBoolean(true);
 		
-		boolean booleanVal = access.getBooleanField(object, access.fieldIndex("booleanVal"));
+		Boolean boxedBoolean = access.getBoxedBooleanField(object, access.fieldIndex("boxedBoolean"));
 		
-		assertThat(booleanVal, equalTo(true));
+		assertThat(boxedBoolean, equalTo(true));
 	}
 	
 	@Test
-	public void getByteFieldValueAndVerify() {
+	public void getBoxedByteFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo object = new Foo();
-		object.setByteVal((byte)-21);
+		object.setBoxedByte((byte)-55);
 		
-		byte byteal = access.getByteField(object, access.fieldIndex("byteVal"));
+		Byte boxedByte = access.getBoxedByteField(object, access.fieldIndex("boxedByte"));
 		
-		assertThat(byteal, equalTo((byte)-21));
+		assertThat(boxedByte, equalTo((byte)-55));
 	}
 	
 	@Test
-	public void getCharFieldValueAndVerify() {
+	public void getBoxedCharFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo object = new Foo();
-		object.setCharVal('.');
+		object.setBoxedChar('¯');
 		
-		char charVal = access.getCharField(object, access.fieldIndex("charVal"));
+		Character boxedChar = access.getBoxedCharField(object, access.fieldIndex("boxedChar"));
 		
-		assertThat(charVal, equalTo('.'));
+		assertThat(boxedChar, equalTo('¯'));
 	}
 	
 	@Test
-	public void getDoubleFieldValueAndVerify() {
+	public void getBoxedDoubleFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo object = new Foo();
-		object.setDoubleVal(0.14753383239666462d);
+		object.setBoxedDouble(0.9553896885798474d);
 		
-		double doubleVal = access.getDoubleField(object, access.fieldIndex("doubleVal"));
+		Double boxedDouble = access.getBoxedDoubleField(object, access.fieldIndex("boxedDouble"));
 		
-		assertThat(doubleVal, equalTo(0.14753383239666462d));
+		assertThat(boxedDouble, equalTo(0.9553896885798474d));
 	}
 	
 	@Test
-	public void getFloatFieldValueAndVerify() {
+	public void getBoxedFloatFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo object = new Foo();
-		object.setFloatVal(0.27210158f);
+		object.setBoxedFloat(0.2747032f);
 		
-		float floatVal = access.getFloatField(object, access.fieldIndex("floatVal"));
+		Float boxedFloat = access.getBoxedFloatField(object, access.fieldIndex("boxedFloat"));
 		
-		assertThat(floatVal, equalTo(0.27210158f));
+		assertThat(boxedFloat, equalTo(0.2747032f));
 	}
 	
 	@Test
-	public void getIntFieldValueAndVerify() {
+	public void getBoxedIntFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo object = new Foo();
-		object.setIntVal(1);
+		object.setBoxedInt(274991538);
 
-		int intVal = access.getIntField(object, access.fieldIndex("intVal"));
+		Integer boxedInt = access.getBoxedIntField(object, access.fieldIndex("boxedInt"));
 		
-		assertThat(intVal, equalTo(1));
+		assertThat(boxedInt, equalTo(274991538));
 	}
 
 	@Test
-	public void getLongFieldValueAndVerify() {
+	public void getBoxedLongFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo object = new Foo();
-		object.setLongVal(3285927007071017350L);
+		object.setBoxedLong(6774924159498401640L);
 
-		long longVal = access.getLongField(object, access.fieldIndex("longVal"));
+		Long boxedLong = access.getBoxedLongField(object, access.fieldIndex("boxedLong"));
 		
-		assertThat(longVal, equalTo(3285927007071017350L));
+		assertThat(boxedLong, equalTo(6774924159498401640L));
 	}
 	
 	@Test
-	public void getShortFieldValueAndVerify() {
+	public void getBoxedShortFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo object = new Foo();
-		object.setShortVal((short)-8406);
+		object.setBoxedShort((short)-31848);
 
-		short shortVal = access.getShortField(object, access.fieldIndex("shortVal"));
+		Short boxedShort = access.getBoxedShortField(object, access.fieldIndex("boxedShort"));
 		
-		assertThat(shortVal, equalTo((short)-8406));
+		assertThat(boxedShort, equalTo((short)-31848));
 	}
 }

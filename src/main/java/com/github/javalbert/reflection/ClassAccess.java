@@ -23,4 +23,13 @@ public interface ClassAccess<T> {
 	int getIntField(T object, int fieldIndex);
 	long getLongField(T object, int fieldIndex);
 	short getShortField(T object, int fieldIndex);
+	
+	Boolean getBoxedBooleanField(T object, int fieldIndex);
+	Byte getBoxedByteField(T object, int fieldIndex);
+	Character getBoxedCharField(T object, int fieldIndex);
+	Double getBoxedDoubleField(T object, int fieldIndex);
+	Float getBoxedFloatField(T object, int fieldIndex);
+	Integer getBoxedIntField(T object, int fieldIndex);
+	Long getBoxedLongField(T object, int fieldIndex);
+	Short getBoxedShortField(T object, int fieldIndex);
 }

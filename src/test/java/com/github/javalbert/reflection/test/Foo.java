@@ -23,7 +23,12 @@ public class Foo {
 
 		@Override
 		public boolean getBooleanField(Foo object, int fieldIndex) {
-			return false;
+			switch (fieldIndex) {
+				case 0:
+					return object.booleanVal;
+				default:
+					throw new IllegalArgumentException("No field with index: " + fieldIndex);
+			}
 		}
 
 		@Override
@@ -48,30 +53,67 @@ public class Foo {
 
 		@Override
 		public int getIntField(Foo object, int fieldIndex) {
-			switch (fieldIndex) {
-				case 5:
-					return object.intVal;
-				default:
-					throw new IllegalArgumentException("No field with index: " + fieldIndex);
-			}
+			return 0;
 		}
 
 		@Override
 		public long getLongField(Foo object, int fieldIndex) {
-			switch (fieldIndex) {
-				case 6:
-					return object.longVal;
-				default:
-					throw new IllegalArgumentException("No field with index: " + fieldIndex);
-			}
+			return 0;
 		}
 
 		@Override
 		public short getShortField(Foo object, int fieldIndex) {
 			return 0;
 		}
+
+		@Override
+		public Boolean getBoxedBooleanField(Foo object, int fieldIndex) {
+			switch (fieldIndex) {
+				case 8:
+					return object.boxedBoolean;
+				default:
+					throw new IllegalArgumentException("No field with index: " + fieldIndex);
+			}
+		}
+
+		@Override
+		public Byte getBoxedByteField(Foo object, int fieldIndex) {
+			return null;
+		}
+
+		@Override
+		public Character getBoxedCharField(Foo object, int fieldIndex) {
+			return null;
+		}
+
+		@Override
+		public Double getBoxedDoubleField(Foo object, int fieldIndex) {
+			return null;
+		}
+
+		@Override
+		public Float getBoxedFloatField(Foo object, int fieldIndex) {
+			return null;
+		}
+
+		@Override
+		public Integer getBoxedIntField(Foo object, int fieldIndex) {
+			return null;
+		}
+
+		@Override
+		public Long getBoxedLongField(Foo object, int fieldIndex) {
+			return null;
+		}
+
+		@Override
+		public Short getBoxedShortField(Foo object, int fieldIndex) {
+			return null;
+		}
 	}
 	
+	// Primitive types
+	//
 	private boolean booleanVal;
 	private byte byteVal;
 	private char charVal;
@@ -80,7 +122,19 @@ public class Foo {
 	private int intVal;
 	private long longVal;
 	private short shortVal;
-	private String stringVal;
+	
+	// Primitive wrapper types
+	//
+	private Boolean boxedBoolean;
+	private Byte boxedByte;
+	private Character boxedChar;
+	private Double boxedDouble;
+	private Float boxedFloat;
+	private Integer boxedInt;
+	private Long boxedLong;
+	private Short boxedShort;
+
+	/* START Primitive type properties */
 	
 	public boolean isBooleanVal() {
 		return booleanVal;
@@ -130,10 +184,59 @@ public class Foo {
 	public void setShortVal(short shortVal) {
 		this.shortVal = shortVal;
 	}
-	public String getStringVal() {
-		return stringVal;
+	
+	/* END Primitive type properties */
+
+	/* START Primitive wrapper type properties */
+	
+	public Boolean getBoxedBoolean() {
+		return boxedBoolean;
 	}
-	public void setStringVal(String stringVal) {
-		this.stringVal = stringVal;
+	public void setBoxedBoolean(Boolean boxedBoolean) {
+		this.boxedBoolean = boxedBoolean;
 	}
+	public Byte getBoxedByte() {
+		return boxedByte;
+	}
+	public void setBoxedByte(Byte boxedByte) {
+		this.boxedByte = boxedByte;
+	}
+	public Character getBoxedChar() {
+		return boxedChar;
+	}
+	public void setBoxedChar(Character boxedChar) {
+		this.boxedChar = boxedChar;
+	}
+	public Double getBoxedDouble() {
+		return boxedDouble;
+	}
+	public void setBoxedDouble(Double boxedDouble) {
+		this.boxedDouble = boxedDouble;
+	}
+	public Float getBoxedFloat() {
+		return boxedFloat;
+	}
+	public void setBoxedFloat(Float boxedFloat) {
+		this.boxedFloat = boxedFloat;
+	}
+	public Integer getBoxedInt() {
+		return boxedInt;
+	}
+	public void setBoxedInt(Integer boxedInt) {
+		this.boxedInt = boxedInt;
+	}
+	public Long getBoxedLong() {
+		return boxedLong;
+	}
+	public void setBoxedLong(Long boxedLong) {
+		this.boxedLong = boxedLong;
+	}
+	public Short getBoxedShort() {
+		return boxedShort;
+	}
+	public void setBoxedShort(Short boxedShort) {
+		this.boxedShort = boxedShort;
+	}
+	
+	/* END Primitive wrapper type properties */
 }
