@@ -24,10 +24,10 @@ public class ClassAccessPrimitivesTest {
 	@Test
 	public void getBooleanFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
-		Foo object = new Foo();
-		object.setBooleanVal(true);
+		Foo obj = new Foo();
+		obj.setBooleanVal(true);
 		
-		boolean booleanVal = access.getBooleanField(object, access.fieldIndex("booleanVal"));
+		boolean booleanVal = access.getBooleanField(obj, access.fieldIndex("booleanVal"));
 		
 		assertThat(booleanVal, equalTo(true));
 	}
@@ -35,10 +35,10 @@ public class ClassAccessPrimitivesTest {
 	@Test
 	public void getByteFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
-		Foo object = new Foo();
-		object.setByteVal((byte)-21);
+		Foo obj = new Foo();
+		obj.setByteVal((byte)-21);
 		
-		byte byteVal = access.getByteField(object, access.fieldIndex("byteVal"));
+		byte byteVal = access.getByteField(obj, access.fieldIndex("byteVal"));
 		
 		assertThat(byteVal, equalTo((byte)-21));
 	}
@@ -46,10 +46,10 @@ public class ClassAccessPrimitivesTest {
 	@Test
 	public void getCharFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
-		Foo object = new Foo();
-		object.setCharVal('.');
+		Foo obj = new Foo();
+		obj.setCharVal('.');
 		
-		char charVal = access.getCharField(object, access.fieldIndex("charVal"));
+		char charVal = access.getCharField(obj, access.fieldIndex("charVal"));
 		
 		assertThat(charVal, equalTo('.'));
 	}
@@ -57,10 +57,10 @@ public class ClassAccessPrimitivesTest {
 	@Test
 	public void getDoubleFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
-		Foo object = new Foo();
-		object.setDoubleVal(0.14753383239666462d);
+		Foo obj = new Foo();
+		obj.setDoubleVal(0.14753383239666462d);
 		
-		double doubleVal = access.getDoubleField(object, access.fieldIndex("doubleVal"));
+		double doubleVal = access.getDoubleField(obj, access.fieldIndex("doubleVal"));
 		
 		assertThat(doubleVal, equalTo(0.14753383239666462d));
 	}
@@ -68,10 +68,10 @@ public class ClassAccessPrimitivesTest {
 	@Test
 	public void getFloatFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
-		Foo object = new Foo();
-		object.setFloatVal(0.27210158f);
+		Foo obj = new Foo();
+		obj.setFloatVal(0.27210158f);
 		
-		float floatVal = access.getFloatField(object, access.fieldIndex("floatVal"));
+		float floatVal = access.getFloatField(obj, access.fieldIndex("floatVal"));
 		
 		assertThat(floatVal, equalTo(0.27210158f));
 	}
@@ -79,10 +79,10 @@ public class ClassAccessPrimitivesTest {
 	@Test
 	public void getIntFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
-		Foo object = new Foo();
-		object.setIntVal(1);
+		Foo obj = new Foo();
+		obj.setIntVal(1);
 
-		int intVal = access.getIntField(object, access.fieldIndex("intVal"));
+		int intVal = access.getIntField(obj, access.fieldIndex("intVal"));
 		
 		assertThat(intVal, equalTo(1));
 	}
@@ -90,10 +90,10 @@ public class ClassAccessPrimitivesTest {
 	@Test
 	public void getLongFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
-		Foo object = new Foo();
-		object.setLongVal(3285927007071017350L);
+		Foo obj = new Foo();
+		obj.setLongVal(3285927007071017350L);
 
-		long longVal = access.getLongField(object, access.fieldIndex("longVal"));
+		long longVal = access.getLongField(obj, access.fieldIndex("longVal"));
 		
 		assertThat(longVal, equalTo(3285927007071017350L));
 	}
@@ -101,11 +101,22 @@ public class ClassAccessPrimitivesTest {
 	@Test
 	public void getShortFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
-		Foo object = new Foo();
-		object.setShortVal((short)-8406);
+		Foo obj = new Foo();
+		obj.setShortVal((short)-8406);
 
-		short shortVal = access.getShortField(object, access.fieldIndex("shortVal"));
+		short shortVal = access.getShortField(obj, access.fieldIndex("shortVal"));
 		
 		assertThat(shortVal, equalTo((short)-8406));
+	}
+	
+	@Test
+	public void setBooleanFieldValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		boolean booleanVal = true;
+		
+		access.setBooleanField(obj, access.fieldIndex("booleanVal"), booleanVal);
+		
+		assertThat(obj.isBooleanVal(), equalTo(true));
 	}
 }

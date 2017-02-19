@@ -24,10 +24,10 @@ public class ClassAccessBoxedPrimitivesTest {
 	@Test
 	public void getBoxedBooleanFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
-		Foo object = new Foo();
-		object.setBoxedBoolean(true);
+		Foo obj = new Foo();
+		obj.setBoxedBoolean(true);
 		
-		Boolean boxedBoolean = access.getBoxedBooleanField(object, access.fieldIndex("boxedBoolean"));
+		Boolean boxedBoolean = access.getBoxedBooleanField(obj, access.fieldIndex("boxedBoolean"));
 		
 		assertThat(boxedBoolean, equalTo(true));
 	}
@@ -35,10 +35,10 @@ public class ClassAccessBoxedPrimitivesTest {
 	@Test
 	public void getBoxedByteFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
-		Foo object = new Foo();
-		object.setBoxedByte((byte)-55);
+		Foo obj = new Foo();
+		obj.setBoxedByte((byte)-55);
 		
-		Byte boxedByte = access.getBoxedByteField(object, access.fieldIndex("boxedByte"));
+		Byte boxedByte = access.getBoxedByteField(obj, access.fieldIndex("boxedByte"));
 		
 		assertThat(boxedByte, equalTo((byte)-55));
 	}
@@ -46,21 +46,21 @@ public class ClassAccessBoxedPrimitivesTest {
 	@Test
 	public void getBoxedCharFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
-		Foo object = new Foo();
-		object.setBoxedChar('¯');
+		Foo obj = new Foo();
+		obj.setBoxedChar('\n');
 		
-		Character boxedChar = access.getBoxedCharField(object, access.fieldIndex("boxedChar"));
+		Character boxedChar = access.getBoxedCharField(obj, access.fieldIndex("boxedChar"));
 		
-		assertThat(boxedChar, equalTo('¯'));
+		assertThat(boxedChar, equalTo('\n'));
 	}
 	
 	@Test
 	public void getBoxedDoubleFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
-		Foo object = new Foo();
-		object.setBoxedDouble(0.9553896885798474d);
+		Foo obj = new Foo();
+		obj.setBoxedDouble(0.9553896885798474d);
 		
-		Double boxedDouble = access.getBoxedDoubleField(object, access.fieldIndex("boxedDouble"));
+		Double boxedDouble = access.getBoxedDoubleField(obj, access.fieldIndex("boxedDouble"));
 		
 		assertThat(boxedDouble, equalTo(0.9553896885798474d));
 	}
@@ -68,10 +68,10 @@ public class ClassAccessBoxedPrimitivesTest {
 	@Test
 	public void getBoxedFloatFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
-		Foo object = new Foo();
-		object.setBoxedFloat(0.2747032f);
+		Foo obj = new Foo();
+		obj.setBoxedFloat(0.2747032f);
 		
-		Float boxedFloat = access.getBoxedFloatField(object, access.fieldIndex("boxedFloat"));
+		Float boxedFloat = access.getBoxedFloatField(obj, access.fieldIndex("boxedFloat"));
 		
 		assertThat(boxedFloat, equalTo(0.2747032f));
 	}
@@ -79,10 +79,10 @@ public class ClassAccessBoxedPrimitivesTest {
 	@Test
 	public void getBoxedIntFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
-		Foo object = new Foo();
-		object.setBoxedInt(274991538);
+		Foo obj = new Foo();
+		obj.setBoxedInt(274991538);
 
-		Integer boxedInt = access.getBoxedIntField(object, access.fieldIndex("boxedInt"));
+		Integer boxedInt = access.getBoxedIntField(obj, access.fieldIndex("boxedInt"));
 		
 		assertThat(boxedInt, equalTo(274991538));
 	}
@@ -90,10 +90,10 @@ public class ClassAccessBoxedPrimitivesTest {
 	@Test
 	public void getBoxedLongFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
-		Foo object = new Foo();
-		object.setBoxedLong(6774924159498401640L);
+		Foo obj = new Foo();
+		obj.setBoxedLong(6774924159498401640L);
 
-		Long boxedLong = access.getBoxedLongField(object, access.fieldIndex("boxedLong"));
+		Long boxedLong = access.getBoxedLongField(obj, access.fieldIndex("boxedLong"));
 		
 		assertThat(boxedLong, equalTo(6774924159498401640L));
 	}
@@ -101,10 +101,10 @@ public class ClassAccessBoxedPrimitivesTest {
 	@Test
 	public void getBoxedShortFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
-		Foo object = new Foo();
-		object.setBoxedShort((short)-31848);
+		Foo obj = new Foo();
+		obj.setBoxedShort((short)-31848);
 
-		Short boxedShort = access.getBoxedShortField(object, access.fieldIndex("boxedShort"));
+		Short boxedShort = access.getBoxedShortField(obj, access.fieldIndex("boxedShort"));
 		
 		assertThat(boxedShort, equalTo((short)-31848));
 	}
