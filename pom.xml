@@ -33,6 +33,7 @@
 		<asm.version>5.2</asm.version>
 		<jdk.version>1.8</jdk.version>
 		<maven-compiler.version>3.6.0</maven-compiler.version>
+		<maven-shade.version>2.4.3</maven-shade.version>
 		<slf4j.version>1.7.22</slf4j.version>
 		
 	</properties>
@@ -63,6 +64,28 @@
 					<source>${jdk.version}</source>
 					<target>${jdk.version}</target>
 				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>${maven-shade.version}</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<relocations>
+								<relocation>
+									<pattern>org.objectweb.asm</pattern>
+									<shadedPattern>com.github.javalbert.org.objectweb.asm</shadedPattern>
+								</relocation>
+							</relocations>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			
 		</plugins>
