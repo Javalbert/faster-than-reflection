@@ -49,7 +49,6 @@ public final class ClassAccessFactory<T> {
 		try {
 			return getInstance(clazz);
 		} catch (ClassNotFoundException e) {
-			LOGGER.error("Error occurred while trying to get ClassAccess for " + clazz, e);
 			CLASS_ACCESS_MAP.remove(clazz);
 			
 			new ClassAccessFactory<>(clazz).buildClassAccessClass();
@@ -60,6 +59,7 @@ public final class ClassAccessFactory<T> {
 		try {
 			return getInstance(clazz);
 		} catch (Exception e) {
+			LOGGER.error("Error occurred while trying to get ClassAccess for " + clazz, e);
 			throw new RuntimeException(e);
 		}
 	}
