@@ -22,16 +22,19 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.text.WordUtils;
-import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -152,7 +155,7 @@ public final class ClassAccessFactory<T> {
 	
 	private static class FieldAccessInfo {
 		private static FieldAccessInfo forPrimitive(Type type) {
-			String camelCaseClassName = WordUtils.capitalizeFully(type.getClassName());
+			String camelCaseClassName = WordUtils.capitalize(type.getClassName());
 			
 			return new FieldAccessInfo(
 					"get" + camelCaseClassName + "Field",
@@ -165,11 +168,21 @@ public final class ClassAccessFactory<T> {
 		
 		private static FieldAccessInfo forPrimitiveWrapper(Class<?> clazz) {
 			Class<?> primitiveClass = ClassUtils.wrapperToPrimitive(clazz);
-			String camelCaseClassName = WordUtils.capitalizeFully(primitiveClass.getName());
+			String camelCaseClassName = WordUtils.capitalize(primitiveClass.getName());
 			
 			return new FieldAccessInfo(
 					"getBoxed" + camelCaseClassName + "Field",
 					"setBoxed" + camelCaseClassName + "Field",
+					clazz.getName(),
+					Type.getDescriptor(clazz),
+					ALOAD,
+					ARETURN);
+		}
+		
+		private static FieldAccessInfo forReferenceType(Class<?> clazz) {
+			return new FieldAccessInfo(
+					"get" + clazz.getSimpleName() + "Field",
+					"set" + clazz.getSimpleName() + "Field",
 					clazz.getName(),
 					Type.getDescriptor(clazz),
 					ALOAD,
@@ -318,6 +331,8 @@ public final class ClassAccessFactory<T> {
 	private void visitClassAccessMethods() {
 		List<FieldAccessInfo> fieldAccessInfoList = Collections.unmodifiableList(
 				Arrays.asList(
+						// Primitive types
+						//
 						FieldAccessInfo.forPrimitive(Type.BOOLEAN_TYPE),
 						FieldAccessInfo.forPrimitive(Type.BYTE_TYPE),
 						FieldAccessInfo.forPrimitive(Type.CHAR_TYPE),
@@ -326,6 +341,8 @@ public final class ClassAccessFactory<T> {
 						FieldAccessInfo.forPrimitive(Type.INT_TYPE),
 						FieldAccessInfo.forPrimitive(Type.LONG_TYPE),
 						FieldAccessInfo.forPrimitive(Type.SHORT_TYPE),
+						// Primitive wrapper types
+						//
 						FieldAccessInfo.forPrimitiveWrapper(Boolean.class),
 						FieldAccessInfo.forPrimitiveWrapper(Byte.class),
 						FieldAccessInfo.forPrimitiveWrapper(Character.class),
@@ -333,7 +350,14 @@ public final class ClassAccessFactory<T> {
 						FieldAccessInfo.forPrimitiveWrapper(Float.class),
 						FieldAccessInfo.forPrimitiveWrapper(Integer.class),
 						FieldAccessInfo.forPrimitiveWrapper(Long.class),
-						FieldAccessInfo.forPrimitiveWrapper(Short.class)
+						FieldAccessInfo.forPrimitiveWrapper(Short.class),
+						// Common reference types
+						//
+						FieldAccessInfo.forReferenceType(BigDecimal.class),
+						FieldAccessInfo.forReferenceType(Date.class),
+						FieldAccessInfo.forReferenceType(LocalDate.class),
+						FieldAccessInfo.forReferenceType(LocalDateTime.class),
+						FieldAccessInfo.forReferenceType(String.class)
 						)
 				);
 		

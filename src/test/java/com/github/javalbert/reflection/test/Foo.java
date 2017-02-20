@@ -12,6 +12,11 @@
  *******************************************************************************/
 package com.github.javalbert.reflection.test;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
+
 import com.github.javalbert.reflection.ClassAccess;
 
 public class Foo {
@@ -187,6 +192,58 @@ public class Foo {
 		@Override
 		public void setBoxedShortField(Foo obj, int fieldIndex, Short x) {
 		}
+
+		@Override
+		public BigDecimal getBigDecimalField(Foo obj, int fieldIndex) {
+			return null;
+		}
+
+		@Override
+		public void setBigDecimalField(Foo obj, int fieldIndex, BigDecimal x) {
+			switch (fieldIndex) {
+				case 8:
+					obj.bigDecimal = x;
+					break;
+				default:
+					throw new IllegalArgumentException("No field with index: " + fieldIndex);
+			}
+		}
+
+		@Override
+		public Date getDateField(Foo obj, int fieldIndex) {
+			return null;
+		}
+
+		@Override
+		public void setDateField(Foo obj, int fieldIndex, Date x) {
+		}
+
+		@Override
+		public String getStringField(Foo obj, int fieldIndex) {
+			return null;
+		}
+
+		@Override
+		public void setStringField(Foo obj, int fieldIndex, String x) {
+		}
+
+		@Override
+		public LocalDate getLocalDateField(Foo obj, int fieldIndex) {
+			return null;
+		}
+
+		@Override
+		public void setLocalDateField(Foo obj, int fieldIndex, LocalDate x) {
+		}
+
+		@Override
+		public LocalDateTime getLocalDateTimeField(Foo obj, int fieldIndex) {
+			return null;
+		}
+
+		@Override
+		public void setLocalDateTimeField(Foo obj, int fieldIndex, LocalDateTime x) {
+		}
 	}
 	
 	// Primitive types
@@ -210,6 +267,14 @@ public class Foo {
 	private Integer boxedInt;
 	private Long boxedLong;
 	private Short boxedShort;
+	
+	// Common reference types
+	//
+	private BigDecimal bigDecimal;
+	private Date date;
+	private LocalDate localDate;
+	private LocalDateTime localDateTime;
+	private String string;
 
 	/* START Primitive type properties */
 	
@@ -316,4 +381,39 @@ public class Foo {
 	}
 	
 	/* END Primitive wrapper type properties */
+
+	/* START Common reference types */
+	
+	public BigDecimal getBigDecimal() {
+		return bigDecimal;
+	}
+	public void setBigDecimal(BigDecimal bigDecimal) {
+		this.bigDecimal = bigDecimal;
+	}
+	public Date getDate() {
+		return date;
+	}
+	public void setDate(Date date) {
+		this.date = date;
+	}
+	public LocalDate getLocalDate() {
+		return localDate;
+	}
+	public void setLocalDate(LocalDate localDate) {
+		this.localDate = localDate;
+	}
+	public LocalDateTime getLocalDateTime() {
+		return localDateTime;
+	}
+	public void setLocalDateTime(LocalDateTime localDateTime) {
+		this.localDateTime = localDateTime;
+	}
+	public String getString() {
+		return string;
+	}
+	public void setString(String string) {
+		this.string = string;
+	}
+	
+	/* END Common reference types */
 }
