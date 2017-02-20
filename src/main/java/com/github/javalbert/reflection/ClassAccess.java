@@ -12,6 +12,11 @@
  *******************************************************************************/
 package com.github.javalbert.reflection;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
+
 public interface ClassAccess<T> {
 	int fieldIndex(String name);
 
@@ -58,4 +63,17 @@ public interface ClassAccess<T> {
 	void setBoxedIntField(T obj, int fieldIndex, Integer x);
 	void setBoxedLongField(T obj, int fieldIndex, Long x);
 	void setBoxedShortField(T obj, int fieldIndex, Short x);
+	
+	// Common reference types
+	//
+	BigDecimal getBigDecimalField(T obj, int fieldIndex);
+	void setBigDecimalField(T obj, int fieldIndex, BigDecimal x);
+	Date getDateField(T obj, int fieldIndex);
+	void setDateField(T obj, int fieldIndex, Date x);
+	LocalDate getLocalDateField(T obj, int fieldIndex);
+	void setLocalDateField(T obj, int fieldIndex, LocalDate x);
+	LocalDateTime getLocalDateTimeField(T obj, int fieldIndex);
+	void setLocalDateTimeField(T obj, int fieldIndex, LocalDateTime x);
+	String getStringField(T obj, int fieldIndex);
+	void setStringField(T obj, int fieldIndex, String x);
 }
