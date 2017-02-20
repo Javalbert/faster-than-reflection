@@ -96,25 +96,27 @@ public final class ClassAccessFactory<T> {
 	private static Label[] getTableSwitchLabelsForFieldAccess(
 			Label defaultCaseLabel,
 			List<FieldInfo> fields) {
-		int len = fields.get(fields.size() - 1).fieldIndex - fields.get(0).fieldIndex + fields.size();
+		List<Label> labels = new ArrayList<>();
 		
-		Label[] labels = new Label[len];
+		int currentField = 0;
+		int fieldIndex = fields.get(0).fieldIndex;
 		
-		int fieldIndex = -1;
+		int hi = fields.get(fields.size() - 1).fieldIndex;
+		int lo = fields.get(0).fieldIndex;
 		
-		for (int i = 0, currentField = 0; i < labels.length; i++) {
+		for (int i = lo; i <= hi; i++) {
 			FieldInfo field = fields.get(currentField);
 			
-			if (field.fieldIndex < fieldIndex) {
-				labels[i] = defaultCaseLabel;
+			if (fieldIndex < field.fieldIndex) {
+				labels.add(defaultCaseLabel);
 				fieldIndex++;
 			} else {
-				labels[i] = new Label();
+				labels.add(new Label());
 				fieldIndex = field.fieldIndex + 1;
 				currentField++;
 			}
 		}
-		return labels;
+		return labels.stream().toArray(s -> new Label[s]);
 	}
 	
 	private static Label[] newLabelArray(int size) {
@@ -234,16 +236,22 @@ public final class ClassAccessFactory<T> {
 	}
 	
 	private static class FieldInfo {
+		private final String descriptor;
 		private final int fieldIndex;
 		private final int getFieldOpcode;
+		private final String internalName;
 		private final String name;
 		private final int setFieldOpcode;
+		private final Class<?> type;
 		
 		private FieldInfo(Field field, int fieldIndex) {
+			descriptor = Type.getDescriptor(field.getType());
 			this.fieldIndex = fieldIndex;
 			getFieldOpcode = (field.getModifiers() & Modifier.STATIC) == 0 ? GETFIELD : GETSTATIC;
+			internalName = Type.getInternalName(field.getType());
 			name = field.getName();
 			setFieldOpcode = (field.getModifiers() & Modifier.STATIC) == 0 ? PUTFIELD : PUTSTATIC;
+			type = field.getType();
 		}
 	}
 
@@ -252,6 +260,7 @@ public final class ClassAccessFactory<T> {
 	private String classTypeDescriptor;
 	private final Class<T> clazz;
 	private final ClassWriter cw;
+	private final List<FieldInfo> fieldInfoList = new ArrayList<>();
 	private final List<Field> fields;
 	private String internalName;
 	private MethodVisitor mv;
@@ -301,12 +310,15 @@ public final class ClassAccessFactory<T> {
 	private void putIntoTypeToFieldsMap(Field field, int fieldIndex) {
 		String key = field.getType().getName();
 		
-		List<FieldInfo> fields = typeToFieldsMap.get(key);
-		if (fields == null) {
-			fields = new ArrayList<>();
-			typeToFieldsMap.put(key, fields);
+		List<FieldInfo> fieldsOfType = typeToFieldsMap.get(key);
+		if (fieldsOfType == null) {
+			fieldsOfType = new ArrayList<>();
+			typeToFieldsMap.put(key, fieldsOfType);
 		}
-		fields.add(new FieldInfo(field, fieldIndex));
+		FieldInfo fieldInfo = new FieldInfo(field, fieldIndex);
+		
+		fieldsOfType.add(fieldInfo);
+		fieldInfoList.add(fieldInfo);
 	}
 	
 	private void visitClass() {
@@ -369,6 +381,11 @@ public final class ClassAccessFactory<T> {
 			visitFieldAccessGetterBridge(fieldAccessInfo);
 			visitFieldAccessSetterBridge(fieldAccessInfo);
 		}
+		
+		visitGeneralFieldAccessGetter();
+		visitFieldAccessGetterBridge("getField", "Ljava/lang/Object;", ARETURN);
+		visitGeneralFieldAccessSetter();
+		visitFieldAccessSetterBridge("setField", ALOAD, "Ljava/lang/Object;");
 	}
 	
 	private void visitDefaultConstructor() {
@@ -445,10 +462,20 @@ public final class ClassAccessFactory<T> {
 	}
 	
 	private void visitFieldAccessGetterBridge(FieldAccessInfo fieldAccessInfo) {
+		visitFieldAccessGetterBridge(
+				fieldAccessInfo.getMethodName,
+				fieldAccessInfo.descriptor,
+				fieldAccessInfo.returnOpcode);
+	}
+	
+	private void visitFieldAccessGetterBridge(
+			String methodName,
+			String returnTypeDescriptor,
+			int returnOpcode) {
 		mv = cw.visitMethod(
 				ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC,
-				fieldAccessInfo.getMethodName,
-				"(Ljava/lang/Object;I)" + fieldAccessInfo.descriptor,
+				methodName,
+				"(Ljava/lang/Object;I)" + returnTypeDescriptor,
 				null,
 				null);
 		mv.visitCode();
@@ -460,10 +487,10 @@ public final class ClassAccessFactory<T> {
 		mv.visitMethodInsn(
 				INVOKEVIRTUAL,
 				classAccessInternalName,
-				fieldAccessInfo.getMethodName,
-				"(" + classTypeDescriptor + "I)" + fieldAccessInfo.descriptor,
+				methodName,
+				"(" + classTypeDescriptor + "I)" + returnTypeDescriptor,
 				false);
-		mv.visitInsn(fieldAccessInfo.returnOpcode);
+		mv.visitInsn(returnOpcode);
 		mv.visitMaxs(3, 3);
 		mv.visitEnd();
 	}
@@ -507,7 +534,7 @@ public final class ClassAccessFactory<T> {
 		if (fields.isEmpty()) {
 			mv.visitInsn(POP);
 			mv.visitLabel(defaultCaseLabel);
-			visitFieldAccessSetterLastPart(firstLabel, null);
+			visitFieldAccessSetterLastPart(fieldAccessInfo.descriptor, firstLabel, null);
 			return;
 		}
 		
@@ -548,14 +575,24 @@ public final class ClassAccessFactory<T> {
 		mv.visitLabel(defaultCaseLabel);
 		mv.visitFrame(F_SAME, 0, null, 0, null);
 		
-		visitFieldAccessSetterLastPart(firstLabel, breakLabel);
+		visitFieldAccessSetterLastPart(fieldAccessInfo.descriptor, firstLabel, breakLabel);
 	}
 	
 	private void visitFieldAccessSetterBridge(FieldAccessInfo fieldAccessInfo) {
+		visitFieldAccessSetterBridge(
+				fieldAccessInfo.setMethodName,
+				fieldAccessInfo.loadOpcode,
+				fieldAccessInfo.descriptor);
+	}
+	
+	private void visitFieldAccessSetterBridge(
+			String methodName,
+			int loadOpcode,
+			String descriptor) {
 		mv = cw.visitMethod(
 				ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC,
-				fieldAccessInfo.setMethodName,
-				"(Ljava/lang/Object;I" + fieldAccessInfo.descriptor + ")V",
+				methodName,
+				"(Ljava/lang/Object;I" + descriptor + ")V",
 				null,
 				null);
 		mv.visitCode();
@@ -564,19 +601,22 @@ public final class ClassAccessFactory<T> {
 		mv.visitVarInsn(ALOAD, 1);
 		mv.visitTypeInsn(CHECKCAST, internalName);
 		mv.visitVarInsn(ILOAD, 2);
-		mv.visitVarInsn(fieldAccessInfo.loadOpcode, 3);
+		mv.visitVarInsn(loadOpcode, 3);
 		mv.visitMethodInsn(
 				INVOKEVIRTUAL,
 				classAccessInternalName,
-				fieldAccessInfo.setMethodName,
-				"(" + classTypeDescriptor + "I" + fieldAccessInfo.descriptor + ")V",
+				methodName,
+				"(" + classTypeDescriptor + "I" + descriptor + ")V",
 				false);
 		mv.visitInsn(RETURN);
 		mv.visitMaxs(4, 4);
 		mv.visitEnd();
 	}
 	
-	private void visitFieldAccessSetterLastPart(Label firstLabel, Label breakLabel) {
+	private void visitFieldAccessSetterLastPart(
+			String fieldDescriptor,
+			Label firstLabel,
+			Label breakLabel) {
 		mv.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
 		mv.visitInsn(DUP);
 		mv.visitTypeInsn(NEW, "java/lang/StringBuilder");
@@ -598,7 +638,7 @@ public final class ClassAccessFactory<T> {
 		mv.visitLocalVariable("this", classAccessTypeDescriptor, null, firstLabel, lastLabel, 0);
 		mv.visitLocalVariable("obj", classTypeDescriptor, null, firstLabel, lastLabel, 1);
 		mv.visitLocalVariable("fieldIndex", "I", null, firstLabel, lastLabel, 2);
-		mv.visitLocalVariable("x", "Z", null, firstLabel, lastLabel, 3);
+		mv.visitLocalVariable("x", fieldDescriptor, null, firstLabel, lastLabel, 3);
 		mv.visitMaxs(5, 4);
 		mv.visitEnd();
 	}
@@ -701,5 +741,132 @@ public final class ClassAccessFactory<T> {
 		mv.visitLocalVariable("name", "Ljava/lang/String;", null, firstLabel, lastLabel, 1);
 		mv.visitMaxs(5, 3);
 		mv.visitEnd();
+	}
+	
+	private void visitGeneralFieldAccessGetter() {
+		mv = cw.visitMethod(
+				ACC_PUBLIC,
+				"getField",
+				"(" + classTypeDescriptor + "I)Ljava/lang/Object;",
+				null,
+				null);
+		mv.visitCode();
+		Label firstLabel = new Label();
+		mv.visitLabel(firstLabel);
+		mv.visitVarInsn(ILOAD, 2);
+
+		Label defaultCaseLabel = new Label();
+
+		List<FieldInfo> fields = fieldInfoList;
+		if (fields.isEmpty()) {
+			mv.visitInsn(POP);
+			mv.visitLabel(defaultCaseLabel);
+			visitFieldAccessGetterLastPart(firstLabel);
+			return;
+		}
+		
+		Label[] labels = getTableSwitchLabelsForFieldAccess(defaultCaseLabel, fields);
+		
+		// Always use a table switch because there are no gaps between field indices
+		mv.visitTableSwitchInsn(
+				fields.get(0).fieldIndex,
+				fields.get(fields.size() - 1).fieldIndex,
+				defaultCaseLabel,
+				labels
+				);
+		
+		for (int i = 0; i < fields.size(); i++) {
+			FieldInfo field = fields.get(i);
+			
+			mv.visitLabel(labels[i]);
+			mv.visitFrame(F_SAME, 0, null, 0, null);
+			mv.visitVarInsn(ALOAD, 1);
+			mv.visitFieldInsn(field.getFieldOpcode, internalName, field.name, field.descriptor);
+			
+			if (field.type.isPrimitive()) {
+				Class<?> wrapperType = ClassUtils.primitiveToWrapper(field.type);
+				mv.visitMethodInsn(
+						INVOKESTATIC,
+						Type.getInternalName(wrapperType),
+						"valueOf", "(" + field.descriptor +")" + Type.getDescriptor(wrapperType),
+						false);
+			}
+			
+			mv.visitInsn(ARETURN);
+		}
+		
+		mv.visitLabel(defaultCaseLabel);
+		mv.visitFrame(F_SAME, 0, null, 0, null);
+		
+		visitFieldAccessGetterLastPart(firstLabel);
+	}
+	
+	private void visitGeneralFieldAccessSetter() {
+		mv = cw.visitMethod(
+				ACC_PUBLIC,
+				"setField",
+				"(" + classTypeDescriptor + "ILjava/lang/Object;)V",
+				null,
+				null);
+		mv.visitCode();
+		Label firstLabel = new Label();
+		mv.visitLabel(firstLabel);
+		mv.visitVarInsn(ILOAD, 2);
+
+		Label defaultCaseLabel = new Label();
+
+		List<FieldInfo> fields = fieldInfoList;
+		if (fields.isEmpty()) {
+			mv.visitInsn(POP);
+			mv.visitLabel(defaultCaseLabel);
+			visitFieldAccessSetterLastPart("Ljava/lang/Object;", firstLabel, null);
+			return;
+		}
+		
+		Label[] labels = getTableSwitchLabelsForFieldAccess(defaultCaseLabel, fields);
+
+		// Always use a table switch because there are no gaps between field indices
+		mv.visitTableSwitchInsn(
+				fields.get(0).fieldIndex,
+				fields.get(fields.size() - 1).fieldIndex,
+				defaultCaseLabel,
+				labels
+				);
+		
+		Label breakLabel = new Label();
+		
+		for (int i = 0; i < fields.size(); i++) {
+			FieldInfo field = fields.get(i);
+			
+			mv.visitLabel(labels[i]);
+			mv.visitFrame(F_SAME, 0, null, 0, null);
+			mv.visitVarInsn(ALOAD, 1);
+			mv.visitVarInsn(ALOAD, 3);
+			
+			String internalNameOfCast = field.internalName;
+			if (field.type.isPrimitive()) {
+				Class<?> wrapperType = ClassUtils.primitiveToWrapper(field.type);
+				internalNameOfCast = Type.getInternalName(wrapperType);
+			}
+			mv.visitTypeInsn(CHECKCAST, internalNameOfCast);
+			
+			if (field.type.isPrimitive()) {
+				mv.visitMethodInsn(
+						INVOKEVIRTUAL,
+						internalNameOfCast,
+						field.type.getName() + "Value",
+						"()" + field.descriptor,
+						false);
+			}
+			
+			mv.visitFieldInsn(field.setFieldOpcode, internalName, field.name, field.descriptor);
+			mv.visitLabel(new Label());
+			mv.visitJumpInsn(GOTO, breakLabel);
+		}
+		
+		mv.visitLabel(defaultCaseLabel);
+		mv.visitFrame(F_SAME, 0, null, 0, null);
+		
+		visitFieldAccessSetterLastPart("Ljava/lang/Object;", firstLabel, breakLabel);
 	}
 }

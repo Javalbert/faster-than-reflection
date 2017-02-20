@@ -76,4 +76,9 @@ public interface ClassAccess<T> {
 	void setLocalDateTimeField(T obj, int fieldIndex, LocalDateTime x);
 	String getStringField(T obj, int fieldIndex);
 	void setStringField(T obj, int fieldIndex, String x);
+	
+	// For all fields
+	//
+	Object getField(T obj, int fieldIndex);
+	void setField(T obj, int fieldIndex, Object x);
 }
