@@ -314,7 +314,30 @@ public class Foo {
 		
 		@Override
 		public boolean getBooleanProperty(Foo obj, int propertyIndex) {
-			return false;
+			switch (propertyIndex) {
+				case 1:
+					return obj.getBooleanVal();
+				default:
+					throw new IllegalArgumentException("No property with index: " + propertyIndex);
+			}
+		}
+	}
+	
+	public boolean getBooleanField(Foo obj, int fieldIndex) {
+		switch (fieldIndex) {
+			case 0:
+				return obj.booleanVal;
+			default:
+				throw new IllegalArgumentException("No field with index: " + fieldIndex);
+		}
+	}
+	
+	public boolean getBooleanProperty(Foo obj, int propertyIndex) {
+		switch (propertyIndex) {
+			case 1:
+				return obj.getBooleanVal();
+			default:
+				throw new IllegalArgumentException("No property with index: " + propertyIndex);
 		}
 	}
 	

@@ -302,7 +302,7 @@ public final class ClassAccessFactory<T> {
 		visitDefaultConstructor();
 		visitIndexMethod("field", getFieldIndexSwitchCases());
 		visitFieldAccessMethods();
-		visitPropertyIndexMethod();
+		visitIndexMethod("property", getPropertyIndexSwitchCases());
 		visitPropertyAccessMethods();
 		cw.visitEnd();
 		AccessClassLoader.get(clazz).defineClass(getClassNameOfClassAccessFor(clazz), cw.toByteArray());
@@ -314,6 +314,14 @@ public final class ClassAccessFactory<T> {
 			fieldIndexSwitchCases.add(new StringCaseReturnIndex(fields.get(i).getName(), i));
 		}
 		return fieldIndexSwitchCases;
+	}
+	
+	private List<StringCaseReturnIndex> getPropertyIndexSwitchCases() {
+		List<StringCaseReturnIndex> propertyIndexSwitchCases = new ArrayList<>();
+		for (int i = 0; i < propertyDescriptors.size(); i++) {
+			propertyIndexSwitchCases.add(new StringCaseReturnIndex(propertyDescriptors.get(i).getName(), i));
+		}
+		return propertyIndexSwitchCases;
 	}
 	
 	private void putIntoTypeToFieldsMap(Field field, int fieldIndex) {
@@ -880,10 +888,6 @@ public final class ClassAccessFactory<T> {
 		mv.visitEnd();
 	}
 	
-	private void visitPropertyIndexMethod() {
-		
-	}
-
 	private void visitPropertyAccessMethods() {
 		
 	}

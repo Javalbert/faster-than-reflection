@@ -41,11 +41,14 @@ public class ClassAccessPropertiesTest {
 	
 	public static void main(String[] args) {
 		try {
-			BeanInfo info = Introspector.getBeanInfo(Foo2.class);
+			BeanInfo info = Introspector.getBeanInfo(Foo.class);
 			List<PropertyDescriptor> propertyDescriptors = Collections.unmodifiableList(Arrays.stream(info.getPropertyDescriptors())
 					.filter(prop -> !prop.getName().equals("class"))
 					.collect(toList()));
-			System.out.println(propertyDescriptors);
+			System.out.println(propertyDescriptors.size());
+			
+			propertyDescriptors.stream()
+				.forEach(prop -> System.out.println(prop.getName()));
 		} catch (IntrospectionException e) {
 			throw new RuntimeException(e);
 		}
