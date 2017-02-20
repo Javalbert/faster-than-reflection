@@ -244,6 +244,32 @@ public class Foo {
 		@Override
 		public void setLocalDateTimeField(Foo obj, int fieldIndex, LocalDateTime x) {
 		}
+		
+		@Override
+		public Object getField(Foo obj, int fieldIndex) {
+			switch (fieldIndex) {
+				case 0:
+					return obj.booleanVal;
+				case 1:
+					return obj.byteVal;
+				case 2:
+					return obj.charVal;
+				case 3:
+					return obj.doubleVal;
+				case 4:
+					return obj.floatVal;
+				case 5:
+					return obj.intVal;
+				case 6:
+					return obj.longVal;
+				case 7:
+					return obj.shortVal;
+				case 8:
+					return obj.boxedBoolean;
+				default:
+					throw new IllegalArgumentException("No field with index: " + fieldIndex);
+			}
+		}
 	}
 	
 	// Primitive types
@@ -275,7 +301,7 @@ public class Foo {
 	private LocalDate localDate;
 	private LocalDateTime localDateTime;
 	private String string;
-
+	
 	/* START Primitive type properties */
 	
 	public boolean getBooleanVal() {
