@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.text.WordUtils;
@@ -44,22 +45,15 @@ import org.slf4j.LoggerFactory;
 
 public final class ClassAccessFactory<T> {
 	@SuppressWarnings("rawtypes")
-	private final static Map<Class, ClassAccess> CLASS_ACCESS_MAP = new HashMap<>();
+	private final static WeakHashMap<Class, ClassAccess> CLASS_ACCESS_MAP = new WeakHashMap<>();
 	private final static Logger LOGGER = LoggerFactory.getLogger(ClassAccessFactory.class);
 	
 	public static <T> ClassAccess<T> get(Class<T> clazz) {
 		if (ClassAccess.class.isAssignableFrom(clazz)) {
 			throw new IllegalArgumentException("should not get class access recursively");
-		}
-		
-		try {
-			return getInstance(clazz);
-		} catch (ClassNotFoundException e) {
-			CLASS_ACCESS_MAP.remove(clazz);
-			
-			new ClassAccessFactory<>(clazz).buildClassAccessClass();
-		} catch (InstantiationException | IllegalAccessException e) {
-			throw new RuntimeException(e);
+		} else if (Modifier.isInterface(clazz.getModifiers()) 
+				|| Modifier.isAbstract(clazz.getModifiers())) {
+			throw new IllegalArgumentException("class cannot be an interface or be abstract");
 		}
 		
 		try {
@@ -70,6 +64,17 @@ public final class ClassAccessFactory<T> {
 		}
 	}
 	
+	private static Class<?> createClassAccessClass(Class<?> clazz)
+			throws ClassNotFoundException {
+		String className = getClassNameOfClassAccessFor(clazz);
+		try {
+			return AccessClassLoader.get(clazz).loadClass(className);
+		} catch (ClassNotFoundException ignored) {}
+		
+		new ClassAccessFactory<>(clazz).buildClassAccessClass();
+		return AccessClassLoader.get(clazz).loadClass(className);
+	}
+	
 	private static String getClassNameOfClassAccessFor(Class<?> clazz) {
 		return clazz.getName() + "$" + clazz.getSimpleName() + "ClassAccess"; // com.github.javalbert.reflection.test.Foo$FooClassAccess
 	}
@@ -77,14 +82,14 @@ public final class ClassAccessFactory<T> {
 	@SuppressWarnings("unchecked")
 	private static <T> ClassAccess<T> getInstance(Class<T> clazz)
 			throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-		String className = getClassNameOfClassAccessFor(clazz);
-		Class<?> classAccessClass = AccessClassLoader.get(clazz).loadClass(className);
-		
 		ClassAccess<T> classAccess = CLASS_ACCESS_MAP.get(clazz);
+		
 		if (classAccess == null) {
 			synchronized (CLASS_ACCESS_MAP) {
 				classAccess = CLASS_ACCESS_MAP.get(clazz);
+				
 				if (classAccess == null) {
+					Class<?> classAccessClass = createClassAccessClass(clazz);
 					classAccess = (ClassAccess<T>)classAccessClass.newInstance();
 					CLASS_ACCESS_MAP.put(clazz, classAccess);
 				}
