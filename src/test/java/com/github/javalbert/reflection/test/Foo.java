@@ -270,6 +270,32 @@ public class Foo {
 					throw new IllegalArgumentException("No field with index: " + fieldIndex);
 			}
 		}
+		
+		@Override
+		public void setField(Foo obj, int fieldIndex, Object x) {
+			switch (fieldIndex) {
+				case 0:
+					obj.booleanVal = (boolean)x;
+				case 1:
+					obj.byteVal = (byte)x;
+				case 2:
+					obj.charVal = (char)x;
+				case 3:
+					obj.doubleVal = (double)x;
+				case 4:
+					obj.floatVal = (float)x;
+				case 5:
+					obj.intVal = (int)x;
+				case 6:
+					obj.longVal = (long)x;
+				case 7:
+					obj.shortVal = (short)x;
+				case 8:
+					obj.boxedBoolean = (Boolean)x;
+				default:
+					throw new IllegalArgumentException("No field with index: " + fieldIndex);
+			}
+		}
 	}
 	
 	// Primitive types

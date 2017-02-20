@@ -80,4 +80,5 @@ public interface ClassAccess<T> {
 	// For all fields
 	//
 	Object getField(T obj, int fieldIndex);
+	void setField(T obj, int fieldIndex, Object x);
 }
