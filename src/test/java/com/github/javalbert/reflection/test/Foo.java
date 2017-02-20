@@ -23,7 +23,12 @@ public class Foo {
 	public static class FooAccess2 implements ClassAccess<Foo> {
 		@Override
 		public int fieldIndex(String name) {
-			return 0;
+			switch (name) {
+				case "booleanVal":
+					return 0;
+				default:
+					throw new IllegalArgumentException("No field with name: " + name);
+			}
 		}
 
 		@Override
@@ -295,6 +300,21 @@ public class Foo {
 				default:
 					throw new IllegalArgumentException("No field with index: " + fieldIndex);
 			}
+		}
+
+		@Override
+		public int propertyIndex(String name) {
+			switch (name) {
+				case "BooleanVal":
+					return 0;
+				default:
+					throw new IllegalArgumentException("No property with name: " + name);
+			}
+		}
+		
+		@Override
+		public boolean getBooleanProperty(Foo obj, int propertyIndex) {
+			return false;
 		}
 	}
 	

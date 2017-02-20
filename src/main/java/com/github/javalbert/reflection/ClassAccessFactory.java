@@ -219,27 +219,6 @@ public final class ClassAccessFactory<T> {
 		}
 	}
 	
-	private static class FieldIndexSwitchCase {
-		private static int compareFieldIndexSwitchCaseByFieldIndex(FieldIndexSwitchCase a, FieldIndexSwitchCase b) {
-			return Integer.compare(a.fieldIndex, b.fieldIndex);
-		}
-		
-		private static int compareFieldIndexSwitchCaseByHashCode(FieldIndexSwitchCase a, FieldIndexSwitchCase b) {
-			return Integer.compare(a.hashCode, b.hashCode);
-		}
-		
-		private final Field field;
-		private final int fieldIndex;
-		private final int hashCode;
-		private final Label returnFieldIndexLabel = new Label();
-		
-		private FieldIndexSwitchCase(Field field, int fieldIndex) {
-			this.field = field;
-			this.fieldIndex = fieldIndex;
-			this.hashCode = field.getName().hashCode();
-		}
-	}
-	
 	private static class FieldInfo {
 		private final String descriptor;
 		private final int fieldIndex;
@@ -259,6 +238,27 @@ public final class ClassAccessFactory<T> {
 			type = field.getType();
 		}
 	}
+	
+	private static class StringCaseReturnIndex {
+		private static int compareIndex(StringCaseReturnIndex a, StringCaseReturnIndex b) {
+			return Integer.compare(a.index, b.index);
+		}
+		
+		private static int compareHashCode(StringCaseReturnIndex a, StringCaseReturnIndex b) {
+			return Integer.compare(a.hashCode, b.hashCode);
+		}
+		
+		private final int hashCode;
+		private final int index;
+		private final String name;
+		private final Label returnIndexLabel = new Label();
+		
+		private StringCaseReturnIndex(String name, int index) {
+			hashCode = name.hashCode();
+			this.index = index;
+			this.name = name;
+		}
+	}
 
 	private String classAccessInternalName;
 	private String classAccessTypeDescriptor;
@@ -275,7 +275,9 @@ public final class ClassAccessFactory<T> {
 	private ClassAccessFactory(Class<T> clazz) {
 		try {
 			BeanInfo info = Introspector.getBeanInfo(clazz);
-			propertyDescriptors = Collections.unmodifiableList(Arrays.asList(info.getPropertyDescriptors()));
+			propertyDescriptors = Collections.unmodifiableList(Arrays.stream(info.getPropertyDescriptors())
+					.filter(prop -> !prop.getName().equals("class"))
+					.collect(toList()));
 		} catch (IntrospectionException e) {
 			throw new RuntimeException(e);
 		}
@@ -298,16 +300,18 @@ public final class ClassAccessFactory<T> {
 	private void buildClassAccessClass() {
 		visitClass();
 		visitDefaultConstructor();
-		visitFieldIndexMethod();
-		visitClassAccessMethods();
+		visitIndexMethod("field", getFieldIndexSwitchCases());
+		visitFieldAccessMethods();
+		visitPropertyIndexMethod();
+		visitPropertyAccessMethods();
 		cw.visitEnd();
 		AccessClassLoader.get(clazz).defineClass(getClassNameOfClassAccessFor(clazz), cw.toByteArray());
 	}
 	
-	private List<FieldIndexSwitchCase> getFieldIndexSwitchCases() {
-		List<FieldIndexSwitchCase> fieldIndexSwitchCases = new ArrayList<>();
+	private List<StringCaseReturnIndex> getFieldIndexSwitchCases() {
+		List<StringCaseReturnIndex> fieldIndexSwitchCases = new ArrayList<>();
 		for (int i = 0; i < fields.size(); i++) {
-			fieldIndexSwitchCases.add(new FieldIndexSwitchCase(fields.get(i), i));
+			fieldIndexSwitchCases.add(new StringCaseReturnIndex(fields.get(i).getName(), i));
 		}
 		return fieldIndexSwitchCases;
 	}
@@ -343,54 +347,6 @@ public final class ClassAccessFactory<T> {
 		
 		classAccessTypeDescriptor = "L" + classAccessInternalName + ";";
 		classTypeDescriptor = "L" + internalName + ";";
-	}
-	
-	private void visitClassAccessMethods() {
-		List<FieldAccessInfo> fieldAccessInfoList = Collections.unmodifiableList(
-				Arrays.asList(
-						// Primitive types
-						//
-						FieldAccessInfo.forPrimitive(Type.BOOLEAN_TYPE),
-						FieldAccessInfo.forPrimitive(Type.BYTE_TYPE),
-						FieldAccessInfo.forPrimitive(Type.CHAR_TYPE),
-						FieldAccessInfo.forPrimitive(Type.DOUBLE_TYPE),
-						FieldAccessInfo.forPrimitive(Type.FLOAT_TYPE),
-						FieldAccessInfo.forPrimitive(Type.INT_TYPE),
-						FieldAccessInfo.forPrimitive(Type.LONG_TYPE),
-						FieldAccessInfo.forPrimitive(Type.SHORT_TYPE),
-						// Primitive wrapper types
-						//
-						FieldAccessInfo.forPrimitiveWrapper(Boolean.class),
-						FieldAccessInfo.forPrimitiveWrapper(Byte.class),
-						FieldAccessInfo.forPrimitiveWrapper(Character.class),
-						FieldAccessInfo.forPrimitiveWrapper(Double.class),
-						FieldAccessInfo.forPrimitiveWrapper(Float.class),
-						FieldAccessInfo.forPrimitiveWrapper(Integer.class),
-						FieldAccessInfo.forPrimitiveWrapper(Long.class),
-						FieldAccessInfo.forPrimitiveWrapper(Short.class),
-						// Common reference types
-						//
-						FieldAccessInfo.forReferenceType(BigDecimal.class),
-						FieldAccessInfo.forReferenceType(Date.class),
-						FieldAccessInfo.forReferenceType(LocalDate.class),
-						FieldAccessInfo.forReferenceType(LocalDateTime.class),
-						FieldAccessInfo.forReferenceType(String.class)
-						)
-				);
-		
-		for (int i = 0; i < fieldAccessInfoList.size(); i++) {
-			FieldAccessInfo fieldAccessInfo = fieldAccessInfoList.get(i);
-			
-			visitFieldAccessGetter(fieldAccessInfo);
-			visitFieldAccessSetter(fieldAccessInfo);
-			visitFieldAccessGetterBridge(fieldAccessInfo);
-			visitFieldAccessSetterBridge(fieldAccessInfo);
-		}
-		
-		visitGeneralFieldAccessGetter();
-		visitFieldAccessGetterBridge("getField", "Ljava/lang/Object;", ARETURN);
-		visitGeneralFieldAccessSetter();
-		visitFieldAccessSetterBridge("setField", ALOAD, "Ljava/lang/Object;");
 	}
 	
 	private void visitDefaultConstructor() {
@@ -521,6 +477,54 @@ public final class ClassAccessFactory<T> {
 		mv.visitEnd();
 	}
 	
+	private void visitFieldAccessMethods() {
+		List<FieldAccessInfo> fieldAccessInfoList = Collections.unmodifiableList(
+				Arrays.asList(
+						// Primitive types
+						//
+						FieldAccessInfo.forPrimitive(Type.BOOLEAN_TYPE),
+						FieldAccessInfo.forPrimitive(Type.BYTE_TYPE),
+						FieldAccessInfo.forPrimitive(Type.CHAR_TYPE),
+						FieldAccessInfo.forPrimitive(Type.DOUBLE_TYPE),
+						FieldAccessInfo.forPrimitive(Type.FLOAT_TYPE),
+						FieldAccessInfo.forPrimitive(Type.INT_TYPE),
+						FieldAccessInfo.forPrimitive(Type.LONG_TYPE),
+						FieldAccessInfo.forPrimitive(Type.SHORT_TYPE),
+						// Primitive wrapper types
+						//
+						FieldAccessInfo.forPrimitiveWrapper(Boolean.class),
+						FieldAccessInfo.forPrimitiveWrapper(Byte.class),
+						FieldAccessInfo.forPrimitiveWrapper(Character.class),
+						FieldAccessInfo.forPrimitiveWrapper(Double.class),
+						FieldAccessInfo.forPrimitiveWrapper(Float.class),
+						FieldAccessInfo.forPrimitiveWrapper(Integer.class),
+						FieldAccessInfo.forPrimitiveWrapper(Long.class),
+						FieldAccessInfo.forPrimitiveWrapper(Short.class),
+						// Common reference types
+						//
+						FieldAccessInfo.forReferenceType(BigDecimal.class),
+						FieldAccessInfo.forReferenceType(Date.class),
+						FieldAccessInfo.forReferenceType(LocalDate.class),
+						FieldAccessInfo.forReferenceType(LocalDateTime.class),
+						FieldAccessInfo.forReferenceType(String.class)
+						)
+				);
+		
+		for (int i = 0; i < fieldAccessInfoList.size(); i++) {
+			FieldAccessInfo fieldAccessInfo = fieldAccessInfoList.get(i);
+			
+			visitFieldAccessGetter(fieldAccessInfo);
+			visitFieldAccessSetter(fieldAccessInfo);
+			visitFieldAccessGetterBridge(fieldAccessInfo);
+			visitFieldAccessSetterBridge(fieldAccessInfo);
+		}
+		
+		visitGeneralFieldAccessGetter();
+		visitFieldAccessGetterBridge("getField", "Ljava/lang/Object;", ARETURN);
+		visitGeneralFieldAccessSetter();
+		visitFieldAccessSetterBridge("setField", ALOAD, "Ljava/lang/Object;");
+	}
+	
 	private void visitFieldAccessSetter(FieldAccessInfo fieldAccessInfo) {
 		mv = cw.visitMethod(
 				ACC_PUBLIC,
@@ -645,106 +649,6 @@ public final class ClassAccessFactory<T> {
 		mv.visitLocalVariable("fieldIndex", "I", null, firstLabel, lastLabel, 2);
 		mv.visitLocalVariable("x", fieldDescriptor, null, firstLabel, lastLabel, 3);
 		mv.visitMaxs(5, 4);
-		mv.visitEnd();
-	}
-	
-	private void visitFieldIndexMethod() {
-		mv = cw.visitMethod(ACC_PUBLIC, "fieldIndex", "(Ljava/lang/String;)I", null, null);
-		mv.visitCode();
-		final Label firstLabel = new Label();
-		mv.visitLabel(firstLabel);
-		mv.visitVarInsn(ALOAD, 1);
-		mv.visitInsn(DUP);
-		mv.visitVarInsn(ASTORE, 2);
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "hashCode", "()I", false);
-
-		final Label defaultCaseLabel = new Label();
-		
-		if (fields.isEmpty()) {
-			mv.visitInsn(POP);
-			mv.visitLabel(defaultCaseLabel);
-			visitFieldIndexMethodLastPart(firstLabel);
-			return;
-		}
-		
-		List<FieldIndexSwitchCase> fieldIndexSwitchCases = getFieldIndexSwitchCases();
-		Collections.sort(fieldIndexSwitchCases, FieldIndexSwitchCase::compareFieldIndexSwitchCaseByHashCode);
-		
-		int[] fieldNameHashCodes = new int[fields.size()];
-		Label[] caseLabels = new Label[fields.size()];
-		for (int i = 0; i < fieldIndexSwitchCases.size(); i++) {
-			fieldNameHashCodes[i] = fieldIndexSwitchCases.get(i).hashCode;
-			caseLabels[i] = new Label();
-		}
-		
-		mv.visitLookupSwitchInsn(defaultCaseLabel, fieldNameHashCodes, caseLabels);
-		
-		for (int i = 0; i < fieldIndexSwitchCases.size(); i++) {
-			FieldIndexSwitchCase fieldIndexSwitchCase = fieldIndexSwitchCases.get(i);
-			
-			mv.visitLabel(caseLabels[i]);
-			
-			if (i > 0) {
-				mv.visitFrame(F_SAME, 0, null, 0, null);
-			} else {
-				mv.visitFrame(F_APPEND,1, new Object[] {"java/lang/String"}, 0, null);
-			}
-			
-			mv.visitVarInsn(ALOAD, 2);
-			mv.visitLdcInsn(fieldIndexSwitchCase.field.getName());
-			mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
-			mv.visitJumpInsn(IFNE, fieldIndexSwitchCase.returnFieldIndexLabel);
-			mv.visitJumpInsn(GOTO, defaultCaseLabel);
-		}
-
-		Collections.sort(fieldIndexSwitchCases, FieldIndexSwitchCase::compareFieldIndexSwitchCaseByFieldIndex);
-		for (int i = 0; i < fieldIndexSwitchCases.size(); i++) {
-			FieldIndexSwitchCase fieldIndexSwitchCase = fieldIndexSwitchCases.get(i);
-			
-			mv.visitLabel(fieldIndexSwitchCase.returnFieldIndexLabel);
-			mv.visitFrame(F_SAME, 0, null, 0, null);
-			
-			if (fieldIndexSwitchCase.fieldIndex > 5) {
-				mv.visitIntInsn(BIPUSH, fieldIndexSwitchCase.fieldIndex);
-			} else {
-				int opcode = NOP;
-				switch (fieldIndexSwitchCase.fieldIndex) {
-					case 0: opcode = ICONST_0; break;
-					case 1: opcode = ICONST_1; break;
-					case 2: opcode = ICONST_2; break;
-					case 3: opcode = ICONST_3; break;
-					case 4: opcode = ICONST_4; break;
-					case 5: opcode = ICONST_5; break;
-				}
-				mv.visitInsn(opcode);
-			}
-			
-			mv.visitInsn(IRETURN);
-		}
-		
-		mv.visitLabel(defaultCaseLabel);
-		mv.visitFrame(F_SAME, 0, null, 0, null);
-		
-		visitFieldIndexMethodLastPart(firstLabel);
-	}
-	
-	private void visitFieldIndexMethodLastPart(Label firstLabel) {
-		mv.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
-		mv.visitInsn(DUP);
-		mv.visitTypeInsn(NEW, "java/lang/StringBuilder");
-		mv.visitInsn(DUP);
-		mv.visitLdcInsn("No field with name: ");
-		mv.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V", false);
-		mv.visitVarInsn(ALOAD, 1);
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
-		mv.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V", false);
-		mv.visitInsn(ATHROW);
-		Label lastLabel = new Label();
-		mv.visitLabel(lastLabel);
-		mv.visitLocalVariable("this", classAccessTypeDescriptor, null, firstLabel, lastLabel, 0);
-		mv.visitLocalVariable("name", "Ljava/lang/String;", null, firstLabel, lastLabel, 1);
-		mv.visitMaxs(5, 3);
 		mv.visitEnd();
 	}
 	
@@ -873,5 +777,114 @@ public final class ClassAccessFactory<T> {
 		mv.visitFrame(F_SAME, 0, null, 0, null);
 		
 		visitFieldAccessSetterLastPart("Ljava/lang/Object;", firstLabel, breakLabel);
+	}
+	
+	private void visitIndexMethod(
+			String categoryOfStringCase,
+			List<StringCaseReturnIndex> stringCaseReturnIndices) {
+		mv = cw.visitMethod(ACC_PUBLIC, categoryOfStringCase + "Index", "(Ljava/lang/String;)I", null, null);
+		mv.visitCode();
+		final Label firstLabel = new Label();
+		mv.visitLabel(firstLabel);
+		mv.visitVarInsn(ALOAD, 1);
+		mv.visitInsn(DUP);
+		mv.visitVarInsn(ASTORE, 2);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "hashCode", "()I", false);
+
+		final Label defaultCaseLabel = new Label();
+		
+		if (fields.isEmpty()) {
+			mv.visitInsn(POP);
+			mv.visitLabel(defaultCaseLabel);
+			visitIndexMethodLastPart(categoryOfStringCase, firstLabel);
+			return;
+		}
+		
+		Collections.sort(stringCaseReturnIndices, StringCaseReturnIndex::compareHashCode);
+		
+		int[] stringHashCodes = new int[stringCaseReturnIndices.size()];
+		Label[] caseLabels = new Label[stringCaseReturnIndices.size()];
+		for (int i = 0; i < stringCaseReturnIndices.size(); i++) {
+			stringHashCodes[i] = stringCaseReturnIndices.get(i).hashCode;
+			caseLabels[i] = new Label();
+		}
+		
+		mv.visitLookupSwitchInsn(defaultCaseLabel, stringHashCodes, caseLabels);
+		
+		for (int i = 0; i < stringCaseReturnIndices.size(); i++) {
+			StringCaseReturnIndex stringCaseReturnIndex = stringCaseReturnIndices.get(i);
+			
+			mv.visitLabel(caseLabels[i]);
+			
+			if (i > 0) {
+				mv.visitFrame(F_SAME, 0, null, 0, null);
+			} else {
+				mv.visitFrame(F_APPEND,1, new Object[] {"java/lang/String"}, 0, null);
+			}
+			
+			mv.visitVarInsn(ALOAD, 2);
+			mv.visitLdcInsn(stringCaseReturnIndex.name);
+			mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
+			mv.visitJumpInsn(IFNE, stringCaseReturnIndex.returnIndexLabel);
+			mv.visitJumpInsn(GOTO, defaultCaseLabel);
+		}
+
+		Collections.sort(stringCaseReturnIndices, StringCaseReturnIndex::compareIndex);
+		for (int i = 0; i < stringCaseReturnIndices.size(); i++) {
+			StringCaseReturnIndex stringCaseReturnIndex = stringCaseReturnIndices.get(i);
+			
+			mv.visitLabel(stringCaseReturnIndex.returnIndexLabel);
+			mv.visitFrame(F_SAME, 0, null, 0, null);
+			
+			if (stringCaseReturnIndex.index > 5) {
+				mv.visitIntInsn(BIPUSH, stringCaseReturnIndex.index);
+			} else {
+				int opcode = NOP;
+				switch (stringCaseReturnIndex.index) {
+					case 0: opcode = ICONST_0; break;
+					case 1: opcode = ICONST_1; break;
+					case 2: opcode = ICONST_2; break;
+					case 3: opcode = ICONST_3; break;
+					case 4: opcode = ICONST_4; break;
+					case 5: opcode = ICONST_5; break;
+				}
+				mv.visitInsn(opcode);
+			}
+			
+			mv.visitInsn(IRETURN);
+		}
+		
+		mv.visitLabel(defaultCaseLabel);
+		mv.visitFrame(F_SAME, 0, null, 0, null);
+		
+		visitIndexMethodLastPart(categoryOfStringCase, firstLabel);
+	}
+	
+	private void visitIndexMethodLastPart(String categoryOfStringCase, Label firstLabel) {
+		mv.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
+		mv.visitInsn(DUP);
+		mv.visitTypeInsn(NEW, "java/lang/StringBuilder");
+		mv.visitInsn(DUP);
+		mv.visitLdcInsn("No " + categoryOfStringCase + " with name: ");
+		mv.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V", false);
+		mv.visitVarInsn(ALOAD, 1);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
+		mv.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V", false);
+		mv.visitInsn(ATHROW);
+		Label lastLabel = new Label();
+		mv.visitLabel(lastLabel);
+		mv.visitLocalVariable("this", classAccessTypeDescriptor, null, firstLabel, lastLabel, 0);
+		mv.visitLocalVariable("name", "Ljava/lang/String;", null, firstLabel, lastLabel, 1);
+		mv.visitMaxs(5, 3);
+		mv.visitEnd();
+	}
+	
+	private void visitPropertyIndexMethod() {
+		
+	}
+
+	private void visitPropertyAccessMethods() {
+		
 	}
 }

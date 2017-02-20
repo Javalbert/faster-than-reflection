@@ -18,6 +18,8 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 public interface ClassAccess<T> {
+	/* START Fields */
+	
 	int fieldIndex(String name);
 
 	// Get primitive type fields
@@ -81,4 +83,22 @@ public interface ClassAccess<T> {
 	//
 	Object getField(T obj, int fieldIndex);
 	void setField(T obj, int fieldIndex, Object x);
+
+	/* START JavaBean properties */
+
+	int propertyIndex(String name);
+	
+	// Get primitive type properties
+	//
+	boolean getBooleanProperty(T obj, int propertyIndex);
+
+	/* END JavaBean properties */
+
+	/* START Methods */
+
+//	int methodIndex(T obj, String name);
+	
+//	Object call(T obj, int methodIndex, Object arg0, Object arg1);
+	
+	/* END Methods */
 }
