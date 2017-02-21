@@ -45,8 +45,11 @@ import org.slf4j.LoggerFactory;
 
 public final class ClassAccessFactory<T> {
 	@SuppressWarnings("rawtypes")
-	private final static WeakHashMap<Class, ClassAccess> CLASS_ACCESS_MAP = new WeakHashMap<>();
-	private final static Logger LOGGER = LoggerFactory.getLogger(ClassAccessFactory.class);
+	private static final Map<Class, ClassAccess> CLASS_ACCESS_MAP = new WeakHashMap<>();
+	private static final Logger LOGGER = LoggerFactory.getLogger(ClassAccessFactory.class);
+
+	private static final String MEMBER_TYPE_FIELD = "field";
+	private static final String MEMBER_TYPE_PROPERTY = "property";
 	
 	public static <T> ClassAccess<T> get(Class<T> clazz) {
 		if (ClassAccess.class.isAssignableFrom(clazz)) {
@@ -161,35 +164,42 @@ public final class ClassAccessFactory<T> {
 	}
 	
 	private static class FieldAccessInfo {
-		private static FieldAccessInfo forPrimitive(Type type) {
+		private static FieldAccessInfo forPrimitive(String memberType, Type type) {
 			String camelCaseClassName = WordUtils.capitalize(type.getClassName());
+			String capitalizedMemberType = WordUtils.capitalize(memberType);
 			
 			return new FieldAccessInfo(
-					"get" + camelCaseClassName + "Field",
-					"set" + camelCaseClassName + "Field",
+					memberType,
+					"get" + camelCaseClassName + capitalizedMemberType,
+					"set" + camelCaseClassName + capitalizedMemberType,
 					type.getClassName(),
 					type.getDescriptor(),
 					type.getOpcode(ILOAD),
 					type.getOpcode(IRETURN));
 		}
 		
-		private static FieldAccessInfo forPrimitiveWrapper(Class<?> clazz) {
+		private static FieldAccessInfo forPrimitiveWrapper(String memberType, Class<?> clazz) {
 			Class<?> primitiveClass = ClassUtils.wrapperToPrimitive(clazz);
 			String camelCaseClassName = WordUtils.capitalize(primitiveClass.getName());
+			String capitalizedMemberType = WordUtils.capitalize(memberType);
 			
 			return new FieldAccessInfo(
-					"getBoxed" + camelCaseClassName + "Field",
-					"setBoxed" + camelCaseClassName + "Field",
+					memberType,
+					"getBoxed" + camelCaseClassName + capitalizedMemberType,
+					"setBoxed" + camelCaseClassName + capitalizedMemberType,
 					clazz.getName(),
 					Type.getDescriptor(clazz),
 					ALOAD,
 					ARETURN);
 		}
 		
-		private static FieldAccessInfo forReferenceType(Class<?> clazz) {
+		private static FieldAccessInfo forReferenceType(String memberType, Class<?> clazz) {
+			String capitalizedMemberType = WordUtils.capitalize(memberType);
+			
 			return new FieldAccessInfo(
-					"get" + clazz.getSimpleName() + "Field",
-					"set" + clazz.getSimpleName() + "Field",
+					memberType,
+					"get" + clazz.getSimpleName() + capitalizedMemberType,
+					"set" + clazz.getSimpleName() + capitalizedMemberType,
 					clazz.getName(),
 					Type.getDescriptor(clazz),
 					ALOAD,
@@ -200,10 +210,12 @@ public final class ClassAccessFactory<T> {
 		private final String descriptor;
 		private final String getMethodName;
 		private final int loadOpcode;
+		private final String memberType;
 		private final int returnOpcode;
 		private final String setMethodName;
 		
 		private FieldAccessInfo(
+				String memberType,
 				String getMethodName,
 				String setMethodName,
 				String className,
@@ -214,6 +226,7 @@ public final class ClassAccessFactory<T> {
 			this.descriptor = descriptor;
 			this.getMethodName = getMethodName;
 			this.loadOpcode = loadOpcode;
+			this.memberType = memberType;
 			this.returnOpcode = returnOpcode;
 			this.setMethodName = setMethodName;
 		}
@@ -300,10 +313,10 @@ public final class ClassAccessFactory<T> {
 	private void buildClassAccessClass() {
 		visitClass();
 		visitDefaultConstructor();
-		visitIndexMethod("field", getFieldIndexSwitchCases());
+		visitIndexMethod(MEMBER_TYPE_FIELD, getFieldIndexSwitchCases());
 		visitFieldAccessMethods();
-		visitIndexMethod("property", getPropertyIndexSwitchCases());
-		visitPropertyAccessMethods();
+		visitIndexMethod(MEMBER_TYPE_PROPERTY, getPropertyIndexSwitchCases());
+//		visitPropertyAccessMethods();
 		cw.visitEnd();
 		AccessClassLoader.get(clazz).defineClass(getClassNameOfClassAccessFor(clazz), cw.toByteArray());
 	}
@@ -336,6 +349,27 @@ public final class ClassAccessFactory<T> {
 		
 		fieldsOfType.add(fieldInfo);
 		fieldInfoList.add(fieldInfo);
+	}
+	
+	private void visitAccessGetterLastPart(String memberType, Label firstLabel) {
+		mv.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
+		mv.visitInsn(DUP);
+		mv.visitTypeInsn(NEW, "java/lang/StringBuilder");
+		mv.visitInsn(DUP);
+		mv.visitLdcInsn("No " + memberType + " with index: ");
+		mv.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V", false);
+		mv.visitVarInsn(ILOAD, 2);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;", false);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
+		mv.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V", false);
+		mv.visitInsn(ATHROW);
+		Label lastLabel = new Label();
+		mv.visitLabel(lastLabel);
+		mv.visitLocalVariable("this", classAccessTypeDescriptor, null, firstLabel, lastLabel, 0);
+		mv.visitLocalVariable("obj", classTypeDescriptor, null, firstLabel, lastLabel, 1);
+		mv.visitLocalVariable(memberType + "Index", "I", null, firstLabel, lastLabel, 2);
+		mv.visitMaxs(5, 3);
+		mv.visitEnd();
 	}
 	
 	private void visitClass() {
@@ -390,7 +424,7 @@ public final class ClassAccessFactory<T> {
 		if (fields.isEmpty()) {
 			mv.visitInsn(POP);
 			mv.visitLabel(defaultCaseLabel);
-			visitFieldAccessGetterLastPart(firstLabel);
+			visitAccessGetterLastPart(MEMBER_TYPE_FIELD, firstLabel);
 			return;
 		}
 		
@@ -421,13 +455,14 @@ public final class ClassAccessFactory<T> {
 			mv.visitFrame(F_SAME, 0, null, 0, null);
 			mv.visitVarInsn(ALOAD, 1);
 			mv.visitFieldInsn(field.getFieldOpcode, internalName, field.name, fieldAccessInfo.descriptor);
+//			mv.visitMethodInsn(INVOKEVIRTUAL, internalName, property.name, "()" + property.descriptor, false);
 			mv.visitInsn(fieldAccessInfo.returnOpcode);
 		}
 		
 		mv.visitLabel(defaultCaseLabel);
 		mv.visitFrame(F_SAME, 0, null, 0, null);
 		
-		visitFieldAccessGetterLastPart(firstLabel);
+		visitAccessGetterLastPart(MEMBER_TYPE_FIELD, firstLabel);
 	}
 	
 	private void visitFieldAccessGetterBridge(FieldAccessInfo fieldAccessInfo) {
@@ -464,57 +499,36 @@ public final class ClassAccessFactory<T> {
 		mv.visitEnd();
 	}
 	
-	private void visitFieldAccessGetterLastPart(Label firstLabel) {
-		mv.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
-		mv.visitInsn(DUP);
-		mv.visitTypeInsn(NEW, "java/lang/StringBuilder");
-		mv.visitInsn(DUP);
-		mv.visitLdcInsn("No field with index: ");
-		mv.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V", false);
-		mv.visitVarInsn(ILOAD, 2);
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;", false);
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
-		mv.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V", false);
-		mv.visitInsn(ATHROW);
-		Label lastLabel = new Label();
-		mv.visitLabel(lastLabel);
-		mv.visitLocalVariable("this", classAccessTypeDescriptor, null, firstLabel, lastLabel, 0);
-		mv.visitLocalVariable("obj", classTypeDescriptor, null, firstLabel, lastLabel, 1);
-		mv.visitLocalVariable("fieldIndex", "I", null, firstLabel, lastLabel, 2);
-		mv.visitMaxs(5, 3);
-		mv.visitEnd();
-	}
-	
 	private void visitFieldAccessMethods() {
 		List<FieldAccessInfo> fieldAccessInfoList = Collections.unmodifiableList(
 				Arrays.asList(
 						// Primitive types
 						//
-						FieldAccessInfo.forPrimitive(Type.BOOLEAN_TYPE),
-						FieldAccessInfo.forPrimitive(Type.BYTE_TYPE),
-						FieldAccessInfo.forPrimitive(Type.CHAR_TYPE),
-						FieldAccessInfo.forPrimitive(Type.DOUBLE_TYPE),
-						FieldAccessInfo.forPrimitive(Type.FLOAT_TYPE),
-						FieldAccessInfo.forPrimitive(Type.INT_TYPE),
-						FieldAccessInfo.forPrimitive(Type.LONG_TYPE),
-						FieldAccessInfo.forPrimitive(Type.SHORT_TYPE),
+						FieldAccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.BOOLEAN_TYPE),
+						FieldAccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.BYTE_TYPE),
+						FieldAccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.CHAR_TYPE),
+						FieldAccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.DOUBLE_TYPE),
+						FieldAccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.FLOAT_TYPE),
+						FieldAccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.INT_TYPE),
+						FieldAccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.LONG_TYPE),
+						FieldAccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.SHORT_TYPE),
 						// Primitive wrapper types
 						//
-						FieldAccessInfo.forPrimitiveWrapper(Boolean.class),
-						FieldAccessInfo.forPrimitiveWrapper(Byte.class),
-						FieldAccessInfo.forPrimitiveWrapper(Character.class),
-						FieldAccessInfo.forPrimitiveWrapper(Double.class),
-						FieldAccessInfo.forPrimitiveWrapper(Float.class),
-						FieldAccessInfo.forPrimitiveWrapper(Integer.class),
-						FieldAccessInfo.forPrimitiveWrapper(Long.class),
-						FieldAccessInfo.forPrimitiveWrapper(Short.class),
+						FieldAccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Boolean.class),
+						FieldAccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Byte.class),
+						FieldAccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Character.class),
+						FieldAccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Double.class),
+						FieldAccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Float.class),
+						FieldAccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Integer.class),
+						FieldAccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Long.class),
+						FieldAccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Short.class),
 						// Common reference types
 						//
-						FieldAccessInfo.forReferenceType(BigDecimal.class),
-						FieldAccessInfo.forReferenceType(Date.class),
-						FieldAccessInfo.forReferenceType(LocalDate.class),
-						FieldAccessInfo.forReferenceType(LocalDateTime.class),
-						FieldAccessInfo.forReferenceType(String.class)
+						FieldAccessInfo.forReferenceType(MEMBER_TYPE_FIELD, BigDecimal.class),
+						FieldAccessInfo.forReferenceType(MEMBER_TYPE_FIELD, Date.class),
+						FieldAccessInfo.forReferenceType(MEMBER_TYPE_FIELD, LocalDate.class),
+						FieldAccessInfo.forReferenceType(MEMBER_TYPE_FIELD, LocalDateTime.class),
+						FieldAccessInfo.forReferenceType(MEMBER_TYPE_FIELD, String.class)
 						)
 				);
 		
@@ -678,7 +692,7 @@ public final class ClassAccessFactory<T> {
 		if (fields.isEmpty()) {
 			mv.visitInsn(POP);
 			mv.visitLabel(defaultCaseLabel);
-			visitFieldAccessGetterLastPart(firstLabel);
+			visitAccessGetterLastPart(MEMBER_TYPE_FIELD, firstLabel);
 			return;
 		}
 		
@@ -715,7 +729,7 @@ public final class ClassAccessFactory<T> {
 		mv.visitLabel(defaultCaseLabel);
 		mv.visitFrame(F_SAME, 0, null, 0, null);
 		
-		visitFieldAccessGetterLastPart(firstLabel);
+		visitAccessGetterLastPart(MEMBER_TYPE_FIELD, firstLabel);
 	}
 	
 	private void visitGeneralFieldAccessSetter() {
@@ -886,9 +900,5 @@ public final class ClassAccessFactory<T> {
 		mv.visitLocalVariable("name", "Ljava/lang/String;", null, firstLabel, lastLabel, 1);
 		mv.visitMaxs(5, 3);
 		mv.visitEnd();
-	}
-	
-	private void visitPropertyAccessMethods() {
-		
 	}
 }
