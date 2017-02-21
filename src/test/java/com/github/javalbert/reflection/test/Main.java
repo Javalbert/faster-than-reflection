@@ -12,12 +12,10 @@
  *******************************************************************************/
 package com.github.javalbert.reflection.test;
 
-import com.github.javalbert.reflection.ClassAccess;
 import com.github.javalbert.reflection.ClassAccessFactory;
 
 public class Main {
 	public static void main(String[] args) {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
-		System.out.println(access.propertyIndex("boxedLong"));
+		ClassAccessFactory.get(Foo.class);
 	}
 }

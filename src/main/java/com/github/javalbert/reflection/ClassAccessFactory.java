@@ -127,6 +127,11 @@ public final class ClassAccessFactory<T> {
 		return labels.stream().toArray(s -> new Label[s]);
 	}
 	
+	private static boolean isDescriptorDoubleOrLong(String descriptor) {
+		return descriptor.equals(Type.DOUBLE_TYPE.getDescriptor())
+				|| descriptor.equals(Type.LONG_TYPE.getDescriptor());
+	}
+	
 	private static Label[] newLabelArray(int size) {
 		Label[] labels = new Label[size];
 		for (int i = 0; i < size; i++) {
@@ -640,7 +645,11 @@ public final class ClassAccessFactory<T> {
 				"(" + classTypeDescriptor + "I" + descriptor + ")V",
 				false);
 		mv.visitInsn(RETURN);
-		mv.visitMaxs(4, 4);
+		if (isDescriptorDoubleOrLong(descriptor)) {
+			mv.visitMaxs(5, 5);
+		} else {
+			mv.visitMaxs(4, 4);
+		}
 		mv.visitEnd();
 	}
 	
@@ -670,7 +679,7 @@ public final class ClassAccessFactory<T> {
 		mv.visitLocalVariable("obj", classTypeDescriptor, null, firstLabel, lastLabel, 1);
 		mv.visitLocalVariable("fieldIndex", "I", null, firstLabel, lastLabel, 2);
 		mv.visitLocalVariable("x", fieldDescriptor, null, firstLabel, lastLabel, 3);
-		mv.visitMaxs(5, 4);
+		mv.visitMaxs(5, isDescriptorDoubleOrLong(fieldDescriptor) ? 5 : 4);
 		mv.visitEnd();
 	}
 	

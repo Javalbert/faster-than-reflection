@@ -53,7 +53,12 @@ public class Foo {
 
 		@Override
 		public double getDoubleField(Foo obj, int fieldIndex) {
-			return 0;
+			switch (fieldIndex) {
+				case 3:
+					return obj.doubleVal;
+				default:
+					throw new IllegalArgumentException("No field with index: " + fieldIndex);
+			}
 		}
 
 		@Override
@@ -98,7 +103,12 @@ public class Foo {
 
 		@Override
 		public Double getBoxedDoubleField(Foo obj, int fieldIndex) {
-			return null;
+			switch (fieldIndex) {
+				case 11:
+					return obj.boxedDouble;
+				default:
+					throw new IllegalArgumentException("No field with index: " + fieldIndex);
+			}
 		}
 
 		@Override
@@ -141,6 +151,12 @@ public class Foo {
 
 		@Override
 		public void setDoubleField(Foo obj, int fieldIndex, double x) {
+			switch (fieldIndex) {
+				case 3:
+					obj.doubleVal = x;
+				default:
+					throw new IllegalArgumentException("No field with index: " + fieldIndex);
+			}
 		}
 
 		@Override
@@ -180,6 +196,12 @@ public class Foo {
 
 		@Override
 		public void setBoxedDoubleField(Foo obj, int fieldIndex, Double x) {
+			switch (fieldIndex) {
+				case 11:
+					obj.boxedDouble = x;
+				default:
+					throw new IllegalArgumentException("No field with index: " + fieldIndex);
+			}
 		}
 
 		@Override
@@ -206,7 +228,7 @@ public class Foo {
 		@Override
 		public void setBigDecimalField(Foo obj, int fieldIndex, BigDecimal x) {
 			switch (fieldIndex) {
-				case 8:
+				case 16:
 					obj.bigDecimal = x;
 					break;
 				default:
@@ -320,24 +342,6 @@ public class Foo {
 				default:
 					throw new IllegalArgumentException("No property with index: " + propertyIndex);
 			}
-		}
-	}
-	
-	public boolean getBooleanField(Foo obj, int fieldIndex) {
-		switch (fieldIndex) {
-			case 0:
-				return obj.booleanVal;
-			default:
-				throw new IllegalArgumentException("No field with index: " + fieldIndex);
-		}
-	}
-	
-	public boolean getBooleanProperty(Foo obj, int propertyIndex) {
-		switch (propertyIndex) {
-			case 1:
-				return obj.getBooleanVal();
-			default:
-				throw new IllegalArgumentException("No property with index: " + propertyIndex);
 		}
 	}
 	
