@@ -26,6 +26,8 @@ import com.github.javalbert.reflection.ClassAccess;
 import com.github.javalbert.reflection.ClassAccessFactory;
 
 public class ClassAccessCommonReferenceTypesTest {
+	/* START Fields */
+	
 	@Test
 	public void getBigDecimalFieldValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
@@ -135,4 +137,65 @@ public class ClassAccessCommonReferenceTypesTest {
 		
 		assertThat(obj.getString(), equalTo(string));
 	}
+
+	/* END Fields */
+
+	/* START Properties */
+	
+	@Test
+	public void getBigDecimalPropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		obj.setBigDecimal(new BigDecimal("123.456"));
+		
+		BigDecimal bigDecimal = access.getBigDecimalProperty(obj, access.propertyIndex("bigDecimal"));
+		
+		assertThat(bigDecimal, equalTo(obj.getBigDecimal()));
+	}
+	
+	@Test
+	public void getDatePropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		obj.setDate(new Date());
+		
+		Date date = access.getDateProperty(obj, access.propertyIndex("date"));
+		
+		assertThat(date, equalTo(obj.getDate()));
+	}
+	
+	@Test
+	public void getLocalDatePropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		obj.setLocalDate(LocalDate.now());
+		
+		LocalDate localDate = access.getLocalDateProperty(obj, access.propertyIndex("localDate"));
+		
+		assertThat(localDate, equalTo(obj.getLocalDate()));
+	}
+	
+	@Test
+	public void getLocalDateTimePropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		obj.setLocalDateTime(LocalDateTime.now());
+		
+		LocalDateTime localDateTime = access.getLocalDateTimeProperty(obj, access.propertyIndex("localDateTime"));
+		
+		assertThat(localDateTime, equalTo(obj.getLocalDateTime()));
+	}
+	
+	@Test
+	public void getStringPropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		obj.setString("Pizza Hut");
+		
+		String string = access.getStringProperty(obj, access.propertyIndex("string"));
+		
+		assertThat(string, equalTo(obj.getString()));
+	}
+	
+	/* END Properties */
 }

@@ -110,6 +110,14 @@ public interface ClassAccess<T> {
 	Long getBoxedLongProperty(T obj, int propertyIndex);
 	Short getBoxedShortProperty(T obj, int propertyIndex);
 
+	// Common reference types
+	//
+	BigDecimal getBigDecimalProperty(T obj, int propertyIndex);
+	Date getDateProperty(T obj, int propertyIndex);
+	LocalDate getLocalDateProperty(T obj, int propertyIndex);
+	LocalDateTime getLocalDateTimeProperty(T obj, int propertyIndex);
+	String getStringProperty(T obj, int propertyIndex);
+		
 	/* END JavaBean properties */
 
 	/* START Methods */

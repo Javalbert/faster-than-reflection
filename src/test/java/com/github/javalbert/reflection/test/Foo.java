@@ -386,7 +386,12 @@ public class Foo {
 
 		@Override
 		public Boolean getBoxedBooleanProperty(Foo obj, int propertyIndex) {
-			return null;
+			switch (propertyIndex) {
+				case 2:
+					return obj.getBoxedBoolean();
+				default:
+					throw new IllegalArgumentException("No property with index: " + propertyIndex);
+			}
 		}
 
 		@Override
@@ -421,6 +426,36 @@ public class Foo {
 
 		@Override
 		public Short getBoxedShortProperty(Foo obj, int propertyIndex) {
+			return null;
+		}
+
+		@Override
+		public BigDecimal getBigDecimalProperty(Foo obj, int propertyIndex) {
+			switch (propertyIndex) {
+				case 0:
+					return obj.getBigDecimal();
+				default:
+					throw new IllegalArgumentException("No property with index: " + propertyIndex);
+			}
+		}
+
+		@Override
+		public Date getDateProperty(Foo obj, int propertyIndex) {
+			return null;
+		}
+
+		@Override
+		public LocalDate getLocalDateProperty(Foo obj, int propertyIndex) {
+			return null;
+		}
+
+		@Override
+		public LocalDateTime getLocalDateTimeProperty(Foo obj, int propertyIndex) {
+			return null;
+		}
+
+		@Override
+		public String getStringProperty(Foo obj, int propertyIndex) {
 			return null;
 		}
 	}

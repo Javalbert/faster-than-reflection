@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.WeakHashMap;
 
 import org.apache.commons.lang3.ClassUtils;
@@ -271,6 +272,24 @@ public final class ClassAccessFactory<T> {
 		}
 	}
 	
+	private static class PropertyInfo extends MemberInfo {
+		private final String readMethodName;
+		private final String writeMethodName;
+
+		private PropertyInfo(PropertyDescriptor propertyDescriptor, int propertyIndex) {
+			super(
+					propertyDescriptor.getName(),
+					propertyIndex,
+					propertyDescriptor.getPropertyType());
+			readMethodName = Optional.ofNullable(propertyDescriptor.getReadMethod())
+					.map(prop -> prop.getName())
+					.orElse(null);
+			writeMethodName = Optional.ofNullable(propertyDescriptor.getWriteMethod())
+					.map(prop -> prop.getName())
+					.orElse(null);
+		}
+	}
+	
 	private static class StringCaseReturnIndex {
 		private static int compareIndex(StringCaseReturnIndex a, StringCaseReturnIndex b) {
 			return Integer.compare(a.index, b.index);
@@ -292,6 +311,7 @@ public final class ClassAccessFactory<T> {
 		}
 	}
 
+	private final List<PropertyInfo> accessorInfoList = new ArrayList<>();
 	private String classAccessInternalName;
 	private String classAccessTypeDescriptor;
 	private String classTypeDescriptor;
@@ -300,10 +320,12 @@ public final class ClassAccessFactory<T> {
 	private final List<FieldInfo> fieldInfoList = new ArrayList<>();
 	private final List<Field> fields;
 	private String internalName;
+	private final List<PropertyInfo> mutatorInfoList = new ArrayList<>();
 	private MethodVisitor mv;
 	private final List<PropertyDescriptor> propertyDescriptors;
-//	private final Map<String, List<PropertyInfo>> typeToAccessorsMap = new HashMap<>();
+	private final Map<String, List<PropertyInfo>> typeToAccessorsMap = new HashMap<>();
 	private final Map<String, List<FieldInfo>> typeToFieldsMap = new HashMap<>();
+	private final Map<String, List<PropertyInfo>> typeToMutatorsMap = new HashMap<>();
 	
 	private ClassAccessFactory(Class<T> clazz) {
 		try {
@@ -313,6 +335,10 @@ public final class ClassAccessFactory<T> {
 					.collect(toList()));
 		} catch (IntrospectionException e) {
 			throw new RuntimeException(e);
+		}
+		
+		for (int i = 0; i < propertyDescriptors.size(); i++) {
+			putIntoTypeToPropertyMaps(propertyDescriptors.get(i), i);
 		}
 		
 		Field[] declaredFields = clazz.getDeclaredFields();
@@ -336,7 +362,7 @@ public final class ClassAccessFactory<T> {
 		visitIndexMethod(MEMBER_TYPE_FIELD, getFieldIndexSwitchCases());
 		visitFieldAccessMethods();
 		visitIndexMethod(MEMBER_TYPE_PROPERTY, getPropertyIndexSwitchCases());
-//		visitPropertyAccessMethods();
+		visitPropertyAccessMethods();
 		cw.visitEnd();
 		AccessClassLoader.get(clazz).defineClass(getClassNameOfClassAccessFor(clazz), cw.toByteArray());
 	}
@@ -369,6 +395,34 @@ public final class ClassAccessFactory<T> {
 		
 		fieldsOfType.add(fieldInfo);
 		fieldInfoList.add(fieldInfo);
+	}
+	
+	private void putIntoTypeToPropertyMaps(PropertyDescriptor propertyDescriptor, int propertyIndex) {
+		String key = propertyDescriptor.getPropertyType().getName();
+		
+		PropertyInfo propertyInfo = new PropertyInfo(propertyDescriptor, propertyIndex);
+		
+		if (propertyDescriptor.getReadMethod() != null) {
+			List<PropertyInfo> accessorsOfType = typeToAccessorsMap.get(key);
+			if (accessorsOfType == null) {
+				accessorsOfType = new ArrayList<>();
+				typeToAccessorsMap.put(key, accessorsOfType);
+			}
+			
+			accessorsOfType.add(propertyInfo);
+			accessorInfoList.add(propertyInfo);
+		}
+		
+		if (propertyDescriptor.getWriteMethod() != null) {
+			List<PropertyInfo> mutatorsOfType = typeToMutatorsMap.get(key);
+			if (mutatorsOfType == null) {
+				mutatorsOfType = new ArrayList<>();
+				typeToMutatorsMap.put(key, mutatorsOfType);
+			}
+			
+			mutatorsOfType.add(propertyInfo);
+			mutatorInfoList.add(propertyInfo);
+		}
 	}
 	
 	private void visitAccessGetter(
@@ -426,7 +480,7 @@ public final class ClassAccessFactory<T> {
 					mv.visitFieldInsn(((FieldInfo)memberInfo).getFieldOpcode, internalName, memberInfo.name, accessInfo.descriptor);
 					break;
 				case MEMBER_TYPE_PROPERTY:
-					mv.visitMethodInsn(INVOKEVIRTUAL, internalName, memberInfo.name, "()" + accessInfo.descriptor, false);
+					mv.visitMethodInsn(INVOKEVIRTUAL, internalName, ((PropertyInfo)memberInfo).readMethodName, "()" + accessInfo.descriptor, false);
 					break;
 			}
 			
@@ -945,44 +999,44 @@ public final class ClassAccessFactory<T> {
 		mv.visitEnd();
 	}
 	
-//	private void visitPropertyAccessMethods() {
-//		List<AccessInfo> propertyAccessInfoList = Collections.unmodifiableList(
-//				Arrays.asList(
-//						// Primitive types
-//						//
-//						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.BOOLEAN_TYPE),
-//						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.BYTE_TYPE),
-//						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.CHAR_TYPE),
-//						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.DOUBLE_TYPE),
-//						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.FLOAT_TYPE),
-//						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.INT_TYPE),
-//						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.LONG_TYPE),
-//						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.SHORT_TYPE),
-//						// Primitive wrapper types
-//						//
-//						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Boolean.class),
-//						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Byte.class),
-//						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Character.class),
-//						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Double.class),
-//						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Float.class),
-//						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Integer.class),
-//						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Long.class),
-//						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Short.class),
-//						// Common reference types
-//						//
-//						AccessInfo.forReferenceType(MEMBER_TYPE_PROPERTY, BigDecimal.class),
-//						AccessInfo.forReferenceType(MEMBER_TYPE_PROPERTY, Date.class),
-//						AccessInfo.forReferenceType(MEMBER_TYPE_PROPERTY, LocalDate.class),
-//						AccessInfo.forReferenceType(MEMBER_TYPE_PROPERTY, LocalDateTime.class),
-//						AccessInfo.forReferenceType(MEMBER_TYPE_PROPERTY, String.class)
-//						)
-//				);
-//		
-//		for (int i = 0; i < propertyAccessInfoList.size(); i++) {
-//			AccessInfo propertyAccessInfo = propertyAccessInfoList.get(i);
-//
-//			visitAccessGetter(typeToAccessorsMap.get(propertyAccessInfo.className), propertyAccessInfo);
-//			visitAccessGetterBridge(propertyAccessInfo);
-//		}
-//	}
+	private void visitPropertyAccessMethods() {
+		List<AccessInfo> propertyAccessInfoList = Collections.unmodifiableList(
+				Arrays.asList(
+						// Primitive types
+						//
+						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.BOOLEAN_TYPE),
+						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.BYTE_TYPE),
+						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.CHAR_TYPE),
+						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.DOUBLE_TYPE),
+						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.FLOAT_TYPE),
+						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.INT_TYPE),
+						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.LONG_TYPE),
+						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.SHORT_TYPE),
+						// Primitive wrapper types
+						//
+						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Boolean.class),
+						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Byte.class),
+						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Character.class),
+						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Double.class),
+						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Float.class),
+						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Integer.class),
+						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Long.class),
+						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Short.class),
+						// Common reference types
+						//
+						AccessInfo.forReferenceType(MEMBER_TYPE_PROPERTY, BigDecimal.class),
+						AccessInfo.forReferenceType(MEMBER_TYPE_PROPERTY, Date.class),
+						AccessInfo.forReferenceType(MEMBER_TYPE_PROPERTY, LocalDate.class),
+						AccessInfo.forReferenceType(MEMBER_TYPE_PROPERTY, LocalDateTime.class),
+						AccessInfo.forReferenceType(MEMBER_TYPE_PROPERTY, String.class)
+						)
+				);
+		
+		for (int i = 0; i < propertyAccessInfoList.size(); i++) {
+			AccessInfo propertyAccessInfo = propertyAccessInfoList.get(i);
+
+			visitAccessGetter(typeToAccessorsMap.get(propertyAccessInfo.className), propertyAccessInfo);
+			visitAccessGetterBridge(propertyAccessInfo);
+		}
+	}
 }
