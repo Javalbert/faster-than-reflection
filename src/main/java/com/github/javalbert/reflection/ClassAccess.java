@@ -91,6 +91,24 @@ public interface ClassAccess<T> {
 	// Get primitive type properties
 	//
 	boolean getBooleanProperty(T obj, int propertyIndex);
+	byte getByteProperty(T obj, int propertyIndex);
+	char getCharProperty(T obj, int propertyIndex);
+	double getDoubleProperty(T obj, int propertyIndex);
+	float getFloatProperty(T obj, int propertyIndex);
+	int getIntProperty(T obj, int propertyIndex);
+	long getLongProperty(T obj, int propertyIndex);
+	short getShortProperty(T obj, int propertyIndex);
+
+	// Get boxed primitive type propertys
+	//
+	Boolean getBoxedBooleanProperty(T obj, int propertyIndex);
+	Byte getBoxedByteProperty(T obj, int propertyIndex);
+	Character getBoxedCharProperty(T obj, int propertyIndex);
+	Double getBoxedDoubleProperty(T obj, int propertyIndex);
+	Float getBoxedFloatProperty(T obj, int propertyIndex);
+	Integer getBoxedIntProperty(T obj, int propertyIndex);
+	Long getBoxedLongProperty(T obj, int propertyIndex);
+	Short getBoxedShortProperty(T obj, int propertyIndex);
 
 	/* END JavaBean properties */
 

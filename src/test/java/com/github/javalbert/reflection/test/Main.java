@@ -12,10 +12,32 @@
  *******************************************************************************/
 package com.github.javalbert.reflection.test;
 
+import static java.util.stream.Collectors.toList;
+
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import com.github.javalbert.reflection.ClassAccessFactory;
 
 public class Main {
 	public static void main(String[] args) {
 		ClassAccessFactory.get(Foo.class);
+		
+		try {
+			BeanInfo info = Introspector.getBeanInfo(Foo.class);
+			List<PropertyDescriptor> propertyDescriptors = Collections.unmodifiableList(Arrays.stream(info.getPropertyDescriptors())
+					.filter(prop -> !prop.getName().equals("class"))
+					.collect(toList()));
+			for (int i = 0; i < propertyDescriptors.size(); i++) {
+				System.out.println(i + " " + propertyDescriptors.get(i).getName());
+			}
+		} catch (IntrospectionException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

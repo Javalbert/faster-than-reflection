@@ -343,6 +343,86 @@ public class Foo {
 					throw new IllegalArgumentException("No property with index: " + propertyIndex);
 			}
 		}
+
+		@Override
+		public byte getByteProperty(Foo obj, int propertyIndex) {
+			return 0;
+		}
+
+		@Override
+		public char getCharProperty(Foo obj, int propertyIndex) {
+			return 0;
+		}
+
+		@Override
+		public double getDoubleProperty(Foo obj, int propertyIndex) {
+			switch (propertyIndex) {
+				case 13:
+					return obj.getDoubleVal();
+				default:
+					throw new IllegalArgumentException("No property with index: " + propertyIndex);
+			}
+		}
+
+		@Override
+		public float getFloatProperty(Foo obj, int propertyIndex) {
+			return 0;
+		}
+
+		@Override
+		public int getIntProperty(Foo obj, int propertyIndex) {
+			return 0;
+		}
+
+		@Override
+		public long getLongProperty(Foo obj, int propertyIndex) {
+			return 0;
+		}
+
+		@Override
+		public short getShortProperty(Foo obj, int propertyIndex) {
+			return 0;
+		}
+
+		@Override
+		public Boolean getBoxedBooleanProperty(Foo obj, int propertyIndex) {
+			return null;
+		}
+
+		@Override
+		public Byte getBoxedByteProperty(Foo obj, int propertyIndex) {
+			return null;
+		}
+
+		@Override
+		public Character getBoxedCharProperty(Foo obj, int propertyIndex) {
+			return null;
+		}
+
+		@Override
+		public Double getBoxedDoubleProperty(Foo obj, int propertyIndex) {
+			return null;
+		}
+
+		@Override
+		public Float getBoxedFloatProperty(Foo obj, int propertyIndex) {
+			return null;
+		}
+
+		@Override
+		public Integer getBoxedIntProperty(Foo obj, int propertyIndex) {
+			return null;
+		}
+
+		@Override
+		public Long getBoxedLongProperty(Foo obj, int propertyIndex) {
+			return null;
+		}
+
+		@Override
+		public Short getBoxedShortProperty(Foo obj, int propertyIndex) {
+			return null;
+		}
 	}
 	
 	// Primitive types

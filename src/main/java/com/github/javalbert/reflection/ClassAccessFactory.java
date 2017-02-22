@@ -101,27 +101,27 @@ public final class ClassAccessFactory<T> {
 		return classAccess;
 	}
 	
-	private static Label[] getTableSwitchLabelsForFieldAccess(
+	private static Label[] getTableSwitchLabelsForAccess(
 			Label defaultCaseLabel,
-			List<FieldInfo> fields) {
+			List<? extends MemberInfo> members) {
 		List<Label> labels = new ArrayList<>();
 		
-		int currentField = 0;
-		int fieldIndex = fields.get(0).fieldIndex;
+		int currentMember = 0;
+		int memberIndex = members.get(0).memberIndex;
 		
-		int hi = fields.get(fields.size() - 1).fieldIndex;
-		int lo = fields.get(0).fieldIndex;
+		int hi = members.get(members.size() - 1).memberIndex;
+		int lo = members.get(0).memberIndex;
 		
 		for (int i = lo; i <= hi; i++) {
-			FieldInfo field = fields.get(currentField);
+			MemberInfo member = members.get(currentMember);
 			
-			if (fieldIndex < field.fieldIndex) {
+			if (memberIndex < member.memberIndex) {
 				labels.add(defaultCaseLabel);
-				fieldIndex++;
+				memberIndex++;
 			} else {
 				labels.add(new Label());
-				fieldIndex = field.fieldIndex + 1;
-				currentField++;
+				memberIndex = member.memberIndex + 1;
+				currentMember++;
 			}
 		}
 		return labels.stream().toArray(s -> new Label[s]);
@@ -149,10 +149,10 @@ public final class ClassAccessFactory<T> {
 	 * instead of {@link MethodVisitor#visitLookupSwitchInsn(Label, int[], Label[])}
 	 * @return
 	 */
-	private static boolean useTableSwitch(List<FieldInfo> fields) {
-		int hi = fields.get(fields.size() - 1).fieldIndex;
-		int lo = fields.get(0).fieldIndex;
-		int nlabels = fields.size();
+	private static boolean useTableSwitch(List<? extends MemberInfo> members) {
+		int hi = members.get(members.size() - 1).memberIndex;
+		int lo = members.get(0).memberIndex;
+		int nlabels = members.size();
 		
 		// CREDIT: http://stackoverflow.com/a/31032054
 		// CREDIT: http://hg.openjdk.java.net/jdk8/jdk8/langtools/file/30db5e0aaf83/src/share/classes/com/sun/tools/javac/jvm/Gen.java#l1153
@@ -168,12 +168,12 @@ public final class ClassAccessFactory<T> {
             lookup_space_cost + 3 * lookup_time_cost;
 	}
 	
-	private static class FieldAccessInfo {
-		private static FieldAccessInfo forPrimitive(String memberType, Type type) {
+	private static class AccessInfo {
+		private static AccessInfo forPrimitive(String memberType, Type type) {
 			String camelCaseClassName = WordUtils.capitalize(type.getClassName());
 			String capitalizedMemberType = WordUtils.capitalize(memberType);
 			
-			return new FieldAccessInfo(
+			return new AccessInfo(
 					memberType,
 					"get" + camelCaseClassName + capitalizedMemberType,
 					"set" + camelCaseClassName + capitalizedMemberType,
@@ -183,12 +183,12 @@ public final class ClassAccessFactory<T> {
 					type.getOpcode(IRETURN));
 		}
 		
-		private static FieldAccessInfo forPrimitiveWrapper(String memberType, Class<?> clazz) {
+		private static AccessInfo forPrimitiveWrapper(String memberType, Class<?> clazz) {
 			Class<?> primitiveClass = ClassUtils.wrapperToPrimitive(clazz);
 			String camelCaseClassName = WordUtils.capitalize(primitiveClass.getName());
 			String capitalizedMemberType = WordUtils.capitalize(memberType);
 			
-			return new FieldAccessInfo(
+			return new AccessInfo(
 					memberType,
 					"getBoxed" + camelCaseClassName + capitalizedMemberType,
 					"setBoxed" + camelCaseClassName + capitalizedMemberType,
@@ -198,10 +198,10 @@ public final class ClassAccessFactory<T> {
 					ARETURN);
 		}
 		
-		private static FieldAccessInfo forReferenceType(String memberType, Class<?> clazz) {
+		private static AccessInfo forReferenceType(String memberType, Class<?> clazz) {
 			String capitalizedMemberType = WordUtils.capitalize(memberType);
 			
-			return new FieldAccessInfo(
+			return new AccessInfo(
 					memberType,
 					"get" + clazz.getSimpleName() + capitalizedMemberType,
 					"set" + clazz.getSimpleName() + capitalizedMemberType,
@@ -219,7 +219,7 @@ public final class ClassAccessFactory<T> {
 		private final int returnOpcode;
 		private final String setMethodName;
 		
-		private FieldAccessInfo(
+		private AccessInfo(
 				String memberType,
 				String getMethodName,
 				String setMethodName,
@@ -237,23 +237,37 @@ public final class ClassAccessFactory<T> {
 		}
 	}
 	
-	private static class FieldInfo {
-		private final String descriptor;
-		private final int fieldIndex;
+	private static class FieldInfo extends MemberInfo {
 		private final int getFieldOpcode;
-		private final String internalName;
-		private final String name;
 		private final int setFieldOpcode;
-		private final Class<?> type;
 		
 		private FieldInfo(Field field, int fieldIndex) {
-			descriptor = Type.getDescriptor(field.getType());
-			this.fieldIndex = fieldIndex;
+			super(
+					field.getName(),
+					fieldIndex,
+					field.getType()
+					);
 			getFieldOpcode = (field.getModifiers() & Modifier.STATIC) == 0 ? GETFIELD : GETSTATIC;
-			internalName = Type.getInternalName(field.getType());
-			name = field.getName();
 			setFieldOpcode = (field.getModifiers() & Modifier.STATIC) == 0 ? PUTFIELD : PUTSTATIC;
-			type = field.getType();
+		}
+	}
+	
+	private static abstract class MemberInfo {
+		protected final String descriptor;
+		protected final String internalName;
+		protected final int memberIndex;
+		protected final String name;
+		protected final Class<?> type;
+		
+		private MemberInfo(
+				String name,
+				int memberIndex,
+				Class<?> type) {
+			this.descriptor = Type.getDescriptor(type);
+			this.internalName = Type.getInternalName(type);
+			this.memberIndex = memberIndex;
+			this.name = name;
+			this.type = type;
 		}
 	}
 	
@@ -288,6 +302,7 @@ public final class ClassAccessFactory<T> {
 	private String internalName;
 	private MethodVisitor mv;
 	private final List<PropertyDescriptor> propertyDescriptors;
+//	private final Map<String, List<PropertyInfo>> typeToAccessorsMap = new HashMap<>();
 	private final Map<String, List<FieldInfo>> typeToFieldsMap = new HashMap<>();
 	
 	private ClassAccessFactory(Class<T> clazz) {
@@ -356,6 +371,108 @@ public final class ClassAccessFactory<T> {
 		fieldInfoList.add(fieldInfo);
 	}
 	
+	private void visitAccessGetter(
+			List<? extends MemberInfo> memberInfoList,
+			AccessInfo accessInfo) {
+		mv = cw.visitMethod(
+				ACC_PUBLIC,
+				accessInfo.getMethodName,
+				"(" + classTypeDescriptor + "I)" + accessInfo.descriptor,
+				null,
+				null);
+		mv.visitCode();
+		Label firstLabel = new Label();
+		mv.visitLabel(firstLabel);
+		mv.visitVarInsn(ILOAD, 2);
+
+		Label defaultCaseLabel = new Label();
+
+		if (memberInfoList.isEmpty()) {
+			mv.visitInsn(POP);
+			mv.visitLabel(defaultCaseLabel);
+			visitAccessGetterLastPart(accessInfo.memberType, firstLabel);
+			return;
+		}
+		
+		boolean useTableSwitch = useTableSwitch(memberInfoList);
+		Label[] labels = useTableSwitch ? getTableSwitchLabelsForAccess(defaultCaseLabel, memberInfoList)
+				: newLabelArray(memberInfoList.size());
+		
+		if (useTableSwitch) {
+			mv.visitTableSwitchInsn(
+					memberInfoList.get(0).memberIndex,
+					memberInfoList.get(memberInfoList.size() - 1).memberIndex,
+					defaultCaseLabel,
+					labels
+					);
+		} else {
+			mv.visitLookupSwitchInsn(
+					defaultCaseLabel,
+					memberInfoList.stream()
+					.mapToInt(f -> f.memberIndex)
+					.toArray(),
+					labels);
+		}
+		
+		for (int i = 0; i < memberInfoList.size(); i++) {
+			MemberInfo memberInfo = memberInfoList.get(i);
+			
+			mv.visitLabel(labels[i]);
+			mv.visitFrame(F_SAME, 0, null, 0, null);
+			mv.visitVarInsn(ALOAD, 1);
+			
+			switch (accessInfo.memberType) {
+				case MEMBER_TYPE_FIELD:
+					mv.visitFieldInsn(((FieldInfo)memberInfo).getFieldOpcode, internalName, memberInfo.name, accessInfo.descriptor);
+					break;
+				case MEMBER_TYPE_PROPERTY:
+					mv.visitMethodInsn(INVOKEVIRTUAL, internalName, memberInfo.name, "()" + accessInfo.descriptor, false);
+					break;
+			}
+			
+			mv.visitInsn(accessInfo.returnOpcode);
+		}
+		
+		mv.visitLabel(defaultCaseLabel);
+		mv.visitFrame(F_SAME, 0, null, 0, null);
+		
+		visitAccessGetterLastPart(accessInfo.memberType, firstLabel);
+	}
+	
+	private void visitAccessGetterBridge(AccessInfo accessInfo) {
+		visitAccessGetterBridge(
+				accessInfo.getMethodName,
+				accessInfo.descriptor,
+				accessInfo.returnOpcode);
+	}
+	
+	private void visitAccessGetterBridge(
+			String methodName,
+			String returnTypeDescriptor,
+			int returnOpcode) {
+		mv = cw.visitMethod(
+				ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC,
+				methodName,
+				"(Ljava/lang/Object;I)" + returnTypeDescriptor,
+				null,
+				null);
+		mv.visitCode();
+		mv.visitLabel(new Label());
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 1);
+		mv.visitTypeInsn(CHECKCAST, internalName);
+		mv.visitVarInsn(ILOAD, 2);
+		mv.visitMethodInsn(
+				INVOKEVIRTUAL,
+				classAccessInternalName,
+				methodName,
+				"(" + classTypeDescriptor + "I)" + returnTypeDescriptor,
+				false);
+		mv.visitInsn(returnOpcode);
+		mv.visitMaxs(3, 3);
+		mv.visitEnd();
+	}
+	
 	private void visitAccessGetterLastPart(String memberType, Label firstLabel) {
 		mv.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
 		mv.visitInsn(DUP);
@@ -411,148 +528,55 @@ public final class ClassAccessFactory<T> {
 		mv.visitEnd();
 	}
 	
-	private void visitFieldAccessGetter(FieldAccessInfo fieldAccessInfo) {
-		mv = cw.visitMethod(
-				ACC_PUBLIC,
-				fieldAccessInfo.getMethodName,
-				"(" + classTypeDescriptor + "I)" + fieldAccessInfo.descriptor,
-				null,
-				null);
-		mv.visitCode();
-		Label firstLabel = new Label();
-		mv.visitLabel(firstLabel);
-		mv.visitVarInsn(ILOAD, 2);
-
-		Label defaultCaseLabel = new Label();
-
-		List<FieldInfo> fields = typeToFieldsMap.get(fieldAccessInfo.className);
-		if (fields.isEmpty()) {
-			mv.visitInsn(POP);
-			mv.visitLabel(defaultCaseLabel);
-			visitAccessGetterLastPart(MEMBER_TYPE_FIELD, firstLabel);
-			return;
-		}
-		
-		boolean useTableSwitch = useTableSwitch(fields);
-		Label[] labels = useTableSwitch ? getTableSwitchLabelsForFieldAccess(defaultCaseLabel, fields)
-				: newLabelArray(fields.size());
-		
-		if (useTableSwitch) {
-			mv.visitTableSwitchInsn(
-					fields.get(0).fieldIndex,
-					fields.get(fields.size() - 1).fieldIndex,
-					defaultCaseLabel,
-					labels
-					);
-		} else {
-			mv.visitLookupSwitchInsn(
-					defaultCaseLabel,
-					fields.stream()
-					.mapToInt(f -> f.fieldIndex)
-					.toArray(),
-					labels);
-		}
-		
-		for (int i = 0; i < fields.size(); i++) {
-			FieldInfo field = fields.get(i);
-			
-			mv.visitLabel(labels[i]);
-			mv.visitFrame(F_SAME, 0, null, 0, null);
-			mv.visitVarInsn(ALOAD, 1);
-			mv.visitFieldInsn(field.getFieldOpcode, internalName, field.name, fieldAccessInfo.descriptor);
-//			mv.visitMethodInsn(INVOKEVIRTUAL, internalName, property.name, "()" + property.descriptor, false);
-			mv.visitInsn(fieldAccessInfo.returnOpcode);
-		}
-		
-		mv.visitLabel(defaultCaseLabel);
-		mv.visitFrame(F_SAME, 0, null, 0, null);
-		
-		visitAccessGetterLastPart(MEMBER_TYPE_FIELD, firstLabel);
-	}
-	
-	private void visitFieldAccessGetterBridge(FieldAccessInfo fieldAccessInfo) {
-		visitFieldAccessGetterBridge(
-				fieldAccessInfo.getMethodName,
-				fieldAccessInfo.descriptor,
-				fieldAccessInfo.returnOpcode);
-	}
-	
-	private void visitFieldAccessGetterBridge(
-			String methodName,
-			String returnTypeDescriptor,
-			int returnOpcode) {
-		mv = cw.visitMethod(
-				ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC,
-				methodName,
-				"(Ljava/lang/Object;I)" + returnTypeDescriptor,
-				null,
-				null);
-		mv.visitCode();
-		mv.visitLabel(new Label());
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitVarInsn(ALOAD, 1);
-		mv.visitTypeInsn(CHECKCAST, internalName);
-		mv.visitVarInsn(ILOAD, 2);
-		mv.visitMethodInsn(
-				INVOKEVIRTUAL,
-				classAccessInternalName,
-				methodName,
-				"(" + classTypeDescriptor + "I)" + returnTypeDescriptor,
-				false);
-		mv.visitInsn(returnOpcode);
-		mv.visitMaxs(3, 3);
-		mv.visitEnd();
-	}
-	
 	private void visitFieldAccessMethods() {
-		List<FieldAccessInfo> fieldAccessInfoList = Collections.unmodifiableList(
+		List<AccessInfo> fieldAccessInfoList = Collections.unmodifiableList(
 				Arrays.asList(
 						// Primitive types
 						//
-						FieldAccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.BOOLEAN_TYPE),
-						FieldAccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.BYTE_TYPE),
-						FieldAccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.CHAR_TYPE),
-						FieldAccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.DOUBLE_TYPE),
-						FieldAccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.FLOAT_TYPE),
-						FieldAccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.INT_TYPE),
-						FieldAccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.LONG_TYPE),
-						FieldAccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.SHORT_TYPE),
+						AccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.BOOLEAN_TYPE),
+						AccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.BYTE_TYPE),
+						AccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.CHAR_TYPE),
+						AccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.DOUBLE_TYPE),
+						AccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.FLOAT_TYPE),
+						AccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.INT_TYPE),
+						AccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.LONG_TYPE),
+						AccessInfo.forPrimitive(MEMBER_TYPE_FIELD, Type.SHORT_TYPE),
 						// Primitive wrapper types
 						//
-						FieldAccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Boolean.class),
-						FieldAccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Byte.class),
-						FieldAccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Character.class),
-						FieldAccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Double.class),
-						FieldAccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Float.class),
-						FieldAccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Integer.class),
-						FieldAccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Long.class),
-						FieldAccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Short.class),
+						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Boolean.class),
+						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Byte.class),
+						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Character.class),
+						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Double.class),
+						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Float.class),
+						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Integer.class),
+						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Long.class),
+						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_FIELD, Short.class),
 						// Common reference types
 						//
-						FieldAccessInfo.forReferenceType(MEMBER_TYPE_FIELD, BigDecimal.class),
-						FieldAccessInfo.forReferenceType(MEMBER_TYPE_FIELD, Date.class),
-						FieldAccessInfo.forReferenceType(MEMBER_TYPE_FIELD, LocalDate.class),
-						FieldAccessInfo.forReferenceType(MEMBER_TYPE_FIELD, LocalDateTime.class),
-						FieldAccessInfo.forReferenceType(MEMBER_TYPE_FIELD, String.class)
+						AccessInfo.forReferenceType(MEMBER_TYPE_FIELD, BigDecimal.class),
+						AccessInfo.forReferenceType(MEMBER_TYPE_FIELD, Date.class),
+						AccessInfo.forReferenceType(MEMBER_TYPE_FIELD, LocalDate.class),
+						AccessInfo.forReferenceType(MEMBER_TYPE_FIELD, LocalDateTime.class),
+						AccessInfo.forReferenceType(MEMBER_TYPE_FIELD, String.class)
 						)
 				);
 		
 		for (int i = 0; i < fieldAccessInfoList.size(); i++) {
-			FieldAccessInfo fieldAccessInfo = fieldAccessInfoList.get(i);
-			
-			visitFieldAccessGetter(fieldAccessInfo);
+			AccessInfo fieldAccessInfo = fieldAccessInfoList.get(i);
+
+			visitAccessGetter(typeToFieldsMap.get(fieldAccessInfo.className), fieldAccessInfo);
+			visitAccessGetterBridge(fieldAccessInfo);
 			visitFieldAccessSetter(fieldAccessInfo);
-			visitFieldAccessGetterBridge(fieldAccessInfo);
 			visitFieldAccessSetterBridge(fieldAccessInfo);
 		}
 		
-		visitGeneralFieldAccessGetter();
-		visitFieldAccessGetterBridge("getField", "Ljava/lang/Object;", ARETURN);
+		visitGeneralAccessGetter("getField", MEMBER_TYPE_FIELD, fieldInfoList);
+		visitAccessGetterBridge("getField", "Ljava/lang/Object;", ARETURN);
 		visitGeneralFieldAccessSetter();
 		visitFieldAccessSetterBridge("setField", ALOAD, "Ljava/lang/Object;");
 	}
 	
-	private void visitFieldAccessSetter(FieldAccessInfo fieldAccessInfo) {
+	private void visitFieldAccessSetter(AccessInfo fieldAccessInfo) {
 		mv = cw.visitMethod(
 				ACC_PUBLIC,
 				fieldAccessInfo.setMethodName,
@@ -575,13 +599,13 @@ public final class ClassAccessFactory<T> {
 		}
 		
 		boolean useTableSwitch = useTableSwitch(fields);
-		Label[] labels = useTableSwitch ? getTableSwitchLabelsForFieldAccess(defaultCaseLabel, fields)
+		Label[] labels = useTableSwitch ? getTableSwitchLabelsForAccess(defaultCaseLabel, fields)
 				: newLabelArray(fields.size());
 		
 		if (useTableSwitch) {
 			mv.visitTableSwitchInsn(
-					fields.get(0).fieldIndex,
-					fields.get(fields.size() - 1).fieldIndex,
+					fields.get(0).memberIndex,
+					fields.get(fields.size() - 1).memberIndex,
 					defaultCaseLabel,
 					labels
 					);
@@ -589,7 +613,7 @@ public final class ClassAccessFactory<T> {
 			mv.visitLookupSwitchInsn(
 					defaultCaseLabel,
 					fields.stream()
-					.mapToInt(f -> f.fieldIndex)
+					.mapToInt(f -> f.memberIndex)
 					.toArray(),
 					labels);
 		}
@@ -614,7 +638,7 @@ public final class ClassAccessFactory<T> {
 		visitFieldAccessSetterLastPart(fieldAccessInfo.descriptor, firstLabel, breakLabel);
 	}
 	
-	private void visitFieldAccessSetterBridge(FieldAccessInfo fieldAccessInfo) {
+	private void visitFieldAccessSetterBridge(AccessInfo fieldAccessInfo) {
 		visitFieldAccessSetterBridge(
 				fieldAccessInfo.setMethodName,
 				fieldAccessInfo.loadOpcode,
@@ -683,10 +707,13 @@ public final class ClassAccessFactory<T> {
 		mv.visitEnd();
 	}
 	
-	private void visitGeneralFieldAccessGetter() {
+	private void visitGeneralAccessGetter(
+			String methodName,
+			String memberType,
+			List<? extends MemberInfo> memberInfoList) {
 		mv = cw.visitMethod(
 				ACC_PUBLIC,
-				"getField",
+				methodName,
 				"(" + classTypeDescriptor + "I)Ljava/lang/Object;",
 				null,
 				null);
@@ -697,38 +724,45 @@ public final class ClassAccessFactory<T> {
 
 		Label defaultCaseLabel = new Label();
 
-		List<FieldInfo> fields = fieldInfoList;
-		if (fields.isEmpty()) {
+		if (memberInfoList.isEmpty()) {
 			mv.visitInsn(POP);
 			mv.visitLabel(defaultCaseLabel);
-			visitAccessGetterLastPart(MEMBER_TYPE_FIELD, firstLabel);
+			visitAccessGetterLastPart(memberType, firstLabel);
 			return;
 		}
 		
-		Label[] labels = getTableSwitchLabelsForFieldAccess(defaultCaseLabel, fields);
+		Label[] labels = getTableSwitchLabelsForAccess(defaultCaseLabel, memberInfoList);
 		
-		// Always use a table switch because there are no gaps between field indices
+		// Always use a table switch because there are no gaps between member indices
 		mv.visitTableSwitchInsn(
-				fields.get(0).fieldIndex,
-				fields.get(fields.size() - 1).fieldIndex,
+				memberInfoList.get(0).memberIndex,
+				memberInfoList.get(memberInfoList.size() - 1).memberIndex,
 				defaultCaseLabel,
 				labels
 				);
 		
-		for (int i = 0; i < fields.size(); i++) {
-			FieldInfo field = fields.get(i);
+		for (int i = 0; i < memberInfoList.size(); i++) {
+			MemberInfo member = memberInfoList.get(i);
 			
 			mv.visitLabel(labels[i]);
 			mv.visitFrame(F_SAME, 0, null, 0, null);
 			mv.visitVarInsn(ALOAD, 1);
-			mv.visitFieldInsn(field.getFieldOpcode, internalName, field.name, field.descriptor);
 			
-			if (field.type.isPrimitive()) {
-				Class<?> wrapperType = ClassUtils.primitiveToWrapper(field.type);
+			switch (memberType) {
+				case MEMBER_TYPE_FIELD:
+					mv.visitFieldInsn(((FieldInfo)member).getFieldOpcode, internalName, member.name, member.descriptor);
+					break;
+				case MEMBER_TYPE_PROPERTY:
+					mv.visitMethodInsn(INVOKEVIRTUAL, internalName, member.name, "()" + member.descriptor, false);
+					break;
+			}
+			
+			if (member.type.isPrimitive()) {
+				Class<?> wrapperType = ClassUtils.primitiveToWrapper(member.type);
 				mv.visitMethodInsn(
 						INVOKESTATIC,
 						Type.getInternalName(wrapperType),
-						"valueOf", "(" + field.descriptor +")" + Type.getDescriptor(wrapperType),
+						"valueOf", "(" + member.descriptor +")" + Type.getDescriptor(wrapperType),
 						false);
 			}
 			
@@ -738,7 +772,7 @@ public final class ClassAccessFactory<T> {
 		mv.visitLabel(defaultCaseLabel);
 		mv.visitFrame(F_SAME, 0, null, 0, null);
 		
-		visitAccessGetterLastPart(MEMBER_TYPE_FIELD, firstLabel);
+		visitAccessGetterLastPart(memberType, firstLabel);
 	}
 	
 	private void visitGeneralFieldAccessSetter() {
@@ -763,12 +797,12 @@ public final class ClassAccessFactory<T> {
 			return;
 		}
 		
-		Label[] labels = getTableSwitchLabelsForFieldAccess(defaultCaseLabel, fields);
+		Label[] labels = getTableSwitchLabelsForAccess(defaultCaseLabel, fields);
 
 		// Always use a table switch because there are no gaps between field indices
 		mv.visitTableSwitchInsn(
-				fields.get(0).fieldIndex,
-				fields.get(fields.size() - 1).fieldIndex,
+				fields.get(0).memberIndex,
+				fields.get(fields.size() - 1).memberIndex,
 				defaultCaseLabel,
 				labels
 				);
@@ -910,4 +944,45 @@ public final class ClassAccessFactory<T> {
 		mv.visitMaxs(5, 3);
 		mv.visitEnd();
 	}
+	
+//	private void visitPropertyAccessMethods() {
+//		List<AccessInfo> propertyAccessInfoList = Collections.unmodifiableList(
+//				Arrays.asList(
+//						// Primitive types
+//						//
+//						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.BOOLEAN_TYPE),
+//						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.BYTE_TYPE),
+//						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.CHAR_TYPE),
+//						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.DOUBLE_TYPE),
+//						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.FLOAT_TYPE),
+//						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.INT_TYPE),
+//						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.LONG_TYPE),
+//						AccessInfo.forPrimitive(MEMBER_TYPE_PROPERTY, Type.SHORT_TYPE),
+//						// Primitive wrapper types
+//						//
+//						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Boolean.class),
+//						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Byte.class),
+//						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Character.class),
+//						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Double.class),
+//						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Float.class),
+//						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Integer.class),
+//						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Long.class),
+//						AccessInfo.forPrimitiveWrapper(MEMBER_TYPE_PROPERTY, Short.class),
+//						// Common reference types
+//						//
+//						AccessInfo.forReferenceType(MEMBER_TYPE_PROPERTY, BigDecimal.class),
+//						AccessInfo.forReferenceType(MEMBER_TYPE_PROPERTY, Date.class),
+//						AccessInfo.forReferenceType(MEMBER_TYPE_PROPERTY, LocalDate.class),
+//						AccessInfo.forReferenceType(MEMBER_TYPE_PROPERTY, LocalDateTime.class),
+//						AccessInfo.forReferenceType(MEMBER_TYPE_PROPERTY, String.class)
+//						)
+//				);
+//		
+//		for (int i = 0; i < propertyAccessInfoList.size(); i++) {
+//			AccessInfo propertyAccessInfo = propertyAccessInfoList.get(i);
+//
+//			visitAccessGetter(typeToAccessorsMap.get(propertyAccessInfo.className), propertyAccessInfo);
+//			visitAccessGetterBridge(propertyAccessInfo);
+//		}
+//	}
 }
