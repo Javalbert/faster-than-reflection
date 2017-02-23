@@ -844,10 +844,19 @@ public final class ClassAccessFactory<T> {
 			
 			switch (memberType) {
 				case MEMBER_TYPE_FIELD:
-					mv.visitFieldInsn(((FieldInfo)member).getFieldOpcode, internalName, member.name, member.descriptor);
+					mv.visitFieldInsn(
+							((FieldInfo)member).getFieldOpcode,
+							internalName,
+							member.name,
+							member.descriptor);
 					break;
 				case MEMBER_TYPE_PROPERTY:
-					mv.visitMethodInsn(INVOKEVIRTUAL, internalName, member.name, "()" + member.descriptor, false);
+					mv.visitMethodInsn(
+							INVOKEVIRTUAL,
+							internalName,
+							((PropertyInfo)member).readMethodName,
+							"()" + member.descriptor,
+							false);
 					break;
 			}
 			
@@ -935,10 +944,19 @@ public final class ClassAccessFactory<T> {
 			
 			switch (memberType) {
 				case MEMBER_TYPE_FIELD:
-					mv.visitFieldInsn(((FieldInfo)member).setFieldOpcode, internalName, member.name, member.descriptor);
+					mv.visitFieldInsn(
+							((FieldInfo)member).setFieldOpcode,
+							internalName,
+							member.name,
+							member.descriptor);
 					break;
 				case MEMBER_TYPE_PROPERTY:
-					mv.visitMethodInsn(INVOKEVIRTUAL, internalName, member.name, "()" + member.descriptor, false);
+					mv.visitMethodInsn(
+							INVOKEVIRTUAL,
+							internalName,
+							((PropertyInfo)member).writeMethodName,
+							"(" + member.descriptor + ")V",
+							false);
 					break;
 			}
 			
@@ -1098,5 +1116,10 @@ public final class ClassAccessFactory<T> {
 			visitAccessSetter(typeToMutatorsMap.get(propertyAccessInfo.className), propertyAccessInfo);
 			visitAccessSetterBridge(propertyAccessInfo);
 		}
+		
+		visitGeneralAccessGetter("getProperty", MEMBER_TYPE_PROPERTY, accessorInfoList);
+		visitAccessGetterBridge("getProperty", "Ljava/lang/Object;", ARETURN);
+		visitGeneralAccessSetter("setProperty", MEMBER_TYPE_PROPERTY, mutatorInfoList);
+		visitAccessSetterBridge("setProperty", ALOAD, "Ljava/lang/Object;");
 	}
 }

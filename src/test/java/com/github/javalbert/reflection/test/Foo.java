@@ -308,22 +308,31 @@ public class Foo {
 			switch (fieldIndex) {
 				case 0:
 					obj.booleanVal = (boolean)x;
+					break;
 				case 1:
 					obj.byteVal = (byte)x;
+					break;
 				case 2:
 					obj.charVal = (char)x;
+					break;
 				case 3:
 					obj.doubleVal = (double)x;
+					break;
 				case 4:
 					obj.floatVal = (float)x;
+					break;
 				case 5:
 					obj.intVal = (int)x;
+					break;
 				case 6:
 					obj.longVal = (long)x;
+					break;
 				case 7:
 					obj.shortVal = (short)x;
+					break;
 				case 8:
 					obj.boxedBoolean = (Boolean)x;
+					break;
 				default:
 					throw new IllegalArgumentException("No field with index: " + fieldIndex);
 			}
@@ -587,23 +596,67 @@ public class Foo {
 		@Override
 		public void setStringProperty(Foo obj, int propertyIndex, String x) {
 		}
-	}
-	
-	public void setDoubleField(Foo obj, int fieldIndex, double x) {
-		switch (fieldIndex) {
-			case 3:
-				obj.doubleVal = x;
-			default:
-				throw new IllegalArgumentException("No field with index: " + fieldIndex);
+
+		
+		@Override
+		public Object getProperty(Foo obj, int propertyIndex) {
+			switch (propertyIndex) {
+				case 1:
+					return obj.getBooleanVal();
+				case 2:
+					return obj.getBoxedBoolean();
+				case 10:
+					return obj.getByteVal();
+				case 11:
+					return obj.getCharVal();
+				case 13:
+					return obj.getDoubleVal();
+				case 14:
+					return obj.getFloatVal();
+				case 15:
+					return obj.getIntVal();
+				case 18:
+					return obj.getLongVal();
+				case 19:
+					return obj.getShortVal();
+				default:
+					throw new IllegalArgumentException("No property with index: " + propertyIndex);
+			}
 		}
-	}
-	
-	public void setDoubleProperty(Foo obj, int propertyIndex, double x) {
-		switch (propertyIndex) {
-			case 3:
-				obj.setDoubleVal(x);
-			default:
-				throw new IllegalArgumentException("No property with index: " + propertyIndex);
+
+		@Override
+		public void setProperty(Foo obj, int propertyIndex, Object x) {
+			switch (propertyIndex) {
+				case 1:
+					obj.setBooleanVal((boolean)x);
+					break;
+				case 2:
+					obj.setBoxedBoolean((Boolean)x);
+					break;
+				case 10:
+					obj.setByteVal((byte)x);
+					break;
+				case 11:
+					obj.setCharVal((char)x);
+					break;
+				case 13:
+					obj.setDoubleVal((double)x);
+					break;
+				case 14:
+					obj.setFloatVal((float)x);
+					break;
+				case 15:
+					obj.setIntVal((int)x);
+					break;
+				case 18:
+					obj.setLongVal((long)x);
+					break;
+				case 19:
+					obj.setShortVal((short)x);
+					break;
+				default:
+					throw new IllegalArgumentException("No property with index: " + propertyIndex);
+			}
 		}
 	}
 	

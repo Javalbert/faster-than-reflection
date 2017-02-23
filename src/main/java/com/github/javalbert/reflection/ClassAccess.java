@@ -147,8 +147,8 @@ public interface ClassAccess<T> {
 	
 	// For all properties
 	//
-//	Object getProperty(T obj, int propertyIndex);
-//	void setProperty(T obj, int propertyIndex, Object x);
+	Object getProperty(T obj, int propertyIndex);
+	void setProperty(T obj, int propertyIndex, Object x);
 	
 	/* END JavaBean properties */
 
