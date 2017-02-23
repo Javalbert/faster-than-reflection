@@ -108,4 +108,92 @@ public class ClassAccessBoxedPrimitivePropertiesTest {
 		
 		assertThat(boxedShort, equalTo(obj.getBoxedShort()));
 	}
+	
+	@Test
+	public void setBoxedBooleanPropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		Boolean boxedBoolean = true;
+		
+		access.setBoxedBooleanProperty(obj, access.propertyIndex("boxedBoolean"), boxedBoolean);
+		
+		assertThat(obj.getBoxedBoolean(), equalTo(boxedBoolean));
+	}
+	
+	@Test
+	public void setBoxedBytePropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		Byte boxedByte = (byte)-55;
+		
+		access.setBoxedByteProperty(obj, access.propertyIndex("boxedByte"), boxedByte);
+		
+		assertThat(obj.getBoxedByte(), equalTo(boxedByte));
+	}
+	
+	@Test
+	public void setBoxedCharPropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		Character boxedChar = '\n';
+		
+		access.setBoxedCharProperty(obj, access.propertyIndex("boxedChar"), boxedChar);
+		
+		assertThat(obj.getBoxedChar(), equalTo(boxedChar));
+	}
+	
+	@Test
+	public void setBoxedDoublePropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		Double boxedDouble = 0.9553896885798474d;
+		
+		access.setBoxedDoubleProperty(obj, access.propertyIndex("boxedDouble"), boxedDouble);
+		
+		assertThat(obj.getBoxedDouble(), equalTo(boxedDouble));
+	}
+	
+	@Test
+	public void setBoxedFloatPropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		Float boxedFloat = 0.2747032f;
+		
+		access.setBoxedFloatProperty(obj, access.propertyIndex("boxedFloat"), boxedFloat);
+		
+		assertThat(obj.getBoxedFloat(), equalTo(boxedFloat));
+	}
+	
+	@Test
+	public void setBoxedIntPropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		Integer boxedInt = 274991538;
+
+		access.setBoxedIntProperty(obj, access.propertyIndex("boxedInt"), boxedInt);
+		
+		assertThat(obj.getBoxedInt(), equalTo(boxedInt));
+	}
+
+	@Test
+	public void setBoxedLongPropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		Long boxedLong = 6774924159498401640L;
+
+		access.setBoxedLongProperty(obj, access.propertyIndex("boxedLong"), boxedLong);
+		
+		assertThat(obj.getBoxedLong(), equalTo(boxedLong));
+	}
+	
+	@Test
+	public void setBoxedShortPropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		Short boxedShort = (short)-31848;
+
+		access.setBoxedShortProperty(obj, access.propertyIndex("boxedShort"), boxedShort);
+		
+		assertThat(obj.getBoxedShort(), equalTo(boxedShort));
+	}
 }

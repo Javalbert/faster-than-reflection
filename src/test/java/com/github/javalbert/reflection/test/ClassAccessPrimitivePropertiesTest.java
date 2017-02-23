@@ -109,4 +109,92 @@ public class ClassAccessPrimitivePropertiesTest {
 		
 		assertThat(shortVal, equalTo(obj.getShortVal()));
 	}
+	
+	@Test
+	public void setBooleanPropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		boolean booleanVal = true;
+		
+		access.setBooleanProperty(obj, access.propertyIndex("booleanVal"), booleanVal);
+		
+		assertThat(obj.getBooleanVal(), equalTo(booleanVal));
+	}
+	
+	@Test
+	public void setBytePropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		byte byteVal = (byte)-21;
+		
+		access.setByteProperty(obj, access.propertyIndex("byteVal"), byteVal);
+		
+		assertThat(obj.getByteVal(), equalTo(byteVal));
+	}
+	
+	@Test
+	public void setCharPropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		char charVal = '.';
+		
+		access.setCharProperty(obj, access.propertyIndex("charVal"), charVal);
+		
+		assertThat(obj.getCharVal(), equalTo(charVal));
+	}
+	
+	@Test
+	public void setDoublePropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		double doubleVal = 0.14753383239666462d;
+		
+		access.setDoubleProperty(obj, access.propertyIndex("doubleVal"), doubleVal);
+		
+		assertThat(obj.getDoubleVal(), equalTo(doubleVal));
+	}
+	
+	@Test
+	public void setFloatPropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		float floatVal = 0.27210158f;
+		
+		access.setFloatProperty(obj, access.propertyIndex("floatVal"), floatVal);
+		
+		assertThat(obj.getFloatVal(), equalTo(floatVal));
+	}
+	
+	@Test
+	public void setIntPropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		int intVal = 1;
+
+		access.setIntProperty(obj, access.propertyIndex("intVal"), intVal);
+		
+		assertThat(obj.getIntVal(), equalTo(intVal));
+	}
+
+	@Test
+	public void setLongPropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		long longVal = 3285927007071017350L;
+
+		access.setLongProperty(obj, access.propertyIndex("longVal"), longVal);
+		
+		assertThat(obj.getLongVal(), equalTo(longVal));
+	}
+	
+	@Test
+	public void setShortPropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		short shortVal = (short)-8406;
+
+		access.setShortProperty(obj, access.propertyIndex("shortVal"), shortVal);
+		
+		assertThat(obj.getShortVal(), equalTo(shortVal));
+	}
 }

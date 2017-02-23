@@ -154,6 +154,17 @@ public class ClassAccessCommonReferenceTypesTest {
 	}
 	
 	@Test
+	public void setBigDecimalPropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		BigDecimal bigDecimal = new BigDecimal("123.456");
+		
+		access.setBigDecimalProperty(obj, access.propertyIndex("bigDecimal"), bigDecimal);
+		
+		assertThat(obj.getBigDecimal(), equalTo(bigDecimal));
+	}
+	
+	@Test
 	public void getDatePropertyValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
@@ -162,6 +173,17 @@ public class ClassAccessCommonReferenceTypesTest {
 		Date date = access.getDateProperty(obj, access.propertyIndex("date"));
 		
 		assertThat(date, equalTo(obj.getDate()));
+	}
+	
+	@Test
+	public void setDatePropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		Date date = new Date();
+		
+		access.setDateProperty(obj, access.propertyIndex("date"), date);
+		
+		assertThat(obj.getDate(), equalTo(date));
 	}
 	
 	@Test
@@ -176,6 +198,17 @@ public class ClassAccessCommonReferenceTypesTest {
 	}
 	
 	@Test
+	public void setLocalDatePropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		LocalDate localDate = LocalDate.now();
+		
+		access.setLocalDateProperty(obj, access.propertyIndex("localDate"), localDate);
+		
+		assertThat(obj.getLocalDate(), equalTo(localDate));
+	}
+	
+	@Test
 	public void getLocalDateTimePropertyValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
@@ -187,6 +220,17 @@ public class ClassAccessCommonReferenceTypesTest {
 	}
 	
 	@Test
+	public void setLocalDateTimePropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		LocalDateTime localDateTime = LocalDateTime.now();
+		
+		access.setLocalDateTimeProperty(obj, access.propertyIndex("localDateTime"), localDateTime);
+		
+		assertThat(obj.getLocalDateTime(), equalTo(localDateTime));
+	}
+	
+	@Test
 	public void getStringPropertyValueAndVerify() {
 		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
@@ -195,6 +239,17 @@ public class ClassAccessCommonReferenceTypesTest {
 		String string = access.getStringProperty(obj, access.propertyIndex("string"));
 		
 		assertThat(string, equalTo(obj.getString()));
+	}
+	
+	@Test
+	public void setStringPropertyValueAndVerify() {
+		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		Foo obj = new Foo();
+		String string = "Pizza Hut";
+		
+		access.setStringProperty(obj, access.propertyIndex("string"), string);
+		
+		assertThat(obj.getString(), equalTo(string));
 	}
 	
 	/* END Properties */

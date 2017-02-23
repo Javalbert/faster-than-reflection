@@ -222,7 +222,12 @@ public class Foo {
 
 		@Override
 		public BigDecimal getBigDecimalField(Foo obj, int fieldIndex) {
-			return null;
+			switch (fieldIndex) {
+				case 16:
+					return obj.bigDecimal;
+				default:
+					throw new IllegalArgumentException("No field with index: " + fieldIndex);
+			}
 		}
 
 		@Override
@@ -406,7 +411,12 @@ public class Foo {
 
 		@Override
 		public Double getBoxedDoubleProperty(Foo obj, int propertyIndex) {
-			return null;
+			switch (propertyIndex) {
+				case 5:
+					return obj.getBoxedDouble();
+				default:
+					throw new IllegalArgumentException("No property with index: " + propertyIndex);
+			}
 		}
 
 		@Override
@@ -430,10 +440,113 @@ public class Foo {
 		}
 
 		@Override
+		public void setBooleanProperty(Foo obj, int propertyIndex, boolean x) {
+			switch (propertyIndex) {
+				case 1:
+					obj.setBooleanVal(x);
+					break;
+				default:
+					throw new IllegalArgumentException("No property with index: " + propertyIndex);
+			}
+		}
+
+		@Override
+		public void setByteProperty(Foo obj, int propertyIndex, byte x) {
+		}
+
+		@Override
+		public void setCharProperty(Foo obj, int propertyIndex, char x) {
+		}
+
+		@Override
+		public void setDoubleProperty(Foo obj, int propertyIndex, double x) {
+			switch (propertyIndex) {
+				case 13:
+					obj.setDoubleVal(x);
+					break;
+				default:
+					throw new IllegalArgumentException("No property with index: " + propertyIndex);
+			}
+		}
+
+		@Override
+		public void setFloatProperty(Foo obj, int propertyIndex, float x) {
+		}
+
+		@Override
+		public void setIntProperty(Foo obj, int propertyIndex, int x) {
+		}
+
+		@Override
+		public void setLongProperty(Foo obj, int propertyIndex, long x) {
+		}
+
+		@Override
+		public void setShortProperty(Foo obj, int propertyIndex, short x) {
+		}
+
+		@Override
+		public void setBoxedBooleanProperty(Foo obj, int propertyIndex, Boolean x) {
+			switch (propertyIndex) {
+				case 2:
+					obj.setBoxedBoolean(x);
+					break;
+				default:
+					throw new IllegalArgumentException("No property with index: " + propertyIndex);
+			}
+		}
+
+		@Override
+		public void setBoxedByteProperty(Foo obj, int propertyIndex, Byte x) {
+		}
+
+		@Override
+		public void setBoxedCharProperty(Foo obj, int propertyIndex, Character x) {
+		}
+
+		@Override
+		public void setBoxedDoubleProperty(Foo obj, int propertyIndex, Double x) {
+			switch (propertyIndex) {
+				case 5:
+					obj.setBoxedDouble(x);
+					break;
+				default:
+					throw new IllegalArgumentException("No property with index: " + propertyIndex);
+			}
+		}
+
+		@Override
+		public void setBoxedFloatProperty(Foo obj, int propertyIndex, Float x) {
+		}
+
+		@Override
+		public void setBoxedIntProperty(Foo obj, int propertyIndex, Integer x) {
+		}
+
+		@Override
+		public void setBoxedLongProperty(Foo obj, int propertyIndex, Long x) {
+		}
+
+		@Override
+		public void setBoxedShortProperty(Foo obj, int propertyIndex, Short x) {
+		}
+
+		@Override
 		public BigDecimal getBigDecimalProperty(Foo obj, int propertyIndex) {
 			switch (propertyIndex) {
 				case 0:
 					return obj.getBigDecimal();
+				default:
+					throw new IllegalArgumentException("No property with index: " + propertyIndex);
+			}
+		}
+
+		@Override
+		public void setBigDecimalProperty(Foo obj, int propertyIndex, BigDecimal x) {
+			switch (propertyIndex) {
+				case 0:
+					obj.setBigDecimal(x);
+					break;
 				default:
 					throw new IllegalArgumentException("No property with index: " + propertyIndex);
 			}
@@ -445,8 +558,16 @@ public class Foo {
 		}
 
 		@Override
+		public void setDateProperty(Foo obj, int propertyIndex, Date x) {
+		}
+
+		@Override
 		public LocalDate getLocalDateProperty(Foo obj, int propertyIndex) {
 			return null;
+		}
+
+		@Override
+		public void setLocalDateProperty(Foo obj, int propertyIndex, LocalDate x) {
 		}
 
 		@Override
@@ -455,8 +576,34 @@ public class Foo {
 		}
 
 		@Override
+		public void setLocalDateTimeProperty(Foo obj, int propertyIndex, LocalDateTime x) {
+		}
+
+		@Override
 		public String getStringProperty(Foo obj, int propertyIndex) {
 			return null;
+		}
+
+		@Override
+		public void setStringProperty(Foo obj, int propertyIndex, String x) {
+		}
+	}
+	
+	public void setDoubleField(Foo obj, int fieldIndex, double x) {
+		switch (fieldIndex) {
+			case 3:
+				obj.doubleVal = x;
+			default:
+				throw new IllegalArgumentException("No field with index: " + fieldIndex);
+		}
+	}
+	
+	public void setDoubleProperty(Foo obj, int propertyIndex, double x) {
+		switch (propertyIndex) {
+			case 3:
+				obj.setDoubleVal(x);
+			default:
+				throw new IllegalArgumentException("No property with index: " + propertyIndex);
 		}
 	}
 	
