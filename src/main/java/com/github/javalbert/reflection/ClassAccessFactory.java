@@ -21,6 +21,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -272,6 +273,16 @@ public final class ClassAccessFactory<T> {
 		}
 	}
 	
+	private static class MethodInfo {
+		private final Method method;
+		private final int index;
+		
+		private MethodInfo(Method method, int index) {
+			this.index = index;
+			this.method = method;
+		}
+	}
+	
 	private static class PropertyInfo extends MemberInfo {
 		private final String readMethodName;
 		private final String writeMethodName;
@@ -318,91 +329,64 @@ public final class ClassAccessFactory<T> {
 	private final Class<T> clazz;
 	private final ClassWriter cw;
 	private final List<FieldInfo> fieldInfoList = new ArrayList<>();
-	private final List<Field> fields;
 	private String internalName;
+	private final List<MethodInfo> methodInfoList = new ArrayList<>();
 	private final List<PropertyInfo> mutatorInfoList = new ArrayList<>();
 	private MethodVisitor mv;
-	private final List<PropertyDescriptor> propertyDescriptors;
+	private final Map<Integer, List<MethodInfo>> paramCountMethodsMap = new HashMap<>();
+	private final List<PropertyInfo> propertyInfoList = new ArrayList<>();
 	private final Map<String, List<PropertyInfo>> typeToAccessorsMap = new HashMap<>();
 	private final Map<String, List<FieldInfo>> typeToFieldsMap = new HashMap<>();
 	private final Map<String, List<PropertyInfo>> typeToMutatorsMap = new HashMap<>();
 	
 	private ClassAccessFactory(Class<T> clazz) {
-		try {
-			BeanInfo info = Introspector.getBeanInfo(clazz);
-			propertyDescriptors = Collections.unmodifiableList(Arrays.stream(info.getPropertyDescriptors())
-					.filter(prop -> !prop.getName().equals("class"))
-					.collect(toList()));
-		} catch (IntrospectionException e) {
-			throw new RuntimeException(e);
-		}
-		
-		for (int i = 0; i < propertyDescriptors.size(); i++) {
-			putIntoTypeToPropertyMaps(propertyDescriptors.get(i), i);
-		}
-		
-		Field[] declaredFields = clazz.getDeclaredFields();
-		List<Field> fields = new ArrayList<>();
-		for (int i = 0; i < declaredFields.length; i++) {
-			Field field = declaredFields[i];
-			setAccessible(field);
-
-			fields.add(field);
-			putIntoTypeToFieldsMap(field, i);
-		}
-		this.fields = Collections.unmodifiableList(fields);
-		
 		this.clazz = clazz;
+		initializePropertyDescriptors();
+		initializeFields();
+		initializeMethods();
 		cw = new ClassWriter(0);
 	}
 	
-	private void buildClassAccessClass() {
+	void buildClassAccessClass() {
 		visitClass();
 		visitDefaultConstructor();
-		visitIndexMethod(MEMBER_TYPE_FIELD, getFieldIndexSwitchCases());
+		visitIndexMethod(MEMBER_TYPE_FIELD, getMemberIndexSwitchCases(fieldInfoList));
 		visitFieldAccessMethods();
-		visitIndexMethod(MEMBER_TYPE_PROPERTY, getPropertyIndexSwitchCases());
+		visitIndexMethod(MEMBER_TYPE_PROPERTY, getMemberIndexSwitchCases(propertyInfoList));
 		visitPropertyAccessMethods();
+		visitIndexMethod("method", getMethodIndexSwitchCases());
 		cw.visitEnd();
 		AccessClassLoader.get(clazz).defineClass(getClassNameOfClassAccessFor(clazz), cw.toByteArray());
 	}
 	
-	private List<StringCaseReturnIndex> getFieldIndexSwitchCases() {
-		List<StringCaseReturnIndex> fieldIndexSwitchCases = new ArrayList<>();
-		for (int i = 0; i < fields.size(); i++) {
-			fieldIndexSwitchCases.add(new StringCaseReturnIndex(fields.get(i).getName(), i));
-		}
-		return fieldIndexSwitchCases;
-	}
-	
-	private List<StringCaseReturnIndex> getPropertyIndexSwitchCases() {
-		List<StringCaseReturnIndex> propertyIndexSwitchCases = new ArrayList<>();
-		for (int i = 0; i < propertyDescriptors.size(); i++) {
-			propertyIndexSwitchCases.add(new StringCaseReturnIndex(propertyDescriptors.get(i).getName(), i));
-		}
-		return propertyIndexSwitchCases;
-	}
-	
-	private void putIntoTypeToFieldsMap(Field field, int fieldIndex) {
-		String key = field.getType().getName();
+	private void addFieldInfo(FieldInfo fieldInfo) {
+		String key = fieldInfo.type.getName();
 		
 		List<FieldInfo> fieldsOfType = typeToFieldsMap.get(key);
 		if (fieldsOfType == null) {
 			fieldsOfType = new ArrayList<>();
 			typeToFieldsMap.put(key, fieldsOfType);
 		}
-		FieldInfo fieldInfo = new FieldInfo(field, fieldIndex);
 		
 		fieldsOfType.add(fieldInfo);
 		fieldInfoList.add(fieldInfo);
 	}
 	
-	private void putIntoTypeToPropertyMaps(PropertyDescriptor propertyDescriptor, int propertyIndex) {
-		String key = propertyDescriptor.getPropertyType().getName();
+	private void addMethodInfo(MethodInfo methodInfo) {
+		List<MethodInfo> methodsWithParamCount = paramCountMethodsMap.get(methodInfo.method.getParameterCount());
+		if (methodsWithParamCount == null) {
+			methodsWithParamCount = new ArrayList<>();
+			paramCountMethodsMap.put(methodInfo.method.getParameterCount(), methodsWithParamCount);
+		}
 		
-		PropertyInfo propertyInfo = new PropertyInfo(propertyDescriptor, propertyIndex);
+		methodsWithParamCount.add(methodInfo);
+		methodInfoList.add(methodInfo);
+	}
+	
+	private void addPropertyInfo(PropertyInfo propertyInfo) {
+		String key = propertyInfo.type.getName();
 		
-		if (propertyDescriptor.getReadMethod() != null) {
+		if (propertyInfo.readMethodName != null) {
 			List<PropertyInfo> accessorsOfType = typeToAccessorsMap.get(key);
 			if (accessorsOfType == null) {
 				accessorsOfType = new ArrayList<>();
@@ -413,7 +397,7 @@ public final class ClassAccessFactory<T> {
 			accessorInfoList.add(propertyInfo);
 		}
 		
-		if (propertyDescriptor.getWriteMethod() != null) {
+		if (propertyInfo.writeMethodName != null) {
 			List<PropertyInfo> mutatorsOfType = typeToMutatorsMap.get(key);
 			if (mutatorsOfType == null) {
 				mutatorsOfType = new ArrayList<>();
@@ -422,6 +406,64 @@ public final class ClassAccessFactory<T> {
 			
 			mutatorsOfType.add(propertyInfo);
 			mutatorInfoList.add(propertyInfo);
+		}
+		
+		propertyInfoList.add(propertyInfo);
+	}
+	
+	private List<StringCaseReturnIndex> getMemberIndexSwitchCases(List<? extends MemberInfo> memberInfoList) {
+		List<StringCaseReturnIndex> propertyIndexSwitchCases = new ArrayList<>();
+		for (int i = 0; i < memberInfoList.size(); i++) {
+			propertyIndexSwitchCases.add(new StringCaseReturnIndex(memberInfoList.get(i).name, i));
+		}
+		return propertyIndexSwitchCases;
+	}
+	
+	private List<StringCaseReturnIndex> getMethodIndexSwitchCases() {
+		List<StringCaseReturnIndex> propertyIndexSwitchCases = new ArrayList<>();
+		for (int i = 0; i < methodInfoList.size(); i++) {
+			propertyIndexSwitchCases.add(new StringCaseReturnIndex(methodInfoList.get(i).method.getName(), i));
+		}
+		return propertyIndexSwitchCases;
+	}
+	
+	private void initializeFields() {
+		List<Field> fields = Arrays.stream(clazz.getDeclaredFields())
+				.sorted((a, b) -> a.getName().compareTo(b.getName()))
+				.collect(toList());
+		
+		for (int i = 0; i < fields.size(); i++) {
+			Field field = fields.get(i);
+			setAccessible(field);
+			addFieldInfo(new FieldInfo(field, i));
+		}
+	}
+	
+	private void initializeMethods() {
+		List<Method> methods = Arrays.stream(clazz.getDeclaredMethods())
+				.sorted((a, b) -> a.getName().compareTo(b.getName()))
+				.collect(toList());
+		
+		for (int i = 0; i < methods.size(); i++) {
+			Method method = methods.get(i);
+			setAccessible(method);
+			addMethodInfo(new MethodInfo(method, i));
+		}
+	}
+	
+	private void initializePropertyDescriptors() {
+		@SuppressWarnings("unchecked")
+		List<PropertyDescriptor> propertyDescriptors = Collections.EMPTY_LIST;
+		try {
+			BeanInfo info = Introspector.getBeanInfo(clazz);
+			propertyDescriptors = Collections.unmodifiableList(Arrays.stream(info.getPropertyDescriptors())
+					.filter(prop -> !prop.getName().equals("class"))
+					.collect(toList()));
+		} catch (IntrospectionException e) {
+			throw new RuntimeException(e);
+		}
+		for (int i = 0; i < propertyDescriptors.size(); i++) {
+			addPropertyInfo(new PropertyInfo(propertyDescriptors.get(i), i));
 		}
 	}
 	
@@ -988,7 +1030,7 @@ public final class ClassAccessFactory<T> {
 
 		final Label defaultCaseLabel = new Label();
 		
-		if (fields.isEmpty()) {
+		if (stringCaseReturnIndices.isEmpty()) {
 			mv.visitInsn(POP);
 			mv.visitLabel(defaultCaseLabel);
 			visitIndexMethodLastPart(categoryOfStringCase, firstLabel);
