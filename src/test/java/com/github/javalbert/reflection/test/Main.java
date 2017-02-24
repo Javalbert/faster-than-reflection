@@ -18,26 +18,47 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import com.github.javalbert.reflection.ClassAccess;
 import com.github.javalbert.reflection.ClassAccessFactory;
 
 public class Main {
-	public static void main(String[] args) {
-		ClassAccessFactory.get(Foo.class);
+	public static void main(String[] args) throws IntrospectionException {
+		ClassAccess<Foo> fooAccess = ClassAccessFactory.get(Foo.class);
 		
-		try {
-			BeanInfo info = Introspector.getBeanInfo(Foo.class);
-			List<PropertyDescriptor> propertyDescriptors = Collections.unmodifiableList(Arrays.stream(info.getPropertyDescriptors())
-					.filter(prop -> !prop.getName().equals("class"))
-					.collect(toList()));
-			for (int i = 0; i < propertyDescriptors.size(); i++) {
-				System.out.println(i + " " + propertyDescriptors.get(i).getName());
-			}
-		} catch (IntrospectionException e) {
-			throw new RuntimeException(e);
+		BeanInfo fooInfo = Introspector.getBeanInfo(Foo.class);
+		
+		System.out.println("FIELDS\n");
+		
+		List<Field> fields = Arrays.asList(Foo.class.getDeclaredFields());
+		for (int i = 0; i < fields.size(); i++) {
+			Field field = fields.get(i);
+			System.out.println(field.getName() + " = " + fooAccess.fieldIndex(field.getName()));
+		}
+		
+		System.out.println("\nPROPERTIES\n");
+		
+		List<PropertyDescriptor> propertyDescriptors = Arrays.stream(fooInfo.getPropertyDescriptors())
+				.filter(prop -> !prop.getName().equals("class"))
+				.collect(Collectors.toList());
+		for (int i = 0; i < propertyDescriptors.size(); i++) {
+			PropertyDescriptor propertyDescriptor = propertyDescriptors.get(i);
+			System.out.println(propertyDescriptor.getName() + " = " + fooAccess.propertyIndex(propertyDescriptor.getName()));
+		}
+
+		System.out.println("\nMETHODS\n");
+		
+		List<Method> methods = Arrays.stream(Foo.class.getDeclaredMethods())
+				.sorted((a, b) -> a.getName().compareTo(b.getName()))
+				.collect(toList());
+		for (int i = 0; i < methods.size(); i++) {
+			Method method = methods.get(i);
+			System.out.println(method.getName() + " = " + fooAccess.methodIndex(method.getName()));
 		}
 	}
 }

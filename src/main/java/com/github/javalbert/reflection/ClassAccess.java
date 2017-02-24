@@ -154,7 +154,7 @@ public interface ClassAccess<T> {
 
 	/* START Methods */
 
-//	int methodIndex(T obj, String name);
+	int methodIndex(String name);
 	
 //	Object call(T obj, int methodIndex, Object arg0, Object arg1);
 	
