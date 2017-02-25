@@ -29,13 +29,18 @@ import com.github.javalbert.reflection.ClassAccessFactory;
 
 public class Main {
 	public static void main(String[] args) throws IntrospectionException {
-		ClassAccess<Foo> fooAccess = ClassAccessFactory.get(Foo.class);
+		Main main = new Main();
+		main.printInfo(FooFactory.class);
+	}
+	
+	public <T> void printInfo(Class<T> clazz) throws IntrospectionException {
+		ClassAccess<T> fooAccess = ClassAccessFactory.get(clazz);
 		
-		BeanInfo fooInfo = Introspector.getBeanInfo(Foo.class);
+		BeanInfo fooInfo = Introspector.getBeanInfo(clazz);
 		
 		System.out.println("FIELDS\n");
 		
-		List<Field> fields = Arrays.asList(Foo.class.getDeclaredFields());
+		List<Field> fields = Arrays.asList(clazz.getDeclaredFields());
 		for (int i = 0; i < fields.size(); i++) {
 			Field field = fields.get(i);
 			System.out.println(field.getName() + " = " + fooAccess.fieldIndex(field.getName()));
@@ -53,7 +58,7 @@ public class Main {
 
 		System.out.println("\nMETHODS\n");
 		
-		List<Method> methods = Arrays.stream(Foo.class.getDeclaredMethods())
+		List<Method> methods = Arrays.stream(clazz.getDeclaredMethods())
 				.sorted((a, b) -> a.getName().compareTo(b.getName()))
 				.collect(toList());
 		for (int i = 0; i < methods.size(); i++) {

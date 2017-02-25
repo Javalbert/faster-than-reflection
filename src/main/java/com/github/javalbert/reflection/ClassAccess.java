@@ -156,6 +156,7 @@ public interface ClassAccess<T> {
 
 	int methodIndex(String name);
 	
+	Object call(T obj, int methodIndex);
 //	Object call(T obj, int methodIndex, Object arg0, Object arg1);
 	
 	/* END Methods */

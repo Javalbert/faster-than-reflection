@@ -656,6 +656,16 @@ public class Foo {
 //					throw new IllegalArgumentException("No property with index: " + propertyIndex);
 //			}
 //		}
+//
+//		@Override
+//		public int methodIndex(String name) {
+//			return 0;
+//		}
+//
+//		@Override
+//		public Object call(Foo obj, int methodIndex) {
+//			return null;
+//		}
 //	}
 	
 	// Primitive types

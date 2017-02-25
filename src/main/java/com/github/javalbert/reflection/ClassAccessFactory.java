@@ -56,9 +56,6 @@ public final class ClassAccessFactory<T> {
 	public static <T> ClassAccess<T> get(Class<T> clazz) {
 		if (ClassAccess.class.isAssignableFrom(clazz)) {
 			throw new IllegalArgumentException("should not get class access recursively");
-		} else if (Modifier.isInterface(clazz.getModifiers()) 
-				|| Modifier.isAbstract(clazz.getModifiers())) {
-			throw new IllegalArgumentException("class cannot be an interface or be abstract");
 		}
 		
 		try {
@@ -355,6 +352,7 @@ public final class ClassAccessFactory<T> {
 		visitIndexMethod(MEMBER_TYPE_PROPERTY, getMemberIndexSwitchCases(propertyInfoList));
 		visitPropertyAccessMethods();
 		visitIndexMethod("method", getMethodIndexSwitchCases());
+		visitMethodAccessMethods();
 		cw.visitEnd();
 		AccessClassLoader.get(clazz).defineClass(getClassNameOfClassAccessFor(clazz), cw.toByteArray());
 	}
@@ -483,7 +481,8 @@ public final class ClassAccessFactory<T> {
 
 		Label defaultCaseLabel = new Label();
 
-		if (memberInfoList.isEmpty()) {
+		if (memberInfoList == null
+				|| memberInfoList.isEmpty()) {
 			mv.visitInsn(POP);
 			mv.visitLabel(defaultCaseLabel);
 			visitAccessGetterLastPart(accessInfo.memberType, firstLabel);
@@ -615,7 +614,8 @@ public final class ClassAccessFactory<T> {
 
 		Label defaultCaseLabel = new Label();
 
-		if (memberInfoList.isEmpty()) {
+		if (memberInfoList == null
+				|| memberInfoList.isEmpty()) {
 			mv.visitInsn(POP);
 			mv.visitLabel(defaultCaseLabel);
 			visitAccessSetterLastPart(
@@ -860,7 +860,8 @@ public final class ClassAccessFactory<T> {
 
 		Label defaultCaseLabel = new Label();
 
-		if (memberInfoList.isEmpty()) {
+		if (memberInfoList == null
+				|| memberInfoList.isEmpty()) {
 			mv.visitInsn(POP);
 			mv.visitLabel(defaultCaseLabel);
 			visitAccessGetterLastPart(memberType, firstLabel);
@@ -937,7 +938,8 @@ public final class ClassAccessFactory<T> {
 
 		Label defaultCaseLabel = new Label();
 
-		if (memberInfoList.isEmpty()) {
+		if (memberInfoList == null
+				|| memberInfoList.isEmpty()) {
 			mv.visitInsn(POP);
 			mv.visitLabel(defaultCaseLabel);
 			visitAccessSetterLastPart(
@@ -1115,6 +1117,10 @@ public final class ClassAccessFactory<T> {
 		mv.visitLocalVariable("name", "Ljava/lang/String;", null, firstLabel, lastLabel, 1);
 		mv.visitMaxs(5, 3);
 		mv.visitEnd();
+	}
+	
+	private void visitMethodAccessMethods() {
+		
 	}
 	
 	private void visitPropertyAccessMethods() {
