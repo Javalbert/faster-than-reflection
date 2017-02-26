@@ -12,8 +12,8 @@
  *******************************************************************************/
 package com.github.javalbert.reflection.test;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

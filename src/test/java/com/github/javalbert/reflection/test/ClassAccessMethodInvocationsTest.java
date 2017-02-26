@@ -12,8 +12,9 @@
  *******************************************************************************/
 package com.github.javalbert.reflection.test;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import org.junit.Test;
 
@@ -22,12 +23,37 @@ import com.github.javalbert.reflection.MethodAccess;
 
 public class ClassAccessMethodInvocationsTest {
 	@Test
-	public void callMethodWithOneParameter() {
+	public void callMethodWith0Parameter() {
+		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
+		FooFactory factory = mock(FooFactory.class);
+		when(factory.newInstance()).thenReturn(new Foo());
+		
+		Object retVal = access.call(factory, access.methodIndex("newInstance"));
+		
+		verify(factory).newInstance();
+		assertThat(retVal, notNullValue());
+	}
+	
+	@Test
+	public void callMethodWith1Parameter() {
+		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
+		FooFactory factory = mock(FooFactory.class);
+		when(factory.newInstance(true)).thenReturn(new Foo(true));
+		
+		Object retVal = access.call(factory, access.methodIndex("newInstance", boolean.class), true);
+		
+		verify(factory).newInstance(true);
+		assertThat(retVal, notNullValue());
+	}
+	
+	@Test
+	public void callMethodWithNoReturnValue() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		
-		access.call(factory, access.methodIndex("newInstance"));
+		Object nullRetVal = access.call(factory, access.methodIndex("zzz"));
 		
-		verify(factory).newInstance();
+		verify(factory).zzz();
+		assertThat(nullRetVal, nullValue());
 	}
 }

@@ -828,4 +828,14 @@ public class Foo {
 	}
 	
 	/* END Common reference types */
+	
+	/* START Constructors */
+	
+	public Foo() {}
+	
+	public Foo(boolean booleanVal) {
+		this.booleanVal = booleanVal;
+	}
+	
+	/* END Constructors */
 }

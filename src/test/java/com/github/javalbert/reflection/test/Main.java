@@ -12,8 +12,8 @@
  *******************************************************************************/
 package com.github.javalbert.reflection.test;
 
-import static java.util.stream.Collectors.*;
 import static java.util.Comparator.*;
+import static java.util.stream.Collectors.*;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -31,15 +31,18 @@ import com.github.javalbert.reflection.ClassAccessFactory;
 public class Main {
 	public static void main(String[] args) throws IntrospectionException {
 		Main main = new Main();
+		main.printInfo(Foo.class);
 		main.printInfo(FooFactory.class);
 	}
-	
+
 	public <T> void printInfo(Class<T> clazz) throws IntrospectionException {
 		ClassAccess<T> access = ClassAccessFactory.get(clazz);
 		
 		BeanInfo fooInfo = Introspector.getBeanInfo(clazz);
+
+		System.out.println("\n========== " + clazz + " ==========");
 		
-		System.out.println("FIELDS\n");
+		System.out.println("\nFIELDS\n");
 
 		List<Field> fields = Arrays.stream(clazz.getDeclaredFields())
 				.sorted(comparing(Field::getName))

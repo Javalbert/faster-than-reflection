@@ -12,74 +12,68 @@
  *******************************************************************************/
 package com.github.javalbert.reflection.test;
 
-import static java.util.stream.Collectors.*;
-
-import java.util.Arrays;
-
-import com.github.javalbert.reflection.MethodAccess;
-
 public interface FooFactory {
-	public static class FooFactoryClassAccess2 implements MethodAccess<FooFactory> {
-		@Override
-		public int methodIndex(String name, Class<?>... parameterTypes) {
-			switch (name) {
-				case "newInstance":
-					if (Arrays.equals(parameterTypes, new Class[] {})) {
-						return 0;
-					} else if (Arrays.equals(parameterTypes, new Class[] { boolean.class })) {
-						return 1;
-					} else if (Arrays.equals(parameterTypes, new Class[] { boolean.class, byte.class })) {
-						return 2;
-					}
-					break;
-				case "zzz":
-					if (Arrays.equals(parameterTypes, new Class[] {})) {
-						return 3;
-					}
-					break;
-			}
-			throw new IllegalArgumentException("No method called " + name 
-					+ " with parameters " + Arrays.stream(parameterTypes)
-					.map(Class::getName)
-					.collect(toList()));
-		}
-		
-		@Override
-		public Object call(FooFactory obj, int methodIndex) {
-			switch (methodIndex) {
+//	public static class FooFactoryClassAccess2 implements MethodAccess<FooFactory> {
+//		@Override
+//		public int methodIndex(String name, Class<?>... parameterTypes) {
+//			switch (name) {
+//				case "newInstance":
+//					if (Arrays.equals(parameterTypes, new Class[] {})) {
+//						return 0;
+//					} else if (Arrays.equals(parameterTypes, new Class[] { boolean.class })) {
+//						return 1;
+//					} else if (Arrays.equals(parameterTypes, new Class[] { boolean.class, byte.class })) {
+//						return 2;
+//					}
+//					break;
+//				case "zzz":
+//					if (Arrays.equals(parameterTypes, new Class[] {})) {
+//						return 3;
+//					}
+//					break;
+//			}
+//			throw new IllegalArgumentException("No method called " + name 
+//					+ " with parameters " + Arrays.stream(parameterTypes)
+//					.map(Class::getName)
+//					.collect(toList()));
+//		}
+//		
+//		@Override
+//		public Object call(FooFactory obj, int methodIndex) {
+//			switch (methodIndex) {
 //				case 0:
 //					return obj.newInstance();
 //				case 3:
 //					obj.zzz();
 //					return null;
-				default:
-					throw new IllegalArgumentException("No method with index " 
-							+ methodIndex + " with 0 parameter(s)");
-			}
-		}
-
-		@Override
-		public Object call(FooFactory obj, int methodIndex, Object arg0) {
-			switch (methodIndex) {
-				case 1:
-					return obj.newInstance((boolean)arg0);
-				default:
-					throw new IllegalArgumentException("No method with index " 
-							+ methodIndex + " with 1 parameter(s)");
-			}
-		}
-
-		@Override
-		public Object call(FooFactory obj, int methodIndex, Object arg0, Object arg1) {
-			switch (methodIndex) {
-				case 2:
-					return obj.newInstance((boolean)arg0, (byte)arg1);
-				default:
-					throw new IllegalArgumentException("No method with index " 
-							+ methodIndex + " with 2 parameter(s)");
-			}
-		}
-	}
+//				default:
+//					throw new IllegalArgumentException("No method with index " 
+//							+ methodIndex + " with 0 parameter(s)");
+//			}
+//		}
+//
+//		@Override
+//		public Object call(FooFactory obj, int methodIndex, Object arg0) {
+//			switch (methodIndex) {
+//				case 1:
+//					return obj.newInstance((boolean)arg0);
+//				default:
+//					throw new IllegalArgumentException("No method with index " 
+//							+ methodIndex + " with 1 parameter(s)");
+//			}
+//		}
+//
+//		@Override
+//		public Object call(FooFactory obj, int methodIndex, Object arg0, Object arg1) {
+//			switch (methodIndex) {
+//				case 2:
+//					return obj.newInstance((boolean)arg0, (byte)arg1);
+//				default:
+//					throw new IllegalArgumentException("No method with index " 
+//							+ methodIndex + " with 2 parameter(s)");
+//			}
+//		}
+//	}
 
 	Foo newInstance();
 	Foo newInstance(boolean booleanVal);

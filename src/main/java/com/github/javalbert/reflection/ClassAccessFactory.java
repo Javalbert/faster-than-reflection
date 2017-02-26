@@ -205,7 +205,21 @@ public final class ClassAccessFactory<T> {
 		}
 	}
 	
-	private static class FieldInfo extends MemberInfo {
+	private static abstract class AssignableInfo extends MemberInfo {
+		protected final String internalName;
+		protected final Class<?> type;
+		
+		private AssignableInfo(
+				String name,
+				int memberIndex,
+				Class<?> type) {
+			super(name, memberIndex, Type.getDescriptor(type));
+			this.internalName = Type.getInternalName(type);
+			this.type = type;
+		}
+	}
+	
+	private static class FieldInfo extends AssignableInfo {
 		private final int getFieldOpcode;
 		private final int setFieldOpcode;
 		
@@ -222,34 +236,33 @@ public final class ClassAccessFactory<T> {
 	
 	private static abstract class MemberInfo {
 		protected final String descriptor;
-		protected final String internalName;
 		protected final int memberIndex;
 		protected final String name;
-		protected final Class<?> type;
 		
 		private MemberInfo(
 				String name,
 				int memberIndex,
-				Class<?> type) {
-			this.descriptor = Type.getDescriptor(type);
-			this.internalName = Type.getInternalName(type);
-			this.memberIndex = memberIndex;
+				String descriptor) {
+			this.descriptor = descriptor;
 			this.name = name;
-			this.type = type;
+			this.memberIndex = memberIndex;
 		}
 	}
 	
-	private static class MethodInfo {
-		private final int index;
+	private static class MethodInfo extends MemberInfo {
 		private final Method method;
-		private final String name;
 		private final int parameterCount;
+		private final List<ParameterInfo> parameters;
 		
 		private MethodInfo(Method method, int index) {
-			this.index = index;
+			super(method.getName(), index, Type.getMethodDescriptor(method));
 			this.method = method;
-			name = method.getName();
 			parameterCount = method.getParameterCount();
+			parameters = Collections.unmodifiableList(
+					Arrays.stream(method.getParameterTypes())
+					.map(ParameterInfo::new)
+					.collect(toList())
+					);
 		}
 	}
 	
@@ -257,12 +270,24 @@ public final class ClassAccessFactory<T> {
 		private final List<MethodInfo> methods;
 		
 		private MethodNameReturnIndex(List<MethodInfo> methods) {
-			super(methods.get(0).name, methods.get(0).index);
+			super(methods.get(0).name, methods.get(0).memberIndex);
 			this.methods = methods;
 		}
 	}
 	
-	private static class PropertyInfo extends MemberInfo {
+	private static class ParameterInfo {
+		private final String descriptor;
+		private final String internalName;
+		private final Class<?> type;
+		
+		private ParameterInfo(Class<?> type) {
+			descriptor = Type.getDescriptor(type);
+			internalName = Type.getInternalName(type);
+			this.type = type;
+		}
+	}
+	
+	private static class PropertyInfo extends AssignableInfo {
 		private final String readMethodName;
 		private final String writeMethodName;
 
@@ -491,7 +516,7 @@ public final class ClassAccessFactory<T> {
 	}
 	
 	private void visitAccessGetter(
-			List<? extends MemberInfo> memberInfoList,
+			List<? extends AssignableInfo> memberInfoList,
 			AccessInfo accessInfo) {
 		mv = cw.visitMethod(
 				ACC_PUBLIC,
@@ -624,7 +649,7 @@ public final class ClassAccessFactory<T> {
 	}
 	
 	private void visitAccessSetter(
-			List<? extends MemberInfo> memberInfoList,
+			List<? extends AssignableInfo> memberInfoList,
 			AccessInfo accessInfo) {
 		mv = cw.visitMethod(
 				ACC_PUBLIC,
@@ -800,6 +825,14 @@ public final class ClassAccessFactory<T> {
 		cw.visitSource(clazz.getSimpleName() + ".java", null);
 		cw.visitInnerClass(classAccessInternalName, internalName, classAccessSimpleName, ACC_PUBLIC + ACC_STATIC);
 		
+		// For the lamda function Class::getName in methodIndex() method
+		// Appears not to be required
+//		cw.visitInnerClass(
+//				"java/lang/invoke/MethodHandles$Lookup",
+//				"java/lang/invoke/MethodHandles",
+//				"Lookup",
+//				ACC_PUBLIC + ACC_FINAL + ACC_STATIC);
+		
 		classAccessTypeDescriptor = "L" + classAccessInternalName + ";";
 		classTypeDescriptor = "L" + internalName + ";";
 	}
@@ -856,7 +889,7 @@ public final class ClassAccessFactory<T> {
 	private void visitGeneralAccessGetter(
 			String methodName,
 			String memberType,
-			List<? extends MemberInfo> memberInfoList) {
+			List<? extends AssignableInfo> memberInfoList) {
 		mv = cw.visitMethod(
 				ACC_PUBLIC,
 				methodName,
@@ -889,7 +922,7 @@ public final class ClassAccessFactory<T> {
 				);
 		
 		for (int i = 0; i < memberInfoList.size(); i++) {
-			MemberInfo member = memberInfoList.get(i);
+			AssignableInfo member = memberInfoList.get(i);
 			
 			mv.visitLabel(labels[i]);
 			mv.visitFrame(F_SAME, 0, null, 0, null);
@@ -934,7 +967,7 @@ public final class ClassAccessFactory<T> {
 	private void visitGeneralAccessSetter(
 			String methodName,
 			String memberType,
-			List<? extends MemberInfo> memberInfoList) {
+			List<? extends AssignableInfo> memberInfoList) {
 		mv = cw.visitMethod(
 				ACC_PUBLIC,
 				methodName,
@@ -973,7 +1006,7 @@ public final class ClassAccessFactory<T> {
 		Label breakLabel = new Label();
 		
 		for (int i = 0; i < memberInfoList.size(); i++) {
-			MemberInfo member = memberInfoList.get(i);
+			AssignableInfo member = memberInfoList.get(i);
 			
 			mv.visitLabel(labels[i]);
 			mv.visitFrame(F_SAME, 0, null, 0, null);
@@ -1114,30 +1147,31 @@ public final class ClassAccessFactory<T> {
 		mv.visitEnd();
 	}
 	
-	private void visitMethodAccessBridges() {
-		for (int i = 0; i < MAX_METHOD_ACCESS_PARAMETER_COUNT; i++) {
-			mv = cw.visitMethod(
-					ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC,
-					"call",
-					getMethodAccessMethodDescriptor(i, "Ljava/lang/Object;"),
-					null,
-					null);
-			mv.visitCode();
-			mv.visitLabel(new Label());
-			mv.visitVarInsn(ALOAD, 0);
-			mv.visitVarInsn(ALOAD, 1);
-			mv.visitTypeInsn(CHECKCAST, internalName);
-			mv.visitVarInsn(ILOAD, 2);
-			mv.visitMethodInsn(
-					INVOKEVIRTUAL,
-					classAccessInternalName,
-					"call",
-					getMethodAccessMethodDescriptor(i),
-					false);
-			mv.visitInsn(ARETURN);
-			mv.visitMaxs(3 + i, 3 + i);
-			mv.visitEnd();
+	private void visitMethodAccessBridge(int parameterCount) {
+		mv = cw.visitMethod(
+				ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC,
+				"call",
+				getMethodAccessMethodDescriptor(parameterCount, "Ljava/lang/Object;"),
+				null,
+				null);
+		mv.visitCode();
+		mv.visitLabel(new Label());
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitVarInsn(ALOAD, 1);
+		mv.visitTypeInsn(CHECKCAST, internalName);
+		mv.visitVarInsn(ILOAD, 2);
+		for (int i = 0; i < parameterCount; i++) {
+			mv.visitVarInsn(ALOAD, 3 + i);
 		}
+		mv.visitMethodInsn(
+				INVOKEVIRTUAL,
+				classAccessInternalName,
+				"call",
+				getMethodAccessMethodDescriptor(parameterCount),
+				false);
+		mv.visitInsn(ARETURN);
+		mv.visitMaxs(3 + parameterCount, 3 + parameterCount);
+		mv.visitEnd();
 	}
 	
 	private void visitMethodAccessLastPart(Label firstLabel, int parameterCount) {
@@ -1161,32 +1195,113 @@ public final class ClassAccessFactory<T> {
 		mv.visitLocalVariable("this", classAccessTypeDescriptor, null, firstLabel, lastLabel, 0);
 		mv.visitLocalVariable("obj", classTypeDescriptor, null, firstLabel, lastLabel, 1);
 		mv.visitLocalVariable("methodIndex", "I", null, firstLabel, lastLabel, 2);
+		
+		for (int i = 0; i < parameterCount; i++) {
+			mv.visitLocalVariable("arg" + i, "Ljava/lang/Object;", null, firstLabel, lastLabel, 3 + i);
+		}
+		
 		mv.visitMaxs(5, 3 + parameterCount);
 		mv.visitEnd();
 	}
 	
-	private void visitMethodAccessMethods() {
-		for (int i = 0; i < MAX_METHOD_ACCESS_PARAMETER_COUNT; i++) {
-			List<MethodInfo> methods = paramCountMethodsMap.get(i);
-			
-			mv = cw.visitMethod(
-					ACC_PUBLIC,
-					"call",
-					getMethodAccessMethodDescriptor(i),
-					null,
-					null);
-			mv.visitCode();
-			Label firstLabel = new Label();
-
-			mv.visitLabel(firstLabel);
-			mv.visitVarInsn(ILOAD, 2);
+	private void visitMethodAccessMethod(int parameterCount) {
+		List<MethodInfo> methodsWithParamCount = paramCountMethodsMap.get(parameterCount);
+		
+		mv = cw.visitMethod(
+				ACC_PUBLIC,
+				"call",
+				getMethodAccessMethodDescriptor(parameterCount),
+				null,
+				null);
+		mv.visitCode();
+		Label firstLabel = new Label();
+		mv.visitLabel(firstLabel);
+		mv.visitVarInsn(ILOAD, 2);
+		
+		Label defaultCaseLabel = new Label();
+		
+		if (methodsWithParamCount == null
+				|| methodsWithParamCount.isEmpty()) {
 			mv.visitInsn(POP);
-			mv.visitLabel(new Label());
-			
-			visitMethodAccessLastPart(firstLabel, i);
+			mv.visitLabel(defaultCaseLabel);
+			visitMethodAccessLastPart(firstLabel, parameterCount);
+			return;
 		}
 		
-		visitMethodAccessBridges();
+		boolean useTableSwitch = useTableSwitch(methodsWithParamCount);
+		Label[] labels = useTableSwitch ? getTableSwitchLabelsForAccess(defaultCaseLabel, methodsWithParamCount)
+				: newLabelArray(methodsWithParamCount.size());
+		
+		if (useTableSwitch) {
+			mv.visitTableSwitchInsn(
+					methodsWithParamCount.get(0).memberIndex,
+					methodsWithParamCount.get(methodsWithParamCount.size() - 1).memberIndex,
+					defaultCaseLabel,
+					labels
+					);
+		} else {
+			mv.visitLookupSwitchInsn(
+					defaultCaseLabel,
+					methodsWithParamCount.stream()
+					.mapToInt(f -> f.memberIndex)
+					.toArray(),
+					labels);
+		}
+		
+		for (int i = 0; i < methodsWithParamCount.size(); i++) {
+			MethodInfo methodInfo = methodsWithParamCount.get(i);
+			
+			mv.visitLabel(labels[i]);
+			mv.visitFrame(F_SAME, 0, null, 0, null);
+			mv.visitVarInsn(ALOAD, 1);
+			
+			List<ParameterInfo> parameters = methodInfo.parameters;
+			for (int j = 0; j < parameters.size(); j++) {
+				ParameterInfo parameter = parameters.get(j);
+				
+				mv.visitVarInsn(ALOAD, 3 + j);
+				
+				String internalNameOfCast = parameter.internalName;
+				if (parameter.type.isPrimitive()) {
+					Class<?> wrapperType = ClassUtils.primitiveToWrapper(parameter.type);
+					internalNameOfCast = Type.getInternalName(wrapperType);
+				}
+				mv.visitTypeInsn(CHECKCAST, internalNameOfCast);
+				
+				if (parameter.type.isPrimitive()) {
+					mv.visitMethodInsn(
+							INVOKEVIRTUAL,
+							internalNameOfCast,
+							parameter.type.getName() + "Value",
+							"()" + parameter.descriptor,
+							false);
+				}
+			}
+			
+			mv.visitMethodInsn(
+					INVOKEINTERFACE,
+					internalName,
+					methodInfo.name,
+					methodInfo.descriptor,
+					true);
+			if (methodInfo.method.getReturnType() == Void.TYPE) {
+				mv.visitLabel(new Label());
+				mv.visitInsn(ACONST_NULL);
+			}
+			mv.visitInsn(ARETURN);
+		}
+
+		mv.visitLabel(defaultCaseLabel);
+		mv.visitFrame(F_SAME, 0, null, 0, null);
+		
+		visitMethodAccessLastPart(firstLabel, parameterCount);
+	}
+	
+	private void visitMethodAccessMethods() {
+		for (int i = 0; i < MAX_METHOD_ACCESS_PARAMETER_COUNT; i++) {
+			visitMethodAccessMethod(i);
+			visitMethodAccessBridge(i);
+		}
 	}
 	
 	private void visitMethodIndexMethod() {
@@ -1284,7 +1399,8 @@ public final class ClassAccessFactory<T> {
 								H_INVOKEVIRTUAL,
 								"java/lang/Class",
 								"getName",
-								"()Ljava/lang/String;", false),
+								"()Ljava/lang/String;",
+								false),
 						Type.getType("(Ljava/lang/Class;)Ljava/lang/String;")
 				});
 		mv.visitMethodInsn(INVOKEINTERFACE, "java/util/stream/Stream", "map", "(Ljava/util/function/Function;)Ljava/util/stream/Stream;", true);
@@ -1343,7 +1459,7 @@ public final class ClassAccessFactory<T> {
 			mv.visitJumpInsn(IFEQ, jumpLabel);
 			
 			mv.visitLabel(new Label());
-			AsmUtils.visitZeroOperandInt(mv, methodInfo.index);
+			AsmUtils.visitZeroOperandInt(mv, methodInfo.memberIndex);
 			mv.visitInsn(IRETURN);
 		}
 	}
