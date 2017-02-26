@@ -53,7 +53,7 @@ public final class ClassAccessFactory<T> {
 	@SuppressWarnings("rawtypes")
 	private static final Map<Class, ClassAccess> CLASS_ACCESS_MAP = new WeakHashMap<>();
 	private static final Logger LOGGER = LoggerFactory.getLogger(ClassAccessFactory.class);
-	private static final int MAX_METHOD_ACCESS_PARAMETER_COUNT = 3;
+	private static final int MAX_METHOD_ACCESS_PARAMETER_COUNT = 22;
 	
 	private static final String MEMBER_TYPE_FIELD = "field";
 	private static final String MEMBER_TYPE_PROPERTY = "property";
@@ -1298,7 +1298,7 @@ public final class ClassAccessFactory<T> {
 	}
 	
 	private void visitMethodAccessMethods() {
-		for (int i = 0; i < MAX_METHOD_ACCESS_PARAMETER_COUNT; i++) {
+		for (int i = 0; i <= MAX_METHOD_ACCESS_PARAMETER_COUNT; i++) {
 			visitMethodAccessMethod(i);
 			visitMethodAccessBridge(i);
 		}

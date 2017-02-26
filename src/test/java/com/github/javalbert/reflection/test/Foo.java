@@ -834,7 +834,518 @@ public class Foo {
 	public Foo() {}
 	
 	public Foo(boolean booleanVal) {
+		this(booleanVal, (byte)0);
+	}
+	
+	public Foo(boolean booleanVal, byte byteVal) {
+		this(booleanVal, byteVal, '\u0000');
+	}
+
+	public Foo(boolean booleanVal, byte byteVal, char charVal) {
+		this(booleanVal, byteVal, charVal, 0.0d);
+	}
+	
+	public Foo(boolean booleanVal, byte byteVal, char charVal, double doubleVal) {
+		this(booleanVal, byteVal, charVal, doubleVal, 0.0f);
+	}
+	
+	public Foo(boolean booleanVal, byte byteVal, char charVal, double doubleVal, float floatVal) {
+		this(booleanVal, byteVal, charVal, doubleVal, floatVal, 0);
+	}
+	
+	public Foo(
+			boolean booleanVal,
+			byte byteVal,
+			char charVal,
+			double doubleVal,
+			float floatVal,
+			int intVal) {
+		this(booleanVal, byteVal, charVal, doubleVal, floatVal, intVal, 0L);
+	}
+	
+	public Foo(
+			boolean booleanVal,
+			byte byteVal,
+			char charVal,
+			double doubleVal,
+			float floatVal,
+			int intVal,
+			long longVal) {
+		this(booleanVal, byteVal, charVal, doubleVal, floatVal, intVal, longVal, (short)0);
+	}
+	
+	public Foo(
+			boolean booleanVal,
+			byte byteVal,
+			char charVal,
+			double doubleVal,
+			float floatVal,
+			int intVal,
+			long longVal,
+			short shortVal) {
+		this(
+				booleanVal,
+				byteVal,
+				charVal,
+				doubleVal,
+				floatVal,
+				intVal,
+				longVal,
+				(short)0,
+				null);
+	}
+	
+	public Foo(
+			boolean booleanVal,
+			byte byteVal,
+			char charVal,
+			double doubleVal,
+			float floatVal,
+			int intVal,
+			long longVal,
+			short shortVal,
+			Boolean boxedBoolean) {
+		this(
+				booleanVal,
+				byteVal,
+				charVal,
+				doubleVal,
+				floatVal,
+				intVal,
+				longVal,
+				(short)0,
+				boxedBoolean,
+				null);
+	}
+	
+	public Foo(
+			boolean booleanVal,
+			byte byteVal,
+			char charVal,
+			double doubleVal,
+			float floatVal,
+			int intVal,
+			long longVal,
+			short shortVal,
+			Boolean boxedBoolean,
+			Byte boxedByte) {
+		this(
+				booleanVal,
+				byteVal,
+				charVal,
+				doubleVal,
+				floatVal,
+				intVal,
+				longVal,
+				(short)0,
+				boxedBoolean,
+				boxedByte,
+				null);
+	}
+	
+	public Foo(
+			boolean booleanVal,
+			byte byteVal,
+			char charVal,
+			double doubleVal,
+			float floatVal,
+			int intVal,
+			long longVal,
+			short shortVal,
+			Boolean boxedBoolean,
+			Byte boxedByte,
+			Character boxedChar) {
+		this(
+				booleanVal,
+				byteVal,
+				charVal,
+				doubleVal,
+				floatVal,
+				intVal,
+				longVal,
+				(short)0,
+				boxedBoolean,
+				boxedByte,
+				boxedChar,
+				null);
+	}
+	
+	public Foo(
+			boolean booleanVal,
+			byte byteVal,
+			char charVal,
+			double doubleVal,
+			float floatVal,
+			int intVal,
+			long longVal,
+			short shortVal,
+			Boolean boxedBoolean,
+			Byte boxedByte,
+			Character boxedChar,
+			Double boxedDouble) {
+		this(
+				booleanVal,
+				byteVal,
+				charVal,
+				doubleVal,
+				floatVal,
+				intVal,
+				longVal,
+				(short)0,
+				boxedBoolean,
+				boxedByte,
+				boxedChar,
+				boxedDouble,
+				null);
+	}
+	
+	public Foo(
+			boolean booleanVal,
+			byte byteVal,
+			char charVal,
+			double doubleVal,
+			float floatVal,
+			int intVal,
+			long longVal,
+			short shortVal,
+			Boolean boxedBoolean,
+			Byte boxedByte,
+			Character boxedChar,
+			Double boxedDouble,
+			Float boxedFloat) {
+		this(
+				booleanVal,
+				byteVal,
+				charVal,
+				doubleVal,
+				floatVal,
+				intVal,
+				longVal,
+				(short)0,
+				boxedBoolean,
+				boxedByte,
+				boxedChar,
+				boxedDouble,
+				boxedFloat,
+				null);
+	}
+	
+	public Foo(
+			boolean booleanVal,
+			byte byteVal,
+			char charVal,
+			double doubleVal,
+			float floatVal,
+			int intVal,
+			long longVal,
+			short shortVal,
+			Boolean boxedBoolean,
+			Byte boxedByte,
+			Character boxedChar,
+			Double boxedDouble,
+			Float boxedFloat,
+			Integer boxedInt) {
+		this(
+				booleanVal,
+				byteVal,
+				charVal,
+				doubleVal,
+				floatVal,
+				intVal,
+				longVal,
+				(short)0,
+				boxedBoolean,
+				boxedByte,
+				boxedChar,
+				boxedDouble,
+				boxedFloat,
+				boxedInt,
+				null);
+	}
+	
+	public Foo(
+			boolean booleanVal,
+			byte byteVal,
+			char charVal,
+			double doubleVal,
+			float floatVal,
+			int intVal,
+			long longVal,
+			short shortVal,
+			Boolean boxedBoolean,
+			Byte boxedByte,
+			Character boxedChar,
+			Double boxedDouble,
+			Float boxedFloat,
+			Integer boxedInt,
+			Long boxedLong) {
+		this(
+				booleanVal,
+				byteVal,
+				charVal,
+				doubleVal,
+				floatVal,
+				intVal,
+				longVal,
+				(short)0,
+				boxedBoolean,
+				boxedByte,
+				boxedChar,
+				boxedDouble,
+				boxedFloat,
+				boxedInt,
+				boxedLong,
+				null);
+	}
+	
+	public Foo(
+			boolean booleanVal,
+			byte byteVal,
+			char charVal,
+			double doubleVal,
+			float floatVal,
+			int intVal,
+			long longVal,
+			short shortVal,
+			Boolean boxedBoolean,
+			Byte boxedByte,
+			Character boxedChar,
+			Double boxedDouble,
+			Float boxedFloat,
+			Integer boxedInt,
+			Long boxedLong,
+			Short boxedShort) {
+		this(
+				booleanVal,
+				byteVal,
+				charVal,
+				doubleVal,
+				floatVal,
+				intVal,
+				longVal,
+				(short)0,
+				boxedBoolean,
+				boxedByte,
+				boxedChar,
+				boxedDouble,
+				boxedFloat,
+				boxedInt,
+				boxedLong,
+				boxedShort,
+				null);
+	}
+	
+	public Foo(
+			boolean booleanVal,
+			byte byteVal,
+			char charVal,
+			double doubleVal,
+			float floatVal,
+			int intVal,
+			long longVal,
+			short shortVal,
+			Boolean boxedBoolean,
+			Byte boxedByte,
+			Character boxedChar,
+			Double boxedDouble,
+			Float boxedFloat,
+			Integer boxedInt,
+			Long boxedLong,
+			Short boxedShort,
+			BigDecimal bigDecimal) {
+		this(
+				booleanVal,
+				byteVal,
+				charVal,
+				doubleVal,
+				floatVal,
+				intVal,
+				longVal,
+				(short)0,
+				boxedBoolean,
+				boxedByte,
+				boxedChar,
+				boxedDouble,
+				boxedFloat,
+				boxedInt,
+				boxedLong,
+				boxedShort,
+				bigDecimal,
+				null);
+	}
+	
+	public Foo(
+			boolean booleanVal,
+			byte byteVal,
+			char charVal,
+			double doubleVal,
+			float floatVal,
+			int intVal,
+			long longVal,
+			short shortVal,
+			Boolean boxedBoolean,
+			Byte boxedByte,
+			Character boxedChar,
+			Double boxedDouble,
+			Float boxedFloat,
+			Integer boxedInt,
+			Long boxedLong,
+			Short boxedShort,
+			BigDecimal bigDecimal,
+			Date date) {
+		this(
+				booleanVal,
+				byteVal,
+				charVal,
+				doubleVal,
+				floatVal,
+				intVal,
+				longVal,
+				(short)0,
+				boxedBoolean,
+				boxedByte,
+				boxedChar,
+				boxedDouble,
+				boxedFloat,
+				boxedInt,
+				boxedLong,
+				boxedShort,
+				bigDecimal,
+				date,
+				null);
+	}
+	
+	public Foo(
+			boolean booleanVal,
+			byte byteVal,
+			char charVal,
+			double doubleVal,
+			float floatVal,
+			int intVal,
+			long longVal,
+			short shortVal,
+			Boolean boxedBoolean,
+			Byte boxedByte,
+			Character boxedChar,
+			Double boxedDouble,
+			Float boxedFloat,
+			Integer boxedInt,
+			Long boxedLong,
+			Short boxedShort,
+			BigDecimal bigDecimal,
+			Date date,
+			LocalDate localDate) {
+		this(
+				booleanVal,
+				byteVal,
+				charVal,
+				doubleVal,
+				floatVal,
+				intVal,
+				longVal,
+				(short)0,
+				boxedBoolean,
+				boxedByte,
+				boxedChar,
+				boxedDouble,
+				boxedFloat,
+				boxedInt,
+				boxedLong,
+				boxedShort,
+				bigDecimal,
+				date,
+				localDate,
+				null);
+	}
+	
+	public Foo(
+			boolean booleanVal,
+			byte byteVal,
+			char charVal,
+			double doubleVal,
+			float floatVal,
+			int intVal,
+			long longVal,
+			short shortVal,
+			Boolean boxedBoolean,
+			Byte boxedByte,
+			Character boxedChar,
+			Double boxedDouble,
+			Float boxedFloat,
+			Integer boxedInt,
+			Long boxedLong,
+			Short boxedShort,
+			BigDecimal bigDecimal,
+			Date date,
+			LocalDate localDate,
+			LocalDateTime localDateTime) {
+		this(
+				booleanVal,
+				byteVal,
+				charVal,
+				doubleVal,
+				floatVal,
+				intVal,
+				longVal,
+				(short)0,
+				boxedBoolean,
+				boxedByte,
+				boxedChar,
+				boxedDouble,
+				boxedFloat,
+				boxedInt,
+				boxedLong,
+				boxedShort,
+				bigDecimal,
+				date,
+				localDate,
+				localDateTime,
+				null);
+	}
+	
+	public Foo(
+			boolean booleanVal,
+			byte byteVal,
+			char charVal,
+			double doubleVal,
+			float floatVal,
+			int intVal,
+			long longVal,
+			short shortVal,
+			Boolean boxedBoolean,
+			Byte boxedByte,
+			Character boxedChar,
+			Double boxedDouble,
+			Float boxedFloat,
+			Integer boxedInt,
+			Long boxedLong,
+			Short boxedShort,
+			BigDecimal bigDecimal,
+			Date date,
+			LocalDate localDate,
+			LocalDateTime localDateTime,
+			String string) {
 		this.booleanVal = booleanVal;
+		this.byteVal = byteVal;
+		this.charVal = charVal;
+		this.doubleVal = doubleVal;
+		this.floatVal = floatVal;
+		this.intVal = intVal;
+		this.longVal = longVal;
+		this.shortVal = shortVal;
+		this.boxedBoolean = boxedBoolean;
+		this.boxedByte = boxedByte;
+		this.boxedChar = boxedChar;
+		this.boxedDouble = boxedDouble;
+		this.boxedFloat = boxedFloat;
+		this.boxedInt = boxedInt;
+		this.boxedLong = boxedLong;
+		this.boxedShort = boxedShort;
+		this.bigDecimal = bigDecimal;
+		this.date = date;
+		this.localDate = localDate;
+		this.localDateTime = localDateTime;
+		this.string = string;
 	}
 	
 	/* END Constructors */
