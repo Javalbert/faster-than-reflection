@@ -17,13 +17,13 @@ import static org.hamcrest.CoreMatchers.*;
 
 import org.junit.Test;
 
-import com.github.javalbert.reflection.ClassAccess;
 import com.github.javalbert.reflection.ClassAccessFactory;
+import com.github.javalbert.reflection.FieldAccess;
 
 public class ClassAccessBoxedPrimitivesTest {
 	@Test
 	public void getBoxedBooleanFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedBoolean(true);
 		
@@ -34,7 +34,7 @@ public class ClassAccessBoxedPrimitivesTest {
 	
 	@Test
 	public void getBoxedByteFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedByte((byte)-55);
 		
@@ -45,7 +45,7 @@ public class ClassAccessBoxedPrimitivesTest {
 	
 	@Test
 	public void getBoxedCharFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedChar('\n');
 		
@@ -56,7 +56,7 @@ public class ClassAccessBoxedPrimitivesTest {
 	
 	@Test
 	public void getBoxedDoubleFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedDouble(0.9553896885798474d);
 		
@@ -67,7 +67,7 @@ public class ClassAccessBoxedPrimitivesTest {
 	
 	@Test
 	public void getBoxedFloatFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedFloat(0.2747032f);
 		
@@ -78,7 +78,7 @@ public class ClassAccessBoxedPrimitivesTest {
 	
 	@Test
 	public void getBoxedIntFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedInt(274991538);
 
@@ -89,7 +89,7 @@ public class ClassAccessBoxedPrimitivesTest {
 
 	@Test
 	public void getBoxedLongFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedLong(6774924159498401640L);
 
@@ -100,7 +100,7 @@ public class ClassAccessBoxedPrimitivesTest {
 	
 	@Test
 	public void getBoxedShortFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedShort((short)-31848);
 
@@ -111,7 +111,7 @@ public class ClassAccessBoxedPrimitivesTest {
 	
 	@Test
 	public void setBoxedBooleanFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Boolean boxedBoolean = true;
 		
@@ -122,7 +122,7 @@ public class ClassAccessBoxedPrimitivesTest {
 	
 	@Test
 	public void setBoxedByteFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Byte boxedByte = (byte)-55;
 		
@@ -133,7 +133,7 @@ public class ClassAccessBoxedPrimitivesTest {
 	
 	@Test
 	public void setBoxedCharFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Character boxedChar = '\n';
 		
@@ -144,7 +144,7 @@ public class ClassAccessBoxedPrimitivesTest {
 	
 	@Test
 	public void setBoxedDoubleFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Double boxedDouble = 0.9553896885798474d;
 		
@@ -155,7 +155,7 @@ public class ClassAccessBoxedPrimitivesTest {
 	
 	@Test
 	public void setBoxedFloatFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Float boxedFloat = 0.2747032f;
 		
@@ -166,7 +166,7 @@ public class ClassAccessBoxedPrimitivesTest {
 	
 	@Test
 	public void setBoxedIntFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Integer boxedInt = 274991538;
 
@@ -177,7 +177,7 @@ public class ClassAccessBoxedPrimitivesTest {
 
 	@Test
 	public void setBoxedLongFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Long boxedLong = 6774924159498401640L;
 
@@ -188,7 +188,7 @@ public class ClassAccessBoxedPrimitivesTest {
 	
 	@Test
 	public void setBoxedShortFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Short boxedShort = (short)-31848;
 

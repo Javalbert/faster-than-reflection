@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 public class Foo {
-//	public static class FooAccess2 implements ClassAccess<Foo> {
+//	public static class FooAccess2 implements FieldAccess<Foo>, PropertyAccess<Foo> {
 //		@Override
 //		public int fieldIndex(String name) {
 //			switch (name) {
@@ -655,16 +655,6 @@ public class Foo {
 //				default:
 //					throw new IllegalArgumentException("No property with index: " + propertyIndex);
 //			}
-//		}
-//
-//		@Override
-//		public int methodIndex(String name) {
-//			return 0;
-//		}
-//
-//		@Override
-//		public Object call(Foo obj, int methodIndex) {
-//			return null;
 //		}
 //	}
 	

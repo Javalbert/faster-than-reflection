@@ -12,19 +12,18 @@
  *******************************************************************************/
 package com.github.javalbert.reflection.test;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.*;
-
-import com.github.javalbert.reflection.ClassAccess;
 import com.github.javalbert.reflection.ClassAccessFactory;
+import com.github.javalbert.reflection.PropertyAccess;
 
 public class ClassAccessPrimitivePropertiesTest {
 	@Test
 	public void getBooleanPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBooleanVal(true);
 		
@@ -35,7 +34,7 @@ public class ClassAccessPrimitivePropertiesTest {
 	
 	@Test
 	public void getBytePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setByteVal((byte)-21);
 		
@@ -46,7 +45,7 @@ public class ClassAccessPrimitivePropertiesTest {
 	
 	@Test
 	public void getCharPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setCharVal('.');
 		
@@ -57,7 +56,7 @@ public class ClassAccessPrimitivePropertiesTest {
 	
 	@Test
 	public void getDoublePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setDoubleVal(0.14753383239666462d);
 		
@@ -68,7 +67,7 @@ public class ClassAccessPrimitivePropertiesTest {
 	
 	@Test
 	public void getFloatPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setFloatVal(0.27210158f);
 		
@@ -79,7 +78,7 @@ public class ClassAccessPrimitivePropertiesTest {
 	
 	@Test
 	public void getIntPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setIntVal(1);
 
@@ -90,7 +89,7 @@ public class ClassAccessPrimitivePropertiesTest {
 
 	@Test
 	public void getLongPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setLongVal(3285927007071017350L);
 
@@ -101,7 +100,7 @@ public class ClassAccessPrimitivePropertiesTest {
 	
 	@Test
 	public void getShortPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setShortVal((short)-8406);
 
@@ -112,7 +111,7 @@ public class ClassAccessPrimitivePropertiesTest {
 	
 	@Test
 	public void setBooleanPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		boolean booleanVal = true;
 		
@@ -123,7 +122,7 @@ public class ClassAccessPrimitivePropertiesTest {
 	
 	@Test
 	public void setBytePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		byte byteVal = (byte)-21;
 		
@@ -134,7 +133,7 @@ public class ClassAccessPrimitivePropertiesTest {
 	
 	@Test
 	public void setCharPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		char charVal = '.';
 		
@@ -145,7 +144,7 @@ public class ClassAccessPrimitivePropertiesTest {
 	
 	@Test
 	public void setDoublePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		double doubleVal = 0.14753383239666462d;
 		
@@ -156,7 +155,7 @@ public class ClassAccessPrimitivePropertiesTest {
 	
 	@Test
 	public void setFloatPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		float floatVal = 0.27210158f;
 		
@@ -167,7 +166,7 @@ public class ClassAccessPrimitivePropertiesTest {
 	
 	@Test
 	public void setIntPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		int intVal = 1;
 
@@ -178,7 +177,7 @@ public class ClassAccessPrimitivePropertiesTest {
 
 	@Test
 	public void setLongPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		long longVal = 3285927007071017350L;
 
@@ -189,7 +188,7 @@ public class ClassAccessPrimitivePropertiesTest {
 	
 	@Test
 	public void setShortPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		short shortVal = (short)-8406;
 

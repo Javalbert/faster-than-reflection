@@ -10,24 +10,11 @@
  * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See
  * the License for the specific language governing permissions and limitations under the License.
  *******************************************************************************/
-package com.github.javalbert.reflection.test;
+package com.github.javalbert.reflection;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
-import org.junit.Test;
-
-import com.github.javalbert.reflection.ClassAccessFactory;
-import com.github.javalbert.reflection.MethodAccess;
-
-public class ClassAccessMethodInvocationsTest {
-	@Test
-	public void callMethodWithOneParameter() {
-//		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
-//		FooFactory factory = mock(FooFactory.class);
-//		
-//		access.call(factory, access.methodIndex("newInstance"));
-//		
-//		verify(factory).newInstance();
-	}
+public interface MethodAccess<T> {
+	int methodIndex(String name, Class<?>... parameterTypes);
+	
+	Object call(T obj, int methodIndex);
+//	Object call(T obj, int methodIndex, Object arg0, Object arg1);
 }

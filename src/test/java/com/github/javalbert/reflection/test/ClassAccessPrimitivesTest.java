@@ -12,18 +12,18 @@
  *******************************************************************************/
 package com.github.javalbert.reflection.test;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-import com.github.javalbert.reflection.ClassAccess;
 import com.github.javalbert.reflection.ClassAccessFactory;
+import com.github.javalbert.reflection.FieldAccess;
 
 public class ClassAccessPrimitivesTest {
 	@Test
 	public void getBooleanFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBooleanVal(true);
 		
@@ -34,7 +34,7 @@ public class ClassAccessPrimitivesTest {
 	
 	@Test
 	public void getByteFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setByteVal((byte)-21);
 		
@@ -45,7 +45,7 @@ public class ClassAccessPrimitivesTest {
 	
 	@Test
 	public void getCharFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setCharVal('.');
 		
@@ -56,7 +56,7 @@ public class ClassAccessPrimitivesTest {
 	
 	@Test
 	public void getDoubleFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setDoubleVal(0.14753383239666462d);
 		
@@ -67,7 +67,7 @@ public class ClassAccessPrimitivesTest {
 	
 	@Test
 	public void getFloatFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setFloatVal(0.27210158f);
 		
@@ -78,7 +78,7 @@ public class ClassAccessPrimitivesTest {
 	
 	@Test
 	public void getIntFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setIntVal(1);
 
@@ -89,7 +89,7 @@ public class ClassAccessPrimitivesTest {
 
 	@Test
 	public void getLongFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setLongVal(3285927007071017350L);
 
@@ -100,7 +100,7 @@ public class ClassAccessPrimitivesTest {
 	
 	@Test
 	public void getShortFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setShortVal((short)-8406);
 
@@ -111,7 +111,7 @@ public class ClassAccessPrimitivesTest {
 	
 	@Test
 	public void setBooleanFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		boolean booleanVal = true;
 		
@@ -122,7 +122,7 @@ public class ClassAccessPrimitivesTest {
 	
 	@Test
 	public void setByteFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		byte byteVal = (byte)-21;
 		
@@ -133,7 +133,7 @@ public class ClassAccessPrimitivesTest {
 	
 	@Test
 	public void setCharFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		char charVal = '.';
 		
@@ -144,7 +144,7 @@ public class ClassAccessPrimitivesTest {
 	
 	@Test
 	public void setDoubleFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		double doubleVal = 0.14753383239666462d;
 		
@@ -155,7 +155,7 @@ public class ClassAccessPrimitivesTest {
 	
 	@Test
 	public void setFloatFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		float floatVal = 0.27210158f;
 		
@@ -166,7 +166,7 @@ public class ClassAccessPrimitivesTest {
 	
 	@Test
 	public void setIntFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		int intVal = 1;
 
@@ -177,7 +177,7 @@ public class ClassAccessPrimitivesTest {
 
 	@Test
 	public void setLongFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		long longVal = 3285927007071017350L;
 
@@ -188,7 +188,7 @@ public class ClassAccessPrimitivesTest {
 	
 	@Test
 	public void setShortFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		short shortVal = (short)-8406;
 

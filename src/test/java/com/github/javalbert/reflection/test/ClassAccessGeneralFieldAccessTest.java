@@ -22,15 +22,15 @@ import java.util.Date;
 
 import org.junit.Test;
 
-import com.github.javalbert.reflection.ClassAccess;
 import com.github.javalbert.reflection.ClassAccessFactory;
+import com.github.javalbert.reflection.FieldAccess;
 
 public class ClassAccessGeneralFieldAccessTest {
 	/* START Primitive types */
 	
 	@Test
 	public void getBooleanFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBooleanVal(true);
 		
@@ -41,7 +41,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void getByteFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setByteVal((byte)-21);
 		
@@ -52,7 +52,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void getCharFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setCharVal('.');
 		
@@ -63,7 +63,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void getDoubleFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setDoubleVal(0.14753383239666462d);
 		
@@ -74,7 +74,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void getFloatFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setFloatVal(0.27210158f);
 		
@@ -85,7 +85,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void getIntFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setIntVal(1);
 
@@ -96,7 +96,7 @@ public class ClassAccessGeneralFieldAccessTest {
 
 	@Test
 	public void getLongFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setLongVal(3285927007071017350L);
 
@@ -107,7 +107,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void getShortFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setShortVal((short)-8406);
 
@@ -118,7 +118,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void setBooleanFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		boolean booleanVal = true;
 		
@@ -129,7 +129,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void setByteFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		byte byteVal = (byte)-21;
 		
@@ -140,7 +140,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void setCharFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		char charVal = '.';
 		
@@ -151,7 +151,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void setDoubleFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		double doubleVal = 0.14753383239666462d;
 		
@@ -162,7 +162,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void setFloatFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		float floatVal = 0.27210158f;
 		
@@ -173,7 +173,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void setIntFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		int intVal = 1;
 
@@ -184,7 +184,7 @@ public class ClassAccessGeneralFieldAccessTest {
 
 	@Test
 	public void setLongFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		long longVal = 3285927007071017350L;
 
@@ -195,7 +195,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void setShortFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		short shortVal = (short)-8406;
 
@@ -210,7 +210,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void getBoxedBooleanFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedBoolean(true);
 		
@@ -221,7 +221,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void getBoxedByteFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedByte((byte)-55);
 		
@@ -232,7 +232,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void getBoxedCharFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedChar('\n');
 		
@@ -243,7 +243,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void getBoxedDoubleFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedDouble(0.9553896885798474d);
 		
@@ -254,7 +254,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void getBoxedFloatFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedFloat(0.2747032f);
 		
@@ -265,7 +265,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void getBoxedIntFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedInt(274991538);
 
@@ -276,7 +276,7 @@ public class ClassAccessGeneralFieldAccessTest {
 
 	@Test
 	public void getBoxedLongFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedLong(6774924159498401640L);
 
@@ -287,7 +287,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void getBoxedShortFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedShort((short)-31848);
 
@@ -298,7 +298,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void setBoxedBooleanFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Boolean boxedBoolean = true;
 		
@@ -309,7 +309,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void setBoxedByteFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Byte boxedByte = (byte)-55;
 		
@@ -320,7 +320,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void setBoxedCharFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Character boxedChar = '\n';
 		
@@ -331,7 +331,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void setBoxedDoubleFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Double boxedDouble = 0.9553896885798474d;
 		
@@ -342,7 +342,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void setBoxedFloatFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Float boxedFloat = 0.2747032f;
 		
@@ -353,7 +353,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void setBoxedIntFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Integer boxedInt = 274991538;
 
@@ -364,7 +364,7 @@ public class ClassAccessGeneralFieldAccessTest {
 
 	@Test
 	public void setBoxedLongFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Long boxedLong = 6774924159498401640L;
 
@@ -375,7 +375,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void setBoxedShortFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Short boxedShort = (short)-31848;
 
@@ -390,7 +390,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void getBigDecimalFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBigDecimal(new BigDecimal("123.456"));
 		
@@ -401,7 +401,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void setBigDecimalFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		BigDecimal bigDecimal = new BigDecimal("123.456");
 		
@@ -412,7 +412,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void getDateFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setDate(new Date());
 		
@@ -423,7 +423,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void setDateFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Date date = new Date();
 		
@@ -434,7 +434,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void getLocalDateFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setLocalDate(LocalDate.now());
 		
@@ -445,7 +445,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void setLocalDateFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		LocalDate localDate = LocalDate.now();
 		
@@ -456,7 +456,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void getLocalDateTimeFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setLocalDateTime(LocalDateTime.now());
 		
@@ -467,7 +467,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void setLocalDateTimeFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		LocalDateTime localDateTime = LocalDateTime.now();
 		
@@ -478,7 +478,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void getStringFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setString("Pizza Hut");
 		
@@ -489,7 +489,7 @@ public class ClassAccessGeneralFieldAccessTest {
 	
 	@Test
 	public void setStringFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		String string = "Pizza Hut";
 		

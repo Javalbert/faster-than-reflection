@@ -12,6 +12,7 @@
  *******************************************************************************/
 package com.github.javalbert.reflection;
 
+import static java.util.Comparator.*;
 import static java.util.stream.Collectors.*;
 import static org.objectweb.asm.Opcodes.*;
 
@@ -39,11 +40,14 @@ import java.util.WeakHashMap;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.javalbert.reflection.utils.AsmUtils;
 
 public final class ClassAccessFactory<T> {
 	@SuppressWarnings("rawtypes")
@@ -271,12 +275,25 @@ public final class ClassAccessFactory<T> {
 	}
 	
 	private static class MethodInfo {
-		private final Method method;
 		private final int index;
+		private final Method method;
+		private final String name;
+		private final int parameterCount;
 		
 		private MethodInfo(Method method, int index) {
 			this.index = index;
 			this.method = method;
+			name = method.getName();
+			parameterCount = method.getParameterCount();
+		}
+	}
+	
+	private static class MethodNameReturnIndex extends StringCaseReturnIndex {
+		private final List<MethodInfo> methods;
+		
+		private MethodNameReturnIndex(List<MethodInfo> methods) {
+			super(methods.get(0).name, methods.get(0).index);
+			this.methods = methods;
 		}
 	}
 	
@@ -307,12 +324,12 @@ public final class ClassAccessFactory<T> {
 			return Integer.compare(a.hashCode, b.hashCode);
 		}
 		
-		private final int hashCode;
-		private final int index;
-		private final String name;
-		private final Label returnIndexLabel = new Label();
+		protected final int hashCode;
+		protected final int index;
+		protected final String name;
+		protected final Label returnIndexLabel = new Label();
 		
-		private StringCaseReturnIndex(String name, int index) {
+		protected StringCaseReturnIndex(String name, int index) {
 			hashCode = name.hashCode();
 			this.index = index;
 			this.name = name;
@@ -351,8 +368,8 @@ public final class ClassAccessFactory<T> {
 		visitFieldAccessMethods();
 		visitIndexMethod(MEMBER_TYPE_PROPERTY, getMemberIndexSwitchCases(propertyInfoList));
 		visitPropertyAccessMethods();
-		visitIndexMethod("method", getMethodIndexSwitchCases());
-		visitMethodAccessMethods();
+		visitMethodIndexMethod();
+//		visitMethodAccessMethods();
 		cw.visitEnd();
 		AccessClassLoader.get(clazz).defineClass(getClassNameOfClassAccessFor(clazz), cw.toByteArray());
 	}
@@ -371,10 +388,10 @@ public final class ClassAccessFactory<T> {
 	}
 	
 	private void addMethodInfo(MethodInfo methodInfo) {
-		List<MethodInfo> methodsWithParamCount = paramCountMethodsMap.get(methodInfo.method.getParameterCount());
+		List<MethodInfo> methodsWithParamCount = paramCountMethodsMap.get(methodInfo.parameterCount);
 		if (methodsWithParamCount == null) {
 			methodsWithParamCount = new ArrayList<>();
-			paramCountMethodsMap.put(methodInfo.method.getParameterCount(), methodsWithParamCount);
+			paramCountMethodsMap.put(methodInfo.parameterCount, methodsWithParamCount);
 		}
 		
 		methodsWithParamCount.add(methodInfo);
@@ -410,24 +427,38 @@ public final class ClassAccessFactory<T> {
 	}
 	
 	private List<StringCaseReturnIndex> getMemberIndexSwitchCases(List<? extends MemberInfo> memberInfoList) {
-		List<StringCaseReturnIndex> propertyIndexSwitchCases = new ArrayList<>();
+		List<StringCaseReturnIndex> memberIndexSwitchCases = new ArrayList<>();
 		for (int i = 0; i < memberInfoList.size(); i++) {
-			propertyIndexSwitchCases.add(new StringCaseReturnIndex(memberInfoList.get(i).name, i));
+			memberIndexSwitchCases.add(new StringCaseReturnIndex(memberInfoList.get(i).name, i));
 		}
-		return propertyIndexSwitchCases;
+		return memberIndexSwitchCases;
 	}
 	
-	private List<StringCaseReturnIndex> getMethodIndexSwitchCases() {
-		List<StringCaseReturnIndex> propertyIndexSwitchCases = new ArrayList<>();
+	private List<MethodNameReturnIndex> getMethodIndexSwitchCases() {
+		List<MethodNameReturnIndex> methodIndices = new ArrayList<>();
+		Map<String, List<MethodInfo>> overloadedMap = new HashMap<>();
+		
 		for (int i = 0; i < methodInfoList.size(); i++) {
-			propertyIndexSwitchCases.add(new StringCaseReturnIndex(methodInfoList.get(i).method.getName(), i));
+			MethodInfo methodInfo = methodInfoList.get(i);
+			
+			List<MethodInfo> overloadedMethods = overloadedMap.get(methodInfo.name);
+			if (overloadedMethods == null) {
+				overloadedMethods = new ArrayList<>();
+				overloadedMap.put(methodInfo.name, overloadedMethods);
+
+				overloadedMethods.add(methodInfo);
+				methodIndices.add(new MethodNameReturnIndex(overloadedMethods));
+			} else {
+				overloadedMethods.add(methodInfo);
+			}
 		}
-		return propertyIndexSwitchCases;
+		
+		return methodIndices;
 	}
 	
 	private void initializeFields() {
 		List<Field> fields = Arrays.stream(clazz.getDeclaredFields())
-				.sorted((a, b) -> a.getName().compareTo(b.getName()))
+				.sorted(comparing(Field::getName))
 				.collect(toList());
 		
 		for (int i = 0; i < fields.size(); i++) {
@@ -439,8 +470,24 @@ public final class ClassAccessFactory<T> {
 	
 	private void initializeMethods() {
 		List<Method> methods = Arrays.stream(clazz.getDeclaredMethods())
-				.sorted((a, b) -> a.getName().compareTo(b.getName()))
-				.collect(toList());
+				.sorted((a, b) -> {
+					int compareMethodName = a.getName().compareTo(b.getName());
+					if (compareMethodName != 0) {
+						return compareMethodName;
+					}
+					
+					Class<?>[] aparams = a.getParameterTypes();
+					Class<?>[] bparams = b.getParameterTypes();
+					
+					int len = Math.min(aparams.length, bparams.length);
+					for (int i = 0; i < len; i++) {
+						int compareParamType = aparams[i].getName().compareTo(bparams[i].getName());
+						if (compareParamType != 0) {
+							return compareParamType;
+						}
+					}
+					return Integer.compare(aparams.length, bparams.length);
+				}).collect(toList());
 		
 		for (int i = 0; i < methods.size(); i++) {
 			Method method = methods.get(i);
@@ -1074,22 +1121,7 @@ public final class ClassAccessFactory<T> {
 			
 			mv.visitLabel(stringCaseReturnIndex.returnIndexLabel);
 			mv.visitFrame(F_SAME, 0, null, 0, null);
-			
-			if (stringCaseReturnIndex.index > 5) {
-				mv.visitIntInsn(BIPUSH, stringCaseReturnIndex.index);
-			} else {
-				int opcode = NOP;
-				switch (stringCaseReturnIndex.index) {
-					case 0: opcode = ICONST_0; break;
-					case 1: opcode = ICONST_1; break;
-					case 2: opcode = ICONST_2; break;
-					case 3: opcode = ICONST_3; break;
-					case 4: opcode = ICONST_4; break;
-					case 5: opcode = ICONST_5; break;
-				}
-				mv.visitInsn(opcode);
-			}
-			
+			AsmUtils.visitZeroOperandInt(mv, stringCaseReturnIndex.index);
 			mv.visitInsn(IRETURN);
 		}
 		
@@ -1121,6 +1153,165 @@ public final class ClassAccessFactory<T> {
 	
 	private void visitMethodAccessMethods() {
 		
+	}
+	
+	private void visitMethodIndexMethod() {
+		mv = cw.visitMethod(
+				ACC_PUBLIC + ACC_VARARGS,
+				"methodIndex",
+				"(Ljava/lang/String;[Ljava/lang/Class;)I",
+				"(Ljava/lang/String;[Ljava/lang/Class<*>;)I",
+				null);
+		mv.visitCode();
+		final Label firstLabel = new Label();
+		mv.visitLabel(firstLabel);
+		
+		List<MethodNameReturnIndex> methodIndices = getMethodIndexSwitchCases();
+		
+		if (methodIndices.isEmpty()) {
+			visitMethodIndexMethodLastPart(firstLabel, methodIndices);
+			return;
+		}
+		
+		mv.visitVarInsn(ALOAD, 1);
+		mv.visitInsn(DUP);
+		mv.visitVarInsn(ASTORE, 3);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "hashCode", "()I", false);
+		
+		final Label defaultCaseLabel = new Label();
+		
+		Collections.sort(methodIndices, StringCaseReturnIndex::compareHashCode);
+		
+		int[] methodNameHashCodes = new int[methodIndices.size()];
+		Label[] caseLabels = new Label[methodIndices.size()];
+		for (int i = 0; i < methodIndices.size(); i++) {
+			methodNameHashCodes[i] = methodIndices.get(i).hashCode;
+			caseLabels[i] = new Label();
+		}
+		
+		mv.visitLookupSwitchInsn(defaultCaseLabel, methodNameHashCodes, caseLabels);
+		
+		for (int i = 0; i < methodIndices.size(); i++) {
+			MethodNameReturnIndex methodIndex = methodIndices.get(i);
+			
+			mv.visitLabel(caseLabels[i]);
+			
+			if (i > 0) {
+				mv.visitFrame(F_SAME, 0, null, 0, null);
+			} else {
+				mv.visitFrame(F_APPEND,1, new Object[] {"java/lang/String"}, 0, null);
+			}
+			
+			mv.visitVarInsn(ALOAD, 3);
+			mv.visitLdcInsn(methodIndex.name);
+			mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
+			mv.visitJumpInsn(IFNE, methodIndex.returnIndexLabel);
+			mv.visitJumpInsn(GOTO, defaultCaseLabel);
+		}
+		
+		Collections.sort(methodIndices, StringCaseReturnIndex::compareIndex);
+		for (int i = 0; i < methodIndices.size(); i++) {
+			visitMethodIndexReturnStatements(methodIndices.get(i), defaultCaseLabel);
+		}
+		
+		mv.visitLabel(defaultCaseLabel);
+		mv.visitFrame(F_CHOP,1, null, 0, null);
+		
+		visitMethodIndexMethodLastPart(firstLabel, methodIndices);
+	}
+
+	private void visitMethodIndexMethodLastPart(Label firstLabel, List<MethodNameReturnIndex> methodIndices) {
+		mv.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
+		mv.visitInsn(DUP);
+		mv.visitTypeInsn(NEW, "java/lang/StringBuilder");
+		mv.visitInsn(DUP);
+		mv.visitLdcInsn("No method called ");
+		mv.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V", false);
+		mv.visitVarInsn(ALOAD, 1);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+		mv.visitLabel(new Label());
+		mv.visitLdcInsn(" with parameters ");
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+		mv.visitVarInsn(ALOAD, 2);
+		mv.visitMethodInsn(INVOKESTATIC, "java/util/Arrays", "stream", "([Ljava/lang/Object;)Ljava/util/stream/Stream;", false);
+		mv.visitLabel(new Label());
+		mv.visitInvokeDynamicInsn(
+				"apply",
+				"()Ljava/util/function/Function;",
+				new Handle(
+						H_INVOKESTATIC,
+						"java/lang/invoke/LambdaMetafactory",
+						"metafactory",
+						"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
+						false),
+				new Object[]{
+						Type.getType("(Ljava/lang/Object;)Ljava/lang/Object;"),
+						new Handle(
+								H_INVOKEVIRTUAL,
+								"java/lang/Class",
+								"getName",
+								"()Ljava/lang/String;", false),
+						Type.getType("(Ljava/lang/Class;)Ljava/lang/String;")
+				});
+		mv.visitMethodInsn(INVOKEINTERFACE, "java/util/stream/Stream", "map", "(Ljava/util/function/Function;)Ljava/util/stream/Stream;", true);
+		mv.visitLabel(new Label());
+		mv.visitMethodInsn(INVOKESTATIC, "java/util/stream/Collectors", "toList", "()Ljava/util/stream/Collector;", false);
+		mv.visitMethodInsn(INVOKEINTERFACE, "java/util/stream/Stream", "collect", "(Ljava/util/stream/Collector;)Ljava/lang/Object;", true);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/Object;)Ljava/lang/StringBuilder;", false);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
+		mv.visitLabel(new Label());
+		mv.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V", false);
+		mv.visitInsn(ATHROW);
+		Label lastLabel = new Label();
+		mv.visitLabel(lastLabel);
+		mv.visitLocalVariable("this", classAccessTypeDescriptor, null, firstLabel, lastLabel, 0);
+		mv.visitLocalVariable("name", "Ljava/lang/String;", null, firstLabel, lastLabel, 1);
+		mv.visitLocalVariable("parameterTypes", "[Ljava/lang/Class;", null, firstLabel, lastLabel, 2);
+		mv.visitMaxs(5, methodIndices.isEmpty() ? 3 : 4);
+		mv.visitEnd();
+	}
+	
+	private void visitMethodIndexReturnStatements(MethodNameReturnIndex methodIndex, Label defaultCaseLabel) {
+		Label jumpLabel = methodIndex.returnIndexLabel;
+		
+		List<MethodInfo> methods = methodIndex.methods;
+		for (int i = 0; i < methods.size(); i++) {
+			MethodInfo methodInfo = methods.get(i);
+			Class<?>[] parameterTypes = methodInfo.method.getParameterTypes();
+			
+			mv.visitLabel(jumpLabel);
+			mv.visitFrame(F_SAME, 0, null, 0, null);
+			mv.visitVarInsn(ALOAD, 2);
+			AsmUtils.visitZeroOperandInt(mv, parameterTypes.length);
+			mv.visitTypeInsn(ANEWARRAY, "java/lang/Class");
+			
+			for (int j = 0; j < parameterTypes.length; j++) {
+				mv.visitInsn(DUP);
+				AsmUtils.visitZeroOperandInt(mv, j);
+				
+				Class<?> parameterType = parameterTypes[j];
+				if (parameterType.isPrimitive()) {
+					mv.visitFieldInsn(
+							GETSTATIC,
+							Type.getInternalName(ClassUtils.primitiveToWrapper(parameterType)),
+							"TYPE",
+							"Ljava/lang/Class;");
+				} else {
+					mv.visitLdcInsn(Type.getType(parameterType));
+				}
+				
+				mv.visitInsn(AASTORE);
+			}
+			
+			mv.visitMethodInsn(INVOKESTATIC, "java/util/Arrays", "equals", "([Ljava/lang/Object;[Ljava/lang/Object;)Z", false);
+			
+			jumpLabel = i + 1 >= methods.size() ? defaultCaseLabel : new Label();
+			mv.visitJumpInsn(IFEQ, jumpLabel);
+			
+			mv.visitLabel(new Label());
+			AsmUtils.visitZeroOperandInt(mv, methodInfo.index);
+			mv.visitInsn(IRETURN);
+		}
 	}
 	
 	private void visitPropertyAccessMethods() {

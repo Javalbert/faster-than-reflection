@@ -22,15 +22,15 @@ import java.util.Date;
 
 import org.junit.Test;
 
-import com.github.javalbert.reflection.ClassAccess;
 import com.github.javalbert.reflection.ClassAccessFactory;
+import com.github.javalbert.reflection.PropertyAccess;
 
 public class ClassAccessGeneralPropertyAccessTest {
 	/* START Primitive types */
 	
 	@Test
 	public void getBooleanPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBooleanVal(true);
 		
@@ -41,7 +41,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void getBytePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setByteVal((byte)-21);
 		
@@ -52,7 +52,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void getCharPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setCharVal('.');
 		
@@ -63,7 +63,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void getDoublePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setDoubleVal(0.14753383239666462d);
 		
@@ -74,7 +74,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void getFloatPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setFloatVal(0.27210158f);
 		
@@ -85,7 +85,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void getIntPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setIntVal(1);
 
@@ -96,7 +96,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 
 	@Test
 	public void getLongPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setLongVal(3285927007071017350L);
 
@@ -107,7 +107,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void getShortPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setShortVal((short)-8406);
 
@@ -118,7 +118,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void setBooleanPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		boolean booleanVal = true;
 		
@@ -129,7 +129,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void setBytePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		byte byteVal = (byte)-21;
 		
@@ -140,7 +140,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void setCharPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		char charVal = '.';
 		
@@ -151,7 +151,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void setDoublePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		double doubleVal = 0.14753383239666462d;
 		
@@ -162,7 +162,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void setFloatPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		float floatVal = 0.27210158f;
 		
@@ -173,7 +173,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void setIntPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		int intVal = 1;
 
@@ -184,7 +184,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 
 	@Test
 	public void setLongPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		long longVal = 3285927007071017350L;
 
@@ -195,7 +195,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void setShortPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		short shortVal = (short)-8406;
 
@@ -210,7 +210,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void getBoxedBooleanPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedBoolean(true);
 		
@@ -221,7 +221,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void getBoxedBytePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedByte((byte)-55);
 		
@@ -232,7 +232,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void getBoxedCharPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedChar('\n');
 		
@@ -243,7 +243,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void getBoxedDoublePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedDouble(0.9553896885798474d);
 		
@@ -254,7 +254,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void getBoxedFloatPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedFloat(0.2747032f);
 		
@@ -265,7 +265,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void getBoxedIntPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedInt(274991538);
 
@@ -276,7 +276,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 
 	@Test
 	public void getBoxedLongPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedLong(6774924159498401640L);
 
@@ -287,7 +287,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void getBoxedShortPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBoxedShort((short)-31848);
 
@@ -298,7 +298,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void setBoxedBooleanPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Boolean boxedBoolean = true;
 		
@@ -309,7 +309,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void setBoxedBytePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Byte boxedByte = (byte)-55;
 		
@@ -320,7 +320,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void setBoxedCharPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Character boxedChar = '\n';
 		
@@ -331,7 +331,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void setBoxedDoublePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Double boxedDouble = 0.9553896885798474d;
 		
@@ -342,7 +342,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void setBoxedFloatPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Float boxedFloat = 0.2747032f;
 		
@@ -353,7 +353,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void setBoxedIntPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Integer boxedInt = 274991538;
 
@@ -364,7 +364,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 
 	@Test
 	public void setBoxedLongPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Long boxedLong = 6774924159498401640L;
 
@@ -375,7 +375,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void setBoxedShortPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Short boxedShort = (short)-31848;
 
@@ -390,7 +390,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void getBigDecimalPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBigDecimal(new BigDecimal("123.456"));
 		
@@ -401,7 +401,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void setBigDecimalPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		BigDecimal bigDecimal = new BigDecimal("123.456");
 		
@@ -412,7 +412,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void getDatePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setDate(new Date());
 		
@@ -423,7 +423,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void setDatePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Date date = new Date();
 		
@@ -434,7 +434,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void getLocalDatePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setLocalDate(LocalDate.now());
 		
@@ -445,7 +445,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void setLocalDatePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		LocalDate localDate = LocalDate.now();
 		
@@ -456,7 +456,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void getLocalDateTimePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setLocalDateTime(LocalDateTime.now());
 		
@@ -467,7 +467,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void setLocalDateTimePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		LocalDateTime localDateTime = LocalDateTime.now();
 		
@@ -478,7 +478,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void getStringPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setString("Pizza Hut");
 		
@@ -489,7 +489,7 @@ public class ClassAccessGeneralPropertyAccessTest {
 	
 	@Test
 	public void setStringPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		String string = "Pizza Hut";
 		
