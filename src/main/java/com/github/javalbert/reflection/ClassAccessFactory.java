@@ -47,13 +47,14 @@ import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.javalbert.reflection.utils.AsmUtils;
+import com.github.javalbert.bytecode.utils.AsmUtils;
 
 public final class ClassAccessFactory<T> {
 	@SuppressWarnings("rawtypes")
 	private static final Map<Class, ClassAccess> CLASS_ACCESS_MAP = new WeakHashMap<>();
 	private static final Logger LOGGER = LoggerFactory.getLogger(ClassAccessFactory.class);
-
+	private static final int MAX_METHOD_ACCESS_PARAMETER_COUNT = 3;
+	
 	private static final String MEMBER_TYPE_FIELD = "field";
 	private static final String MEMBER_TYPE_PROPERTY = "property";
 	
@@ -107,27 +108,9 @@ public final class ClassAccessFactory<T> {
 	private static Label[] getTableSwitchLabelsForAccess(
 			Label defaultCaseLabel,
 			List<? extends MemberInfo> members) {
-		List<Label> labels = new ArrayList<>();
-		
-		int currentMember = 0;
-		int memberIndex = members.get(0).memberIndex;
-		
-		int hi = members.get(members.size() - 1).memberIndex;
-		int lo = members.get(0).memberIndex;
-		
-		for (int i = lo; i <= hi; i++) {
-			MemberInfo member = members.get(currentMember);
-			
-			if (memberIndex < member.memberIndex) {
-				labels.add(defaultCaseLabel);
-				memberIndex++;
-			} else {
-				labels.add(new Label());
-				memberIndex = member.memberIndex + 1;
-				currentMember++;
-			}
-		}
-		return labels.stream().toArray(s -> new Label[s]);
+		return AsmUtils.getTableSwitchLabels(defaultCaseLabel, members.stream()
+				.mapToInt(m -> m.memberIndex)
+				.toArray());
 	}
 	
 	private static boolean isDescriptorDoubleOrLong(String descriptor) {
@@ -147,28 +130,10 @@ public final class ClassAccessFactory<T> {
 		object.setAccessible(true);
 	}
 	
-	/**
-	 * Use {@link MethodVisitor#visitTableSwitchInsn(int, int, Label, Label...)}
-	 * instead of {@link MethodVisitor#visitLookupSwitchInsn(Label, int[], Label[])}
-	 * @return
-	 */
 	private static boolean useTableSwitch(List<? extends MemberInfo> members) {
-		int hi = members.get(members.size() - 1).memberIndex;
-		int lo = members.get(0).memberIndex;
-		int nlabels = members.size();
-		
-		// CREDIT: http://stackoverflow.com/a/31032054
-		// CREDIT: http://hg.openjdk.java.net/jdk8/jdk8/langtools/file/30db5e0aaf83/src/share/classes/com/sun/tools/javac/jvm/Gen.java#l1153
-		// Determine whether to issue a tableswitch or a lookupswitch
-        // instruction.
-        long table_space_cost = 4 + ((long) hi - lo + 1); // words
-        long table_time_cost = 3; // comparisons
-        long lookup_space_cost = 3 + 2 * (long) nlabels;
-        long lookup_time_cost = nlabels;
-        return
-            nlabels > 0 &&
-            table_space_cost + 3 * table_time_cost <=
-            lookup_space_cost + 3 * lookup_time_cost;
+		return AsmUtils.useTableSwitch(members.stream()
+				.mapToInt(m -> m.memberIndex)
+				.toArray());
 	}
 	
 	private static class AccessInfo {
@@ -363,13 +328,13 @@ public final class ClassAccessFactory<T> {
 	
 	void buildClassAccessClass() {
 		visitClass();
-		visitDefaultConstructor();
+		AsmUtils.visitDefaultConstructor(cw, classAccessTypeDescriptor);
 		visitIndexMethod(MEMBER_TYPE_FIELD, getMemberIndexSwitchCases(fieldInfoList));
 		visitFieldAccessMethods();
 		visitIndexMethod(MEMBER_TYPE_PROPERTY, getMemberIndexSwitchCases(propertyInfoList));
 		visitPropertyAccessMethods();
 		visitMethodIndexMethod();
-//		visitMethodAccessMethods();
+		visitMethodAccessMethods();
 		cw.visitEnd();
 		AccessClassLoader.get(clazz).defineClass(getClassNameOfClassAccessFor(clazz), cw.toByteArray());
 	}
@@ -432,6 +397,19 @@ public final class ClassAccessFactory<T> {
 			memberIndexSwitchCases.add(new StringCaseReturnIndex(memberInfoList.get(i).name, i));
 		}
 		return memberIndexSwitchCases;
+	}
+	
+	private String getMethodAccessMethodDescriptor(int parameterCount) {
+		return getMethodAccessMethodDescriptor(parameterCount, classTypeDescriptor);
+	}
+	
+	private String getMethodAccessMethodDescriptor(int parameterCount, String typeDescriptor) {
+		StringBuilder desc = new StringBuilder("(" + typeDescriptor + "I");
+		for (int i = 0; i < parameterCount; i++) {
+			desc.append("Ljava/lang/Object;");
+		}
+		return desc.append(")Ljava/lang/Object;")
+				.toString();
 	}
 	
 	private List<MethodNameReturnIndex> getMethodIndexSwitchCases() {
@@ -826,21 +804,6 @@ public final class ClassAccessFactory<T> {
 		classTypeDescriptor = "L" + internalName + ";";
 	}
 	
-	private void visitDefaultConstructor() {
-		mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-		mv.visitCode();
-		Label l0 = new Label();
-		mv.visitLabel(l0);
-		mv.visitVarInsn(ALOAD, 0);
-		mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
-		mv.visitInsn(RETURN);
-		Label l1 = new Label();
-		mv.visitLabel(l1);
-		mv.visitLocalVariable("this", classAccessTypeDescriptor, null, l0, l1, 0);
-		mv.visitMaxs(1, 1);
-		mv.visitEnd();
-	}
-	
 	private void visitFieldAccessMethods() {
 		List<AccessInfo> fieldAccessInfoList = Collections.unmodifiableList(
 				Arrays.asList(
@@ -1151,8 +1114,79 @@ public final class ClassAccessFactory<T> {
 		mv.visitEnd();
 	}
 	
+	private void visitMethodAccessBridges() {
+		for (int i = 0; i < MAX_METHOD_ACCESS_PARAMETER_COUNT; i++) {
+			mv = cw.visitMethod(
+					ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC,
+					"call",
+					getMethodAccessMethodDescriptor(i, "Ljava/lang/Object;"),
+					null,
+					null);
+			mv.visitCode();
+			mv.visitLabel(new Label());
+			mv.visitVarInsn(ALOAD, 0);
+			mv.visitVarInsn(ALOAD, 1);
+			mv.visitTypeInsn(CHECKCAST, internalName);
+			mv.visitVarInsn(ILOAD, 2);
+			mv.visitMethodInsn(
+					INVOKEVIRTUAL,
+					classAccessInternalName,
+					"call",
+					getMethodAccessMethodDescriptor(i),
+					false);
+			mv.visitInsn(ARETURN);
+			mv.visitMaxs(3 + i, 3 + i);
+			mv.visitEnd();
+		}
+	}
+	
+	private void visitMethodAccessLastPart(Label firstLabel, int parameterCount) {
+		mv.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
+		mv.visitInsn(DUP);
+		mv.visitTypeInsn(NEW, "java/lang/StringBuilder");
+		mv.visitInsn(DUP);
+		mv.visitLdcInsn("No method with index ");
+		mv.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V", false);
+		mv.visitLabel(new Label());
+		mv.visitVarInsn(ILOAD, 2);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(I)Ljava/lang/StringBuilder;", false);
+		mv.visitLdcInsn(" with " + parameterCount + " parameter(s)");
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
+		mv.visitLabel(new Label());
+		mv.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V", false);
+		mv.visitInsn(ATHROW);
+		Label lastLabel = new Label();
+		mv.visitLabel(lastLabel);
+		mv.visitLocalVariable("this", classAccessTypeDescriptor, null, firstLabel, lastLabel, 0);
+		mv.visitLocalVariable("obj", classTypeDescriptor, null, firstLabel, lastLabel, 1);
+		mv.visitLocalVariable("methodIndex", "I", null, firstLabel, lastLabel, 2);
+		mv.visitMaxs(5, 3 + parameterCount);
+		mv.visitEnd();
+	}
+	
 	private void visitMethodAccessMethods() {
+		for (int i = 0; i < MAX_METHOD_ACCESS_PARAMETER_COUNT; i++) {
+			List<MethodInfo> methods = paramCountMethodsMap.get(i);
+			
+			mv = cw.visitMethod(
+					ACC_PUBLIC,
+					"call",
+					getMethodAccessMethodDescriptor(i),
+					null,
+					null);
+			mv.visitCode();
+			Label firstLabel = new Label();
+
+			mv.visitLabel(firstLabel);
+			mv.visitVarInsn(ILOAD, 2);
+			mv.visitInsn(POP);
+			mv.visitLabel(new Label());
+			
+			visitMethodAccessLastPart(firstLabel, i);
+		}
 		
+		visitMethodAccessBridges();
 	}
 	
 	private void visitMethodIndexMethod() {

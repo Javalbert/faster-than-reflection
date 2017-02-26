@@ -16,5 +16,6 @@ public interface MethodAccess<T> {
 	int methodIndex(String name, Class<?>... parameterTypes);
 	
 	Object call(T obj, int methodIndex);
-//	Object call(T obj, int methodIndex, Object arg0, Object arg1);
+	Object call(T obj, int methodIndex, Object arg0);
+	Object call(T obj, int methodIndex, Object arg0, Object arg1);
 }

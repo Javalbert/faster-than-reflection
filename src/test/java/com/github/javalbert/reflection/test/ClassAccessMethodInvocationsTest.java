@@ -23,11 +23,11 @@ import com.github.javalbert.reflection.MethodAccess;
 public class ClassAccessMethodInvocationsTest {
 	@Test
 	public void callMethodWithOneParameter() {
-//		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
-//		FooFactory factory = mock(FooFactory.class);
-//		
-//		access.call(factory, access.methodIndex("newInstance"));
-//		
-//		verify(factory).newInstance();
+		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
+		FooFactory factory = mock(FooFactory.class);
+		
+		access.call(factory, access.methodIndex("newInstance"));
+		
+		verify(factory).newInstance();
 	}
 }

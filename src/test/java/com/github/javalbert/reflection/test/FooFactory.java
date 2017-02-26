@@ -46,7 +46,38 @@ public interface FooFactory {
 		
 		@Override
 		public Object call(FooFactory obj, int methodIndex) {
-			return null;
+			switch (methodIndex) {
+//				case 0:
+//					return obj.newInstance();
+//				case 3:
+//					obj.zzz();
+//					return null;
+				default:
+					throw new IllegalArgumentException("No method with index " 
+							+ methodIndex + " with 0 parameter(s)");
+			}
+		}
+
+		@Override
+		public Object call(FooFactory obj, int methodIndex, Object arg0) {
+			switch (methodIndex) {
+				case 1:
+					return obj.newInstance((boolean)arg0);
+				default:
+					throw new IllegalArgumentException("No method with index " 
+							+ methodIndex + " with 1 parameter(s)");
+			}
+		}
+
+		@Override
+		public Object call(FooFactory obj, int methodIndex, Object arg0, Object arg1) {
+			switch (methodIndex) {
+				case 2:
+					return obj.newInstance((boolean)arg0, (byte)arg1);
+				default:
+					throw new IllegalArgumentException("No method with index " 
+							+ methodIndex + " with 2 parameter(s)");
+			}
 		}
 	}
 
