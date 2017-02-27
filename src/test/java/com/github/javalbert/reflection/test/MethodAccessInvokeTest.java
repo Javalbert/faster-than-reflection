@@ -1,20 +1,11 @@
-/*******************************************************************************
- * Copyright 2017 Albert Shun-Dat Chan
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
- * compliance with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is
- * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See
- * the License for the specific language governing permissions and limitations under the License.
- *******************************************************************************/
 package com.github.javalbert.reflection.test;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -26,32 +17,32 @@ import org.junit.Test;
 import com.github.javalbert.reflection.ClassAccessFactory;
 import com.github.javalbert.reflection.MethodAccess;
 
-public class ClassAccessMethodInvocationsTest {
+public class MethodAccessInvokeTest {
 	@Test
-	public void callMethodWithNoReturnValue() {
+	public void invokeMethodWithNoReturnValue() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		
-		Object nullRetVal = access.call(factory, access.methodIndex("zzz"));
+		Object nullRetVal = access.invoke(factory, access.methodIndex("zzz"));
 		
 		verify(factory).zzz();
 		assertThat(nullRetVal, nullValue());
 	}
 	
 	@Test
-	public void callMethodWith0Parameters() {
+	public void invokeMethodWith0Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		when(factory.newInstance()).thenReturn(new Foo());
 		
-		Object retVal = access.call(factory, access.methodIndex("newInstance"));
+		Object retVal = access.invoke(factory, access.methodIndex("newInstance"));
 		
 		verify(factory).newInstance();
 		assertThat(retVal, notNullValue());
 	}
 	
 	@Test
-	public void callMethodWith1Parameter() {
+	public void invokeMethodWith1Parameter() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		when(factory.newInstance(
@@ -62,7 +53,7 @@ public class ClassAccessMethodInvocationsTest {
 		int methodIndex = access.methodIndex(
 				"newInstance",
 				boolean.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true);
@@ -73,7 +64,7 @@ public class ClassAccessMethodInvocationsTest {
 	}
 	
 	@Test
-	public void callMethodWith2Parameters() {
+	public void invokeMethodWith2Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		when(factory.newInstance(
@@ -87,7 +78,7 @@ public class ClassAccessMethodInvocationsTest {
 				"newInstance",
 				boolean.class,
 				byte.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true,
@@ -100,7 +91,7 @@ public class ClassAccessMethodInvocationsTest {
 	}
 	
 	@Test
-	public void callMethodWith3Parameters() {
+	public void invokeMethodWith3Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		when(factory.newInstance(
@@ -117,7 +108,7 @@ public class ClassAccessMethodInvocationsTest {
 				boolean.class,
 				byte.class,
 				char.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true,
@@ -132,7 +123,7 @@ public class ClassAccessMethodInvocationsTest {
 	}
 	
 	@Test
-	public void callMethodWith4Parameters() {
+	public void invokeMethodWith4Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		when(factory.newInstance(
@@ -152,7 +143,7 @@ public class ClassAccessMethodInvocationsTest {
 				byte.class,
 				char.class,
 				double.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true,
@@ -169,7 +160,7 @@ public class ClassAccessMethodInvocationsTest {
 	}
 	
 	@Test
-	public void callMethodWith5Parameters() {
+	public void invokeMethodWith5Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		when(factory.newInstance(
@@ -192,7 +183,7 @@ public class ClassAccessMethodInvocationsTest {
 				char.class,
 				double.class,
 				float.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true,
@@ -211,7 +202,7 @@ public class ClassAccessMethodInvocationsTest {
 	}
 	
 	@Test
-	public void callMethodWith6Parameters() {
+	public void invokeMethodWith6Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		when(factory.newInstance(
@@ -237,7 +228,7 @@ public class ClassAccessMethodInvocationsTest {
 				double.class,
 				float.class,
 				int.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true,
@@ -258,7 +249,7 @@ public class ClassAccessMethodInvocationsTest {
 	}
 	
 	@Test
-	public void callMethodWith7Parameters() {
+	public void invokeMethodWith7Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		when(factory.newInstance(
@@ -287,7 +278,7 @@ public class ClassAccessMethodInvocationsTest {
 				float.class,
 				int.class,
 				long.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true,
@@ -310,7 +301,7 @@ public class ClassAccessMethodInvocationsTest {
 	}
 	
 	@Test
-	public void callMethodWith8Parameters() {
+	public void invokeMethodWith8Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		when(factory.newInstance(
@@ -342,7 +333,7 @@ public class ClassAccessMethodInvocationsTest {
 				int.class,
 				long.class,
 				short.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true,
@@ -367,7 +358,7 @@ public class ClassAccessMethodInvocationsTest {
 	}
 	
 	@Test
-	public void callMethodWith9Parameters() {
+	public void invokeMethodWith9Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		when(factory.newInstance(
@@ -402,7 +393,7 @@ public class ClassAccessMethodInvocationsTest {
 				long.class,
 				short.class,
 				Boolean.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true,
@@ -429,7 +420,7 @@ public class ClassAccessMethodInvocationsTest {
 	}
 	
 	@Test
-	public void callMethodWith10Parameters() {
+	public void invokeMethodWith10Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		when(factory.newInstance(
@@ -467,7 +458,7 @@ public class ClassAccessMethodInvocationsTest {
 				short.class,
 				Boolean.class,
 				Byte.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true,
@@ -496,7 +487,7 @@ public class ClassAccessMethodInvocationsTest {
 	}
 	
 	@Test
-	public void callMethodWith11Parameters() {
+	public void invokeMethodWith11Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		when(factory.newInstance(
@@ -537,7 +528,7 @@ public class ClassAccessMethodInvocationsTest {
 				Boolean.class,
 				Byte.class,
 				Character.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true,
@@ -568,7 +559,7 @@ public class ClassAccessMethodInvocationsTest {
 	}
 	
 	@Test
-	public void callMethodWith12Parameters() {
+	public void invokeMethodWith12Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		when(factory.newInstance(
@@ -612,7 +603,7 @@ public class ClassAccessMethodInvocationsTest {
 				Byte.class,
 				Character.class,
 				Double.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true,
@@ -645,7 +636,7 @@ public class ClassAccessMethodInvocationsTest {
 	}
 	
 	@Test
-	public void callMethodWith13Parameters() {
+	public void invokeMethodWith13Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		when(factory.newInstance(
@@ -692,7 +683,7 @@ public class ClassAccessMethodInvocationsTest {
 				Character.class,
 				Double.class,
 				Float.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true,
@@ -727,7 +718,7 @@ public class ClassAccessMethodInvocationsTest {
 	}
 	
 	@Test
-	public void callMethodWith14Parameters() {
+	public void invokeMethodWith14Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		when(factory.newInstance(
@@ -777,7 +768,7 @@ public class ClassAccessMethodInvocationsTest {
 				Double.class,
 				Float.class,
 				Integer.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true,
@@ -814,7 +805,7 @@ public class ClassAccessMethodInvocationsTest {
 	}
 	
 	@Test
-	public void callMethodWith15Parameters() {
+	public void invokeMethodWith15Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		when(factory.newInstance(
@@ -867,7 +858,7 @@ public class ClassAccessMethodInvocationsTest {
 				Float.class,
 				Integer.class,
 				Long.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true,
@@ -906,7 +897,7 @@ public class ClassAccessMethodInvocationsTest {
 	}
 	
 	@Test
-	public void callMethodWith16Parameters() {
+	public void invokeMethodWith16Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		when(factory.newInstance(
@@ -962,7 +953,7 @@ public class ClassAccessMethodInvocationsTest {
 				Integer.class,
 				Long.class,
 				Short.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true,
@@ -1003,7 +994,7 @@ public class ClassAccessMethodInvocationsTest {
 	}
 	
 	@Test
-	public void callMethodWith17Parameters() {
+	public void invokeMethodWith17Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		when(factory.newInstance(
@@ -1062,7 +1053,7 @@ public class ClassAccessMethodInvocationsTest {
 				Long.class,
 				Short.class,
 				BigDecimal.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true,
@@ -1105,7 +1096,7 @@ public class ClassAccessMethodInvocationsTest {
 	}
 	
 	@Test
-	public void callMethodWith18Parameters() {
+	public void invokeMethodWith18Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		Date date = new Date();
@@ -1168,7 +1159,7 @@ public class ClassAccessMethodInvocationsTest {
 				Short.class,
 				BigDecimal.class,
 				Date.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true,
@@ -1213,7 +1204,7 @@ public class ClassAccessMethodInvocationsTest {
 	}
 	
 	@Test
-	public void callMethodWith19Parameters() {
+	public void invokeMethodWith19Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		Date date = new Date();
@@ -1280,7 +1271,7 @@ public class ClassAccessMethodInvocationsTest {
 				BigDecimal.class,
 				Date.class,
 				LocalDate.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true,
@@ -1327,7 +1318,7 @@ public class ClassAccessMethodInvocationsTest {
 	}
 	
 	@Test
-	public void callMethodWith20Parameters() {
+	public void invokeMethodWith20Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		Date date = new Date();
@@ -1398,7 +1389,7 @@ public class ClassAccessMethodInvocationsTest {
 				Date.class,
 				LocalDate.class,
 				LocalDateTime.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true,
@@ -1447,7 +1438,7 @@ public class ClassAccessMethodInvocationsTest {
 	}
 	
 	@Test
-	public void callMethodWith21Parameters() {
+	public void invokeMethodWith21Parameters() {
 		MethodAccess<FooFactory> access = ClassAccessFactory.get(FooFactory.class);
 		FooFactory factory = mock(FooFactory.class);
 		Date date = new Date();
@@ -1521,7 +1512,7 @@ public class ClassAccessMethodInvocationsTest {
 				LocalDate.class,
 				LocalDateTime.class,
 				String.class);
-		Object retVal = access.call(
+		Object retVal = access.invoke(
 				factory,
 				methodIndex,
 				true,

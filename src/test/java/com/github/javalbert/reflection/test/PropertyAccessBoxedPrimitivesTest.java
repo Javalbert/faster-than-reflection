@@ -20,7 +20,7 @@ import org.junit.Test;
 import com.github.javalbert.reflection.ClassAccessFactory;
 import com.github.javalbert.reflection.PropertyAccess;
 
-public class ClassAccessBoxedPrimitivePropertiesTest {
+public class PropertyAccessBoxedPrimitivesTest {
 	@Test
 	public void getBoxedBooleanPropertyValueAndVerify() {
 		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);

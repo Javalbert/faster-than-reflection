@@ -15,6 +15,8 @@ package com.github.javalbert.reflection;
 public interface MethodAccess<T> {
 	int methodIndex(String name, Class<?>... parameterTypes);
 	
+	Object invoke(T obj, int methodIndex, Object... args);
+	
 	Object call(T obj, int methodIndex);
 	Object call(T obj, int methodIndex, Object arg0);
 	Object call(T obj, int methodIndex, Object arg0, Object arg1);

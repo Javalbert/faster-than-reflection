@@ -25,7 +25,7 @@ import org.junit.Test;
 import com.github.javalbert.reflection.ClassAccessFactory;
 import com.github.javalbert.reflection.FieldAccess;
 
-public class ClassAccessGeneralFieldAccessTest {
+public class FieldAccessGeneralTest {
 	/* START Primitive types */
 	
 	@Test

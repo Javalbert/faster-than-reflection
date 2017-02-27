@@ -40,7 +40,21 @@ public interface FooFactory {
 //			throw new IllegalArgumentException("No method called " + name 
 //					+ " with parameters " + Arrays.stream(parameterTypes)
 //					.map(Class::getName)
-//					.collect(toList()));
+//					.collect(Collectors.toList()));
+//		}
+//
+//		@Override
+//		public Object invoke(FooFactory obj, int methodIndex, Object... args) {
+//			switch (methodIndex) {
+//				case 0:
+//					return obj.newInstance();
+//				case 1:
+//					return obj.newInstance((boolean)args[0]);
+//				case 2:
+//					return obj.newInstance((boolean)args[0], (byte)args[1]);
+//				default:
+//					throw new IllegalArgumentException("No method with index: " + methodIndex);
+//			}
 //		}
 //		
 //		@Override
