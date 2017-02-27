@@ -26,7 +26,7 @@
 	</licenses>
 	
 	<name>FasterThanReflection</name>
-	<description></description>
+	<description>High performance field, property, and method access using bytecode generation</description>
 	
 	<properties>
 		
