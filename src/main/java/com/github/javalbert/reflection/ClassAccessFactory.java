@@ -280,7 +280,8 @@ public final class ClassAccessFactory<T> {
 		
 		private MethodInfo(Method method, int index) {
 			super(method.getName(), index, Type.getMethodDescriptor(method));
-			invokeOpcode = Modifier.isStatic(method.getModifiers()) ? INVOKESTATIC : INVOKEVIRTUAL;
+			invokeOpcode = method.getDeclaringClass().isInterface() ? INVOKEINTERFACE
+					: Modifier.isStatic(method.getModifiers()) ? INVOKESTATIC : INVOKEVIRTUAL;
 			this.method = method;
 			parameterCount = method.getParameterCount();
 			parameters = Collections.unmodifiableList(
