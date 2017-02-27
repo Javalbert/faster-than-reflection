@@ -69,4 +69,4 @@ This is a one-man project but feel free to fork.
 ## Acknowledgments
 
 * [ReflectASM](https://github.com/EsotericSoftware/reflectasm), main inspiration, AccessClassLoader.java
-* dimzon's [fork](https://github.com/dimzon/reflectasm) of ReflectASM, where I figured out how his changes can access private members (which is a limitation of ReflectASM)
+* dimzon's [fork](https://github.com/dimzon/reflectasm) of ReflectASM, where I figured out how his changes allow access to private class members (which is a limitation of ReflectASM)
