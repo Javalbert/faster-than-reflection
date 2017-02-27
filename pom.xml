@@ -39,9 +39,10 @@
 		
 		<!-- START Test Properties -->
 		
-		<jacoco.coveredratio>0.50</jacoco.coveredratio>
+		<jacoco.coveredratio>0.60</jacoco.coveredratio>
 		<jacoco.version>0.7.8</jacoco.version>
 		<junit.version>4.12</junit.version>
+		<mockito.version>1.10.19</mockito.version>
 		<surefire-plugin.version>2.19.1</surefire-plugin.version>
 		
 		<!-- END Test Properties -->
@@ -75,6 +76,13 @@
 		    <artifactId>junit</artifactId>
 		    <version>${junit.version}</version>
 			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.mockito</groupId>
+		    <artifactId>mockito-all</artifactId>
+		    <version>${mockito.version}</version>
+		    <scope>test</scope>
 		</dependency>
 		
 		<dependency>
@@ -114,7 +122,7 @@
 							<relocations>
 								<relocation>
 									<pattern>org.objectweb.asm</pattern>
-									<shadedPattern>com.github.javalbert.org.objectweb.asm</shadedPattern>
+									<shadedPattern>com.github.javalbert.asm</shadedPattern>
 								</relocation>
 							</relocations>
 						</configuration>

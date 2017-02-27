@@ -12,8 +12,8 @@
  *******************************************************************************/
 package com.github.javalbert.reflection.test;
 
-import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,15 +22,16 @@ import java.util.Date;
 
 import org.junit.Test;
 
-import com.github.javalbert.reflection.ClassAccess;
 import com.github.javalbert.reflection.ClassAccessFactory;
+import com.github.javalbert.reflection.FieldAccess;
+import com.github.javalbert.reflection.PropertyAccess;
 
 public class ClassAccessCommonReferenceTypesTest {
 	/* START Fields */
 	
 	@Test
 	public void getBigDecimalFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBigDecimal(new BigDecimal("123.456"));
 		
@@ -41,7 +42,7 @@ public class ClassAccessCommonReferenceTypesTest {
 	
 	@Test
 	public void setBigDecimalFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		BigDecimal bigDecimal = new BigDecimal("123.456");
 		
@@ -52,7 +53,7 @@ public class ClassAccessCommonReferenceTypesTest {
 	
 	@Test
 	public void getDateFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setDate(new Date());
 		
@@ -63,7 +64,7 @@ public class ClassAccessCommonReferenceTypesTest {
 	
 	@Test
 	public void setDateFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Date date = new Date();
 		
@@ -74,7 +75,7 @@ public class ClassAccessCommonReferenceTypesTest {
 	
 	@Test
 	public void getLocalDateFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setLocalDate(LocalDate.now());
 		
@@ -85,7 +86,7 @@ public class ClassAccessCommonReferenceTypesTest {
 	
 	@Test
 	public void setLocalDateFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		LocalDate localDate = LocalDate.now();
 		
@@ -96,7 +97,7 @@ public class ClassAccessCommonReferenceTypesTest {
 	
 	@Test
 	public void getLocalDateTimeFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setLocalDateTime(LocalDateTime.now());
 		
@@ -107,7 +108,7 @@ public class ClassAccessCommonReferenceTypesTest {
 	
 	@Test
 	public void setLocalDateTimeFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		LocalDateTime localDateTime = LocalDateTime.now();
 		
@@ -118,7 +119,7 @@ public class ClassAccessCommonReferenceTypesTest {
 	
 	@Test
 	public void getStringFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setString("Pizza Hut");
 		
@@ -129,7 +130,7 @@ public class ClassAccessCommonReferenceTypesTest {
 	
 	@Test
 	public void setStringFieldValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		FieldAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		String string = "Pizza Hut";
 		
@@ -144,7 +145,7 @@ public class ClassAccessCommonReferenceTypesTest {
 	
 	@Test
 	public void getBigDecimalPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setBigDecimal(new BigDecimal("123.456"));
 		
@@ -155,7 +156,7 @@ public class ClassAccessCommonReferenceTypesTest {
 	
 	@Test
 	public void setBigDecimalPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		BigDecimal bigDecimal = new BigDecimal("123.456");
 		
@@ -166,7 +167,7 @@ public class ClassAccessCommonReferenceTypesTest {
 	
 	@Test
 	public void getDatePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setDate(new Date());
 		
@@ -177,7 +178,7 @@ public class ClassAccessCommonReferenceTypesTest {
 	
 	@Test
 	public void setDatePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		Date date = new Date();
 		
@@ -188,7 +189,7 @@ public class ClassAccessCommonReferenceTypesTest {
 	
 	@Test
 	public void getLocalDatePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setLocalDate(LocalDate.now());
 		
@@ -199,7 +200,7 @@ public class ClassAccessCommonReferenceTypesTest {
 	
 	@Test
 	public void setLocalDatePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		LocalDate localDate = LocalDate.now();
 		
@@ -210,7 +211,7 @@ public class ClassAccessCommonReferenceTypesTest {
 	
 	@Test
 	public void getLocalDateTimePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setLocalDateTime(LocalDateTime.now());
 		
@@ -221,7 +222,7 @@ public class ClassAccessCommonReferenceTypesTest {
 	
 	@Test
 	public void setLocalDateTimePropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		LocalDateTime localDateTime = LocalDateTime.now();
 		
@@ -232,7 +233,7 @@ public class ClassAccessCommonReferenceTypesTest {
 	
 	@Test
 	public void getStringPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		obj.setString("Pizza Hut");
 		
@@ -243,7 +244,7 @@ public class ClassAccessCommonReferenceTypesTest {
 	
 	@Test
 	public void setStringPropertyValueAndVerify() {
-		ClassAccess<Foo> access = ClassAccessFactory.get(Foo.class);
+		PropertyAccess<Foo> access = ClassAccessFactory.get(Foo.class);
 		Foo obj = new Foo();
 		String string = "Pizza Hut";
 		
