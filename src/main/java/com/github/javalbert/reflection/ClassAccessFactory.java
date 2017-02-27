@@ -252,8 +252,8 @@ public final class ClassAccessFactory<T> {
 					fieldIndex,
 					field.getType()
 					);
-			getFieldOpcode = (field.getModifiers() & Modifier.STATIC) == 0 ? GETFIELD : GETSTATIC;
-			setFieldOpcode = (field.getModifiers() & Modifier.STATIC) == 0 ? PUTFIELD : PUTSTATIC;
+			getFieldOpcode = Modifier.isStatic(field.getModifiers()) ? GETSTATIC : GETFIELD;
+			setFieldOpcode = Modifier.isStatic(field.getModifiers()) ? PUTSTATIC : PUTFIELD;
 		}
 	}
 	
@@ -273,12 +273,15 @@ public final class ClassAccessFactory<T> {
 	}
 	
 	private static class MethodInfo extends MemberInfo {
+		private final int invokeOpcode;
 		private final Method method;
 		private final int parameterCount;
 		private final List<ParameterInfo> parameters;
 		
 		private MethodInfo(Method method, int index) {
 			super(method.getName(), index, Type.getMethodDescriptor(method));
+			invokeOpcode = method.getDeclaringClass().isInterface() ? INVOKEINTERFACE
+					: Modifier.isStatic(method.getModifiers()) ? INVOKESTATIC : INVOKEVIRTUAL;
 			this.method = method;
 			parameterCount = method.getParameterCount();
 			parameters = Collections.unmodifiableList(
@@ -1293,7 +1296,7 @@ public final class ClassAccessFactory<T> {
 			}
 			
 			mv.visitMethodInsn(
-					INVOKEINTERFACE,
+					methodInfo.invokeOpcode,
 					internalName,
 					methodInfo.name,
 					methodInfo.descriptor,
@@ -1424,7 +1427,7 @@ public final class ClassAccessFactory<T> {
 			}
 			
 			mv.visitMethodInsn(
-					INVOKEINTERFACE,
+					methodInfo.invokeOpcode,
 					internalName,
 					methodInfo.name,
 					methodInfo.descriptor,
