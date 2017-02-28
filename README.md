@@ -62,6 +62,23 @@ methodAccess.call(fooFactory, methodIndex, true, 1337); // i.e. fooFactory.newIn
 methodAccess.invoke(fooFactory, someCrazyMethod, (Object[])lotsOfVarargs);
 ```
 
+## Performance
+
+JMH benchmark code can be found in [faster-than-reflection-benchmark](faster-than-reflection-benchmark) folder in the root of this project.
+
+Test machine: Intel Core i7-4790k
+
+### Field Access
+
+|Benchmark|Mode|Samples|Score|Score error|Units|
+|-|-|-:|-:|-:|-|
+|Direct|avgt|200|0.714|0.002|ns/op|
+|FasterThanReflection|avgt|200|1.070|0.002|ns/op|
+|Reflection API|avgt|200|3.037|0.007|ns/op|
+<!---
+| | | | | | |
+--->
+
 ## Contributing
 
 This is a one-man project but feel free to fork.
