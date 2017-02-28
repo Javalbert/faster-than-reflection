@@ -70,13 +70,13 @@ Test machine: Intel Core i7-4790k
 
 ### Field Access
 
-|Benchmark|Mode|Samples|Score|Score error|Units|
-|-|-|-:|-:|-:|-|
-|Direct|avgt|200|0.714|0.002|ns/op|
-|FasterThanReflection|avgt|200|1.070|0.002|ns/op|
-|Reflection API|avgt|200|3.037|0.007|ns/op|
+| Benchmark | Mode | Samples | Score | Score error | Units |
+|---|---|---:|---:|---:|---|
+| Direct | avgt | 200 | 0.714 | 0.002 | ns/op |
+| FasterThanReflection | avgt | 200 | 1.070 | 0.002 | ns/op |
+| Reflection API | avgt | 200 | 3.037 | 0.007 | ns/op |
 <!---
-| | | | | | |
+|  |  |  |  |  |  |
 --->
 
 ## Contributing
