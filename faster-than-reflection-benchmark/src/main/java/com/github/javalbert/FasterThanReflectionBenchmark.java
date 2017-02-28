@@ -42,10 +42,10 @@ public class FasterThanReflectionBenchmark {
 		public int fieldIndex;
 		
 		@Setup(Level.Trial)
-        public void doSetup() {
+		public void doSetup() {
 			fieldAccess = ClassAccessFactory.get(Foo.class);
 			fieldIndex = fieldAccess.fieldIndex("intVal");
-        }
+		}
 	}
 	
 	@State(Scope.Thread)
@@ -54,37 +54,37 @@ public class FasterThanReflectionBenchmark {
 		public Field intValField;
 		
 		@Setup(Level.Trial)
-        public void doSetup() {
-            try {
+		public void doSetup() {
+			try {
 				intValField = Foo.class.getDeclaredField("intVal");
-	            intValField.setAccessible(true);
+				intValField.setAccessible(true);
 			} catch (NoSuchFieldException | SecurityException e) {
 				throw new RuntimeException(e);
 			}
-        }
+		}
 	}
 	
 	@OutputTimeUnit(TimeUnit.NANOSECONDS)
 	@BenchmarkMode(Mode.AverageTime)
-    @Benchmark
-    public int testFieldAccessDirect(FieldAccessDirectState state) {
-    	return state.foo.intVal;
-    }
+	@Benchmark
+	public int testFieldAccessDirect(FieldAccessDirectState state) {
+		return state.foo.intVal;
+	}
 	
 	@OutputTimeUnit(TimeUnit.NANOSECONDS)
 	@BenchmarkMode(Mode.AverageTime)
-    @Benchmark
-    public int testFieldAccessFasterThanReflection(FieldAccessFasterThanReflectionState state) {
-    	return state.fieldAccess.getIntField(state.foo, state.fieldIndex);
-    }
+	@Benchmark
+	public int testFieldAccessFasterThanReflection(FieldAccessFasterThanReflectionState state) {
+		return state.fieldAccess.getIntField(state.foo, state.fieldIndex);
+	}
 	
 	@OutputTimeUnit(TimeUnit.NANOSECONDS)
 	@BenchmarkMode(Mode.AverageTime)
-    @Benchmark
-    public int testFieldAccessReflectionApi(FieldAccessReflectionApiState state)
-    		throws IllegalArgumentException, IllegalAccessException {
+	@Benchmark
+	public int testFieldAccessReflectionApi(FieldAccessReflectionApiState state)
+			throws IllegalArgumentException, IllegalAccessException {
 		return state.intValField.getInt(state.foo);
-    }
+	}
 	
 	/* END Field access */
 }
