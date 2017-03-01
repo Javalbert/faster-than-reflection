@@ -16,7 +16,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.javalbert</groupId>
 	<artifactId>faster-than-reflection</artifactId>
-	<version>0.1.0</version>
+	<version>1.0.0</version>
 	
 	<licenses>
 		<license>
@@ -27,14 +27,20 @@
 	
 	<name>FasterThanReflection</name>
 	<description>High performance field, property, and method access using bytecode generation</description>
+	<url>https://github.com/javalbert/faster-than-reflection</url>
 	
 	<properties>
 		
+    	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    	
 		<asm.version>5.2</asm.version>
 		<commons-lang.version>3.5</commons-lang.version>
 		<jdk.version>1.8</jdk.version>
 		<maven-compiler.version>3.6.0</maven-compiler.version>
+		<maven-gpg.version>1.6</maven-gpg.version>
+		<maven-javadoc.version>2.10.4</maven-javadoc.version>
 		<maven-shade.version>2.4.3</maven-shade.version>
+		<maven-source.version>3.0.1</maven-source.version>
 		<slf4j.version>1.7.22</slf4j.version>
 		
 		<!-- START Test Properties -->
@@ -183,20 +189,73 @@
 				</executions>
 			</plugin>
 			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>${maven-source.version}</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>${maven-javadoc.version}</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>${maven-gpg.version}</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
 	
 	<scm>
-		<url>https://github.com/javalbert/faster-than-reflection</url>
-		<connection>scm:git:http://github.com/javalbert/faster-than-reflection.git</connection>
-		<developerConnection>scm:git:git@github.com:javalbert/faster-than-reflection.git</developerConnection>
+		<url>https://github.com/javalbert/faster-than-reflection/tree/master</url>
+		<connection>scm:git:git://github.com/javalbert/faster-than-reflection.git</connection>
+		<developerConnection>scm:git:ssh://github.com:javalbert/faster-than-reflection.git</developerConnection>
 	</scm>
 	
 	<developers>
 		<developer>
 			<name>Albert Shun-Dat Chan</name>
 			<email>albert.shun.dat.chan@gmail.com</email>
+			<organization>Albert Shun-Dat Chan</organization>
 			<organizationUrl>https://github.com/javalbert</organizationUrl>
 		</developer>
 	</developers>
+	
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
 </project>
