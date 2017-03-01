@@ -1,6 +1,11 @@
 /.settings/
+/faster-than-reflection-benchmark/.settings/
+/faster-than-reflection-benchmark/target/
+/faster-than-reflection-benchmark/.classpath
+/faster-than-reflection-benchmark/.project
 /target/
 /.classpath
 /.project
 /dependency-reduced-pom.xml
 /hs_err_pid*
+/replay_pid*
