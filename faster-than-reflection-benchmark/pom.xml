@@ -37,10 +37,22 @@
             <version>${jmh.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.github.javalbert</groupId>
-            <artifactId>faster-than-reflection</artifactId>
-            <version>${faster-than-reflection.version}</version>
+		<dependency>
+		    <groupId>com.esotericsoftware</groupId>
+		    <artifactId>reflectasm</artifactId>
+		    <version>${reflectasm.version}</version>
+			<classifier>shaded</classifier>
+			<exclusions>
+				<exclusion>
+					<groupId>org.ow2.asm</groupId>
+					<artifactId>asm</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.github.javalbert</groupId>
+			<artifactId>faster-than-reflection</artifactId>
+			<version>${faster-than-reflection.version}</version>
 		</dependency>
 		<dependency>
 		    <groupId>org.slf4j</groupId>
@@ -55,6 +67,7 @@
         <javac.target>1.8</javac.target>
         <uberjar.name>benchmarks</uberjar.name>
         <faster-than-reflection.version>0.1.0</faster-than-reflection.version>
+        <reflectasm.version>1.11.3</reflectasm.version>
         <slf4j.version>1.7.24</slf4j.version>
     </properties>
 

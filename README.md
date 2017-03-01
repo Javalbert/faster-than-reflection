@@ -66,15 +66,18 @@ methodAccess.invoke(fooFactory, someCrazyMethod, (Object[])lotsOfVarargs);
 
 JMH benchmark code can be found in [faster-than-reflection-benchmark](faster-than-reflection-benchmark) folder in the root of this project.
 
-Test machine: Intel Core i7-4790k
-
-### Field Access
+Test environment: Intel Core i7-4790k, Windows 10 x64 + High Performance Power Plan, Java version "1.8.0_121" Java Hotspot(TM) 64-Bit Server VM (build 25.121-b13, mixed mode)
 
 | Benchmark | Mode | Samples | Score | Score error | Units |
 |---|---|---:|---:|---:|---|
-| Direct | avgt | 200 | 0.714 | 0.002 | ns/op |
-| FasterThanReflection | avgt | 200 | 1.070 | 0.002 | ns/op |
-| Reflection API | avgt | 200 | 3.037 | 0.007 | ns/op |
+| testFieldAccessDirect | avgt | 200 | 0.686 | 0.001 | ns/op |
+| testFieldAccessFasterThanReflection | avgt | 200 | 1.028 | 0.002 | ns/op |
+| testFieldAccessReflectAsm | avgt | 200 | 0.912 | 0.001 | ns/op |
+| testFieldAccessReflectionApi | avgt | 200 | 2.901 | 0.002 | ns/op |
+| testPropertyAccessDirect | avgt | 200 | 0.685 | 0.001 | ns/op |
+| testPropertyAccessFasterThanReflection | avgt | 200 | 1.027 | 0.002 | ns/op |
+| testPropertyAccessReflectAsm | avgt | 200 | 1.301 | 0.025 | ns/op |
+| testPropertyAccessReflectionApi | avgt | 200 | 4.026 | 0.006 | ns/op |
 <!---
 |  |  |  |  |  |  |
 --->
