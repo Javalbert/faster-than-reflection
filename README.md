@@ -13,6 +13,18 @@ Mainly inspired by [ReflectASM library](https://github.com/EsotericSoftware/refl
 - Not a reinvention of Reflection API (but faster field, property and method access)
 - Uses `new ClassWriter(0)` for best performance, instead of `new ClassWriter(ClassWriter.COMPUTE_MAXS)` (10% slower) or `new ClassWriter(ClassWriter.COMPUTE_FRAMES)` (2x slower)
 
+## Installation
+
+Maven
+
+```xml
+<dependency>
+    <groupId>com.github.javalbert</groupId>
+    <artifactId>faster-than-reflection</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
 ## Usage
 
 Retrieve an instance of ClassAccess.
