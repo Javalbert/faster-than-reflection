@@ -66,7 +66,7 @@
         <jmh.version>1.0</jmh.version>
         <javac.target>1.8</javac.target>
         <uberjar.name>benchmarks</uberjar.name>
-        <faster-than-reflection.version>0.1.0</faster-than-reflection.version>
+        <faster-than-reflection.version>1.0.0</faster-than-reflection.version>
         <reflectasm.version>1.11.3</reflectasm.version>
         <slf4j.version>1.7.24</slf4j.version>
     </properties>
